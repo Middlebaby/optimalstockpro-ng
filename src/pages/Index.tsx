@@ -5,6 +5,7 @@ import Features from "@/components/landing/Features";
 import Pricing from "@/components/landing/Pricing";
 import Testimonials from "@/components/landing/Testimonials";
 import FAQ from "@/components/landing/FAQ";
+import ContactForm from "@/components/landing/ContactForm";
 import CTA from "@/components/landing/CTA";
 import Footer from "@/components/landing/Footer";
 
@@ -19,6 +20,7 @@ const Index = () => {
         <Pricing />
         <Testimonials />
         <FAQ />
+        <ContactForm />
         <CTA />
       </main>
       <Footer />

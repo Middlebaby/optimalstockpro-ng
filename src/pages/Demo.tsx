@@ -10,13 +10,24 @@ import {
   BookOpen,
   Home,
   Menu,
-  X,
   Bell,
-  Search
+  Search,
+  FolderKanban,
+  ArrowRightLeft,
+  Wrench,
+  ShoppingCart,
+  ChevronDown,
+  ChevronRight
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
 import { motion, AnimatePresence } from "framer-motion";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 
 import DashboardView from "@/components/demo/DashboardView";
 import MasterInventory from "@/components/demo/MasterInventory";
@@ -25,19 +36,30 @@ import OutgoingStock from "@/components/demo/OutgoingStock";
 import Suppliers from "@/components/demo/Suppliers";
 import Reports from "@/components/demo/Reports";
 import SetupGuide from "@/components/demo/SetupGuide";
+import Projects from "@/components/demo/Projects";
+import StoreTransfers from "@/components/demo/StoreTransfers";
+import Equipment from "@/components/demo/Equipment";
+import PurchaseOrders from "@/components/demo/PurchaseOrders";
 
 const Demo = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [proFeaturesOpen, setProFeaturesOpen] = useState(true);
 
-  const navItems = [
+  const basicNavItems = [
     { id: "dashboard", label: "Dashboard", icon: Home },
     { id: "inventory", label: "Master Inventory", icon: Package },
     { id: "incoming", label: "Incoming Stock", icon: ArrowDownCircle },
     { id: "outgoing", label: "Outgoing Stock", icon: ArrowUpCircle },
     { id: "suppliers", label: "Suppliers", icon: Users },
     { id: "reports", label: "Reports", icon: FileText },
-    { id: "setup", label: "Setup Guide", icon: BookOpen },
+  ];
+
+  const proNavItems = [
+    { id: "projects", label: "Projects", icon: FolderKanban },
+    { id: "transfers", label: "Store Transfers", icon: ArrowRightLeft },
+    { id: "equipment", label: "Equipment & Tools", icon: Wrench },
+    { id: "purchase-orders", label: "Purchase Orders", icon: ShoppingCart },
   ];
 
   const renderContent = () => {
@@ -56,10 +78,20 @@ const Demo = () => {
         return <Reports />;
       case "setup":
         return <SetupGuide />;
+      case "projects":
+        return <Projects />;
+      case "transfers":
+        return <StoreTransfers />;
+      case "equipment":
+        return <Equipment />;
+      case "purchase-orders":
+        return <PurchaseOrders />;
       default:
         return <DashboardView />;
     }
   };
+
+  const isProFeature = proNavItems.some(item => item.id === activeTab);
 
   return (
     <div className="min-h-screen bg-background">
@@ -124,12 +156,16 @@ const Demo = () => {
 
       {/* Sidebar */}
       <aside
-        className={`fixed top-16 left-0 bottom-0 w-64 bg-card border-r border-border z-40 transform transition-transform duration-300 lg:translate-x-0 ${
+        className={`fixed top-16 left-0 bottom-0 w-64 bg-card border-r border-border z-40 transform transition-transform duration-300 lg:translate-x-0 overflow-y-auto ${
           sidebarOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
         <nav className="p-4 space-y-1">
-          {navItems.map((item) => (
+          {/* Basic Features Section */}
+          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-4 mb-2">
+            Basic Features
+          </p>
+          {basicNavItems.map((item) => (
             <button
               key={item.id}
               onClick={() => {
@@ -146,6 +182,60 @@ const Demo = () => {
               <span className="font-medium">{item.label}</span>
             </button>
           ))}
+
+          {/* Professional Features Section */}
+          <div className="pt-4">
+            <Collapsible open={proFeaturesOpen} onOpenChange={setProFeaturesOpen}>
+              <CollapsibleTrigger className="w-full flex items-center justify-between px-4 py-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider hover:text-foreground transition-colors">
+                <div className="flex items-center gap-2">
+                  Professional Features
+                  <Badge variant="outline" className="text-[10px] px-1.5 py-0">PRO</Badge>
+                </div>
+                {proFeaturesOpen ? (
+                  <ChevronDown className="w-4 h-4" />
+                ) : (
+                  <ChevronRight className="w-4 h-4" />
+                )}
+              </CollapsibleTrigger>
+              <CollapsibleContent className="space-y-1 pt-2">
+                {proNavItems.map((item) => (
+                  <button
+                    key={item.id}
+                    onClick={() => {
+                      setActiveTab(item.id);
+                      setSidebarOpen(false);
+                    }}
+                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left transition-colors ${
+                      activeTab === item.id
+                        ? "bg-primary text-primary-foreground"
+                        : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                    }`}
+                  >
+                    <item.icon className="w-5 h-5" />
+                    <span className="font-medium">{item.label}</span>
+                  </button>
+                ))}
+              </CollapsibleContent>
+            </Collapsible>
+          </div>
+
+          {/* Setup Guide */}
+          <div className="pt-4 border-t border-border mt-4">
+            <button
+              onClick={() => {
+                setActiveTab("setup");
+                setSidebarOpen(false);
+              }}
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left transition-colors ${
+                activeTab === "setup"
+                  ? "bg-primary text-primary-foreground"
+                  : "text-muted-foreground hover:bg-muted hover:text-foreground"
+              }`}
+            >
+              <BookOpen className="w-5 h-5" />
+              <span className="font-medium">Setup Guide</span>
+            </button>
+          </div>
         </nav>
 
         {/* Demo Banner */}

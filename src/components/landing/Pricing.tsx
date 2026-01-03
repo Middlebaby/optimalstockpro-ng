@@ -1,54 +1,51 @@
 import { motion } from "framer-motion";
-import { Check, Zap } from "lucide-react";
+import { Check, Zap, Building2, Factory } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 
 const Pricing = () => {
   const plans = [
     {
-      name: "Starter",
-      price: "₦15,000",
+      name: "Basic",
+      icon: Building2,
+      price: "₦25,000",
       period: "/month",
-      description: "Perfect for small businesses just getting started",
+      description: "Perfect for small businesses and retail stores",
       features: [
-        "Up to 100 inventory items",
-        "2 staff accounts",
-        "Basic reports",
-        "Email support",
+        "Unlimited inventory items",
+        "5 staff accounts",
+        "Master inventory management",
+        "Incoming & outgoing stock tracking",
+        "Supplier management",
+        "Basic reports & analytics",
+        "Low stock alerts (Email)",
         "Mobile access",
+        "Email support",
       ],
       popular: false,
     },
     {
       name: "Professional",
-      price: "₦35,000",
+      icon: Factory,
+      price: "₦75,000",
       period: "/month",
-      description: "For growing businesses that need more power",
+      description: "For manufacturing, construction & multi-location businesses",
       features: [
-        "Unlimited inventory items",
-        "10 staff accounts",
-        "Advanced reports & analytics",
+        "Everything in Basic, plus:",
+        "Unlimited staff accounts",
+        "Multi-location/warehouse support",
+        "Store-to-store transfers",
+        "Project management & tracking",
+        "Material allocation per project",
+        "Before/after project photos",
+        "Work orders & scheduling",
+        "Purchase order generation",
+        "Equipment & tools tracking",
+        "Maintenance scheduling",
+        "Advanced analytics & custom reports",
         "Priority support",
-        "Theft detection",
-        "Multi-location support",
-        "Custom categories",
       ],
       popular: true,
-    },
-    {
-      name: "Enterprise",
-      price: "Custom",
-      period: "",
-      description: "For large businesses with custom needs",
-      features: [
-        "Everything in Professional",
-        "Unlimited staff accounts",
-        "Dedicated account manager",
-        "Custom integrations",
-        "On-site training",
-        "SLA guarantee",
-      ],
-      popular: false,
     },
   ];
 
@@ -70,7 +67,7 @@ const Pricing = () => {
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
           {plans.map((plan, index) => (
             <motion.div
               key={index}
@@ -85,14 +82,19 @@ const Pricing = () => {
               {plan.popular && (
                 <div className="absolute -top-4 left-1/2 -translate-x-1/2 flex items-center gap-1 bg-primary text-primary-foreground px-4 py-1 rounded-full text-sm font-semibold">
                   <Zap className="w-4 h-4" />
-                  Most Popular
+                  Manufacturing Focus
                 </div>
               )}
-              <div className="text-center mb-6">
-                <h3 className="text-xl font-heading font-semibold text-card-foreground mb-2">
+              <div className="flex items-center gap-3 mb-4">
+                <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${plan.popular ? 'bg-primary' : 'bg-muted'}`}>
+                  <plan.icon className={`w-6 h-6 ${plan.popular ? 'text-primary-foreground' : 'text-foreground'}`} />
+                </div>
+                <h3 className="text-xl font-heading font-semibold text-card-foreground">
                   {plan.name}
                 </h3>
-                <div className="flex items-baseline justify-center gap-1">
+              </div>
+              <div className="mb-4">
+                <div className="flex items-baseline gap-1">
                   <span className="text-4xl font-heading font-bold text-foreground">
                     {plan.price}
                   </span>
@@ -105,8 +107,14 @@ const Pricing = () => {
               <ul className="space-y-3 mb-8">
                 {plan.features.map((feature, featureIndex) => (
                   <li key={featureIndex} className="flex items-start gap-3">
-                    <Check className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
-                    <span className="text-sm text-card-foreground">{feature}</span>
+                    <Check className={`w-5 h-5 flex-shrink-0 mt-0.5 ${
+                      feature.includes("Everything in") ? "text-accent" : "text-primary"
+                    }`} />
+                    <span className={`text-sm text-card-foreground ${
+                      feature.includes("Everything in") ? "font-semibold text-accent" : ""
+                    }`}>
+                      {feature}
+                    </span>
                   </li>
                 ))}
               </ul>
@@ -116,12 +124,29 @@ const Pricing = () => {
                   variant={plan.popular ? "default" : "outline"}
                   size="lg"
                 >
-                  Get Started
+                  Get Started with {plan.name}
                 </Button>
               </Link>
             </motion.div>
           ))}
         </div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5, delay: 0.3 }}
+          className="text-center mt-12"
+        >
+          <p className="text-muted-foreground mb-4">
+            Need a custom solution for your enterprise?
+          </p>
+          <Link to="#contact">
+            <Button variant="outline" size="lg">
+              Contact Sales for Custom Pricing
+            </Button>
+          </Link>
+        </motion.div>
       </div>
     </section>
   );
