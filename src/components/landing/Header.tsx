@@ -42,8 +42,13 @@ const Header = () => {
 
           <div className="hidden md:flex items-center gap-4">
             <Link to="/demo">
-              <Button variant="outline" size="sm">
+              <Button variant="ghost" size="sm">
                 Try Demo
+              </Button>
+            </Link>
+            <Link to="/auth">
+              <Button variant="outline" size="sm">
+                Sign In
               </Button>
             </Link>
             <Link to="/get-started">
@@ -82,8 +87,13 @@ const Header = () => {
                 ))}
                 <div className="flex flex-col gap-2 pt-2">
                   <Link to="/demo">
-                    <Button variant="outline" className="w-full">
+                    <Button variant="ghost" className="w-full">
                       Try Demo
+                    </Button>
+                  </Link>
+                  <Link to="/auth">
+                    <Button variant="outline" className="w-full">
+                      Sign In
                     </Button>
                   </Link>
                   <Link to="/get-started">
