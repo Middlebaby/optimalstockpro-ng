@@ -286,8 +286,8 @@ const Dashboard = () => {
             </Collapsible>
           </div>
 
-          {/* Setup Guide */}
-          <div className="pt-4 border-t border-border mt-4">
+          {/* Setup Guide & Settings */}
+          <div className="pt-4 border-t border-border mt-4 space-y-1">
             <button
               onClick={() => {
                 setActiveTab("setup");
@@ -301,6 +301,20 @@ const Dashboard = () => {
             >
               <BookOpen className="w-5 h-5" />
               <span className="font-medium">Setup Guide</span>
+            </button>
+            <button
+              onClick={() => {
+                setActiveTab("settings");
+                setSidebarOpen(false);
+              }}
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left transition-colors ${
+                activeTab === "settings"
+                  ? "bg-primary text-primary-foreground"
+                  : "text-muted-foreground hover:bg-muted hover:text-foreground"
+              }`}
+            >
+              <SettingsIcon className="w-5 h-5" />
+              <span className="font-medium">Settings</span>
             </button>
           </div>
         </nav>
