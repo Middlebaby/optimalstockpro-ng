@@ -14,6 +14,158 @@ export type Database = {
   }
   public: {
     Tables: {
+      equipment: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          location: string | null
+          name: string
+          photo_url: string | null
+          purchase_date: string | null
+          purchase_price: number | null
+          serial_number: string | null
+          status: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          location?: string | null
+          name: string
+          photo_url?: string | null
+          purchase_date?: string | null
+          purchase_price?: number | null
+          serial_number?: string | null
+          status?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          location?: string | null
+          name?: string
+          photo_url?: string | null
+          purchase_date?: string | null
+          purchase_price?: number | null
+          serial_number?: string | null
+          status?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      inventory_items: {
+        Row: {
+          category: string | null
+          created_at: string
+          description: string | null
+          id: string
+          is_logged: boolean | null
+          location: string | null
+          logged_at: string | null
+          logged_by: string | null
+          name: string
+          photo_url: string | null
+          quantity: number
+          reorder_level: number | null
+          sku: string | null
+          supplier_id: string | null
+          unit: string | null
+          unit_price: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_logged?: boolean | null
+          location?: string | null
+          logged_at?: string | null
+          logged_by?: string | null
+          name: string
+          photo_url?: string | null
+          quantity?: number
+          reorder_level?: number | null
+          sku?: string | null
+          supplier_id?: string | null
+          unit?: string | null
+          unit_price?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_logged?: boolean | null
+          location?: string | null
+          logged_at?: string | null
+          logged_by?: string | null
+          name?: string
+          photo_url?: string | null
+          quantity?: number
+          reorder_level?: number | null
+          sku?: string | null
+          supplier_id?: string | null
+          unit?: string | null
+          unit_price?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inventory_items_supplier_id_fkey"
+            columns: ["supplier_id"]
+            isOneToOne: false
+            referencedRelation: "suppliers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      notification_settings: {
+        Row: {
+          created_at: string
+          email_notifications: boolean | null
+          id: string
+          low_stock_alerts: boolean | null
+          updated_at: string
+          user_id: string
+          weekly_summary: boolean | null
+          whatsapp_notifications: boolean | null
+          whatsapp_number: string | null
+        }
+        Insert: {
+          created_at?: string
+          email_notifications?: boolean | null
+          id?: string
+          low_stock_alerts?: boolean | null
+          updated_at?: string
+          user_id: string
+          weekly_summary?: boolean | null
+          whatsapp_notifications?: boolean | null
+          whatsapp_number?: string | null
+        }
+        Update: {
+          created_at?: string
+          email_notifications?: boolean | null
+          id?: string
+          low_stock_alerts?: boolean | null
+          updated_at?: string
+          user_id?: string
+          weekly_summary?: boolean | null
+          whatsapp_notifications?: boolean | null
+          whatsapp_number?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           company_name: string | null
@@ -47,15 +199,286 @@ export type Database = {
         }
         Relationships: []
       }
+      projects: {
+        Row: {
+          budget: number | null
+          created_at: string
+          description: string | null
+          end_date: string | null
+          id: string
+          name: string
+          start_date: string | null
+          status: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          budget?: number | null
+          created_at?: string
+          description?: string | null
+          end_date?: string | null
+          id?: string
+          name: string
+          start_date?: string | null
+          status?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          budget?: number | null
+          created_at?: string
+          description?: string | null
+          end_date?: string | null
+          id?: string
+          name?: string
+          start_date?: string | null
+          status?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      purchase_order_items: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          inventory_item_id: string | null
+          purchase_order_id: string
+          quantity: number
+          total_price: number | null
+          unit_price: number | null
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          inventory_item_id?: string | null
+          purchase_order_id: string
+          quantity?: number
+          total_price?: number | null
+          unit_price?: number | null
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          inventory_item_id?: string | null
+          purchase_order_id?: string
+          quantity?: number
+          total_price?: number | null
+          unit_price?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "purchase_order_items_inventory_item_id_fkey"
+            columns: ["inventory_item_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "purchase_order_items_purchase_order_id_fkey"
+            columns: ["purchase_order_id"]
+            isOneToOne: false
+            referencedRelation: "purchase_orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      purchase_orders: {
+        Row: {
+          created_at: string
+          expected_delivery: string | null
+          id: string
+          notes: string | null
+          order_date: string | null
+          order_number: string
+          project_id: string | null
+          status: string | null
+          supplier_id: string | null
+          total_amount: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          expected_delivery?: string | null
+          id?: string
+          notes?: string | null
+          order_date?: string | null
+          order_number: string
+          project_id?: string | null
+          status?: string | null
+          supplier_id?: string | null
+          total_amount?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          expected_delivery?: string | null
+          id?: string
+          notes?: string | null
+          order_date?: string | null
+          order_number?: string
+          project_id?: string | null
+          status?: string | null
+          supplier_id?: string | null
+          total_amount?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "purchase_orders_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "purchase_orders_supplier_id_fkey"
+            columns: ["supplier_id"]
+            isOneToOne: false
+            referencedRelation: "suppliers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      stock_movements: {
+        Row: {
+          created_at: string
+          created_by: string
+          from_location: string | null
+          id: string
+          inventory_item_id: string
+          movement_type: string
+          notes: string | null
+          project_id: string | null
+          quantity: number
+          to_location: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          from_location?: string | null
+          id?: string
+          inventory_item_id: string
+          movement_type: string
+          notes?: string | null
+          project_id?: string | null
+          quantity: number
+          to_location?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          from_location?: string | null
+          id?: string
+          inventory_item_id?: string
+          movement_type?: string
+          notes?: string | null
+          project_id?: string | null
+          quantity?: number
+          to_location?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "stock_movements_inventory_item_id_fkey"
+            columns: ["inventory_item_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "stock_movements_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      suppliers: {
+        Row: {
+          address: string | null
+          contact_person: string | null
+          created_at: string
+          email: string | null
+          id: string
+          name: string
+          notes: string | null
+          phone: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          address?: string | null
+          contact_person?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          name: string
+          notes?: string | null
+          phone?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          address?: string | null
+          contact_person?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          name?: string
+          notes?: string | null
+          phone?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
+      is_manager_or_admin: { Args: { _user_id: string }; Returns: boolean }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "manager" | "staff"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -182,6 +605,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "manager", "staff"],
+    },
   },
 } as const

@@ -8,12 +8,12 @@ const Pricing = () => {
     {
       name: "Basic",
       icon: Building2,
-      price: "₦25,000",
+      price: "₦7,000",
       period: "/month",
       description: "Perfect for small businesses and retail stores",
       features: [
         "Unlimited inventory items",
-        "5 staff accounts",
+        "4 staff accounts",
         "Master inventory management",
         "Incoming & outgoing stock tracking",
         "Supplier management",
@@ -27,7 +27,7 @@ const Pricing = () => {
     {
       name: "Professional",
       icon: Factory,
-      price: "₦75,000",
+      price: "₦18,000",
       period: "/month",
       description: "For manufacturing, construction & multi-location businesses",
       features: [
@@ -43,6 +43,7 @@ const Pricing = () => {
         "Equipment & tools tracking",
         "Maintenance scheduling",
         "Advanced analytics & custom reports",
+        "WhatsApp notifications",
         "Priority support",
       ],
       popular: true,
