@@ -19,7 +19,8 @@ import {
   ChevronDown,
   ChevronRight,
   LogOut,
-  User
+  User,
+  Settings as SettingsIcon
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -52,6 +53,7 @@ import Projects from "@/components/demo/Projects";
 import StoreTransfers from "@/components/demo/StoreTransfers";
 import Equipment from "@/components/demo/Equipment";
 import PurchaseOrders from "@/components/demo/PurchaseOrders";
+import Settings from "@/components/demo/Settings";
 
 const Dashboard = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
@@ -113,6 +115,8 @@ const Dashboard = () => {
         return <Equipment />;
       case "purchase-orders":
         return <PurchaseOrders />;
+      case "settings":
+        return <Settings />;
       default:
         return <DashboardView />;
     }
@@ -187,6 +191,13 @@ const Dashboard = () => {
                   <p className="text-xs text-muted-foreground">{user.email}</p>
                 </div>
                 <DropdownMenuSeparator />
+                <DropdownMenuItem 
+                  onClick={() => setActiveTab("settings")} 
+                  className="cursor-pointer"
+                >
+                  <SettingsIcon className="w-4 h-4 mr-2" />
+                  Settings
+                </DropdownMenuItem>
                 <DropdownMenuItem onClick={handleSignOut} className="text-destructive cursor-pointer">
                   <LogOut className="w-4 h-4 mr-2" />
                   Sign Out
