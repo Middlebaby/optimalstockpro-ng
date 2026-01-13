@@ -9,6 +9,7 @@ import GetStarted from "./pages/GetStarted";
 import Demo from "./pages/Demo";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
+import Survey from "./pages/Survey";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -26,6 +27,7 @@ const App = () => (
             <Route path="/demo" element={<Demo />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/survey" element={<Survey />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
