@@ -12,6 +12,7 @@ const Header = () => {
     { href: "#pricing", label: "Pricing" },
     { href: "#testimonials", label: "Testimonials" },
     { href: "#faq", label: "FAQ" },
+    { href: "/survey", label: "Survey", isRoute: true },
   ];
 
   return (
@@ -29,15 +30,25 @@ const Header = () => {
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center gap-8">
-            {navLinks.map((link) => (
-              <a
-                key={link.href}
-                href={link.href}
-                className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
-              >
-                {link.label}
-              </a>
-            ))}
+            {navLinks.map((link) =>
+              link.isRoute ? (
+                <Link
+                  key={link.href}
+                  to={link.href}
+                  className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
+                >
+                  {link.label}
+                </Link>
+              ) : (
+                <a
+                  key={link.href}
+                  href={link.href}
+                  className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
+                >
+                  {link.label}
+                </a>
+              )
+            )}
           </nav>
 
           <div className="hidden md:flex items-center gap-4">
@@ -75,16 +86,27 @@ const Header = () => {
               className="md:hidden pt-4 pb-2"
             >
               <div className="flex flex-col gap-4">
-                {navLinks.map((link) => (
-                  <a
-                    key={link.href}
-                    href={link.href}
-                    className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
-                    onClick={() => setIsMenuOpen(false)}
-                  >
-                    {link.label}
-                  </a>
-                ))}
+                {navLinks.map((link) =>
+                  link.isRoute ? (
+                    <Link
+                      key={link.href}
+                      to={link.href}
+                      className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      {link.label}
+                    </Link>
+                  ) : (
+                    <a
+                      key={link.href}
+                      href={link.href}
+                      className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      {link.label}
+                    </a>
+                  )
+                )}
                 <div className="flex flex-col gap-2 pt-2">
                   <Link to="/demo">
                     <Button variant="ghost" className="w-full">
