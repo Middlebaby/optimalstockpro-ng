@@ -22,7 +22,7 @@ const SurveyHero = () => {
           >
             <div className="inline-flex items-center gap-2 bg-primary-foreground/10 backdrop-blur-sm rounded-full px-4 py-2 mb-6">
               <Gift className="w-4 h-4 text-accent" />
-              <span className="text-sm text-primary-foreground/90">Complete Survey & Get 30% Off</span>
+              <span className="text-sm text-primary-foreground/90">Complete Survey & Get 1 Month Free</span>
             </div>
             
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-heading font-bold text-primary-foreground leading-tight mb-6">
@@ -45,7 +45,7 @@ const SurveyHero = () => {
             </div>
             <div className="flex items-center gap-2 text-primary-foreground/80">
               <Gift className="w-5 h-5 text-accent" />
-              <span>30% discount reward</span>
+              <span>1 month free reward</span>
             </div>
             <div className="flex items-center gap-2 text-primary-foreground/80">
               <Clock className="w-5 h-5 text-accent" />
