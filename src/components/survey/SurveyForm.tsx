@@ -8,37 +8,57 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 import { Send, Gift, CheckCircle } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 const SurveyForm = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [formData, setFormData] = useState({
-    businessName: "",
+    fullName: "",
     email: "",
     phone: "",
     businessType: "",
+    businessTypeOther: "",
     employeeCount: "",
+    location: "",
+    locationOther: "",
     currentMethod: "",
     challenges: [] as string[],
+    challengesOther: "",
     biggestPain: "",
-    monthlyBudget: "",
     interestedFeatures: [] as string[],
+    featuresOther: "",
+    budgetRange: "",
+    launchInterest: "",
+    additionalComments: "",
   });
 
   const businessTypes = [
-    "Retail/Trading",
-    "Manufacturing",
-    "Construction",
-    "Restaurant/Food",
-    "Healthcare/Pharmacy",
-    "Other",
+    "Retail store (clothing, electronics, general goods)",
+    "Wholesale/Distribution",
+    "Manufacturing/Production",
+    "Fashion/Boutique",
+    "Supermarket/Grocery",
+    "E-commerce/Online store",
   ];
 
   const employeeCounts = [
-    "1-5 employees",
-    "6-15 employees",
-    "16-50 employees",
-    "50+ employees",
+    "Just me (solo entrepreneur)",
+    "2-5 employees",
+    "6-10 employees",
+    "11-25 employees",
+    "26-50 employees",
+    "Over 50 employees",
+  ];
+
+  const locations = [
+    "Lagos",
+    "Abuja",
+    "Port Harcourt",
+    "Ibadan",
+    "Kano",
+    "Kaduna",
+    "Enugu",
   ];
 
   const currentMethods = [
@@ -70,6 +90,20 @@ const SurveyForm = () => {
     "Equipment tracking",
   ];
 
+  const budgetRanges = [
+    "₦5,000 - ₦10,000/month",
+    "₦10,000 - ₦25,000/month",
+    "₦25,000 - ₦50,000/month",
+    "₦50,000+/month",
+    "Not sure yet",
+  ];
+
+  const launchInterests = [
+    "Yes, I want early access!",
+    "Maybe, tell me more first",
+    "Just browsing for now",
+  ];
+
   const handleChallengeChange = (challenge: string, checked: boolean) => {
     setFormData((prev) => ({
       ...prev,
@@ -91,19 +125,37 @@ const SurveyForm = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formData.email || !formData.businessType) {
-      toast.error("Please fill in required fields");
+    if (!formData.email || !formData.businessType || !formData.employeeCount || !formData.location) {
+      toast.error("Please fill in all required fields");
       return;
     }
 
     setIsSubmitting(true);
     
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-    
-    setIsSubmitting(false);
-    setIsSubmitted(true);
-    toast.success("Survey submitted! Check your email for your 30% discount code.");
+    try {
+      // Send email notification
+      const { error } = await supabase.functions.invoke('send-survey-notification', {
+        body: {
+          surveyData: {
+            ...formData,
+            businessType: formData.businessType === "Other" ? formData.businessTypeOther : formData.businessType,
+            location: formData.location === "Other" ? formData.locationOther : formData.location,
+          }
+        }
+      });
+
+      if (error) {
+        console.error('Error sending notification:', error);
+      }
+
+      setIsSubmitted(true);
+      toast.success("Survey submitted! Check your email for your rewards.");
+    } catch (error) {
+      console.error('Error:', error);
+      toast.error("Something went wrong. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   if (isSubmitted) {
@@ -124,14 +176,28 @@ const SurveyForm = () => {
                 Thank You for Participating!
               </h2>
               <p className="text-muted-foreground mb-6">
-                We've sent your exclusive 30% discount code to your email. Check your inbox to claim your special offer.
+                🎁 Your rewards are on the way! Here's what you'll receive:
               </p>
-              <div className="bg-primary/10 rounded-xl p-6 mb-6">
-                <p className="text-sm text-muted-foreground mb-2">Your discount code:</p>
-                <p className="text-2xl font-heading font-bold text-primary">SURVEY30</p>
+              <div className="bg-primary/10 rounded-xl p-6 mb-6 space-y-3 text-left">
+                <p className="flex items-center gap-2 text-foreground">
+                  <CheckCircle className="w-5 h-5 text-primary" />
+                  FREE Inventory Management Template (Excel)
+                </p>
+                <p className="flex items-center gap-2 text-foreground">
+                  <CheckCircle className="w-5 h-5 text-primary" />
+                  1 MONTH FREE when we launch (First 100 people only)
+                </p>
+                <p className="flex items-center gap-2 text-foreground">
+                  <CheckCircle className="w-5 h-5 text-primary" />
+                  Priority early access to OptimalStock Pro
+                </p>
+                <p className="flex items-center gap-2 text-foreground">
+                  <CheckCircle className="w-5 h-5 text-primary" />
+                  Entry to win ₦50,000 business grant
+                </p>
               </div>
               <p className="text-sm text-muted-foreground">
-                Use this code at checkout to get 30% off your first 3 months.
+                Check your email at <span className="font-semibold text-primary">{formData.email}</span> for details.
               </p>
             </div>
           </motion.div>
@@ -152,14 +218,23 @@ const SurveyForm = () => {
         >
           <div className="inline-flex items-center gap-2 bg-accent/10 rounded-full px-4 py-2 mb-4">
             <Gift className="w-4 h-4 text-accent" />
-            <span className="text-sm text-accent font-medium">Get 30% Off</span>
+            <span className="text-sm text-accent font-medium">Complete & Get Rewards</span>
           </div>
           <h2 className="text-3xl md:text-4xl font-heading font-bold text-foreground mb-4">
-            Share Your Inventory Challenges
+            Market Research Survey
           </h2>
-          <p className="text-muted-foreground max-w-2xl mx-auto">
-            Help us understand your needs and receive an exclusive discount on Optimalstock.
+          <p className="text-muted-foreground max-w-2xl mx-auto mb-6">
+            Help us build OptimalStock Pro - simple inventory management software designed specifically for Nigerian retailers, wholesalers, and manufacturers.
           </p>
+          <div className="bg-card rounded-xl p-6 max-w-xl mx-auto shadow-card">
+            <p className="text-sm font-semibold text-foreground mb-3">🎁 Complete This Survey & Get:</p>
+            <ul className="text-sm text-muted-foreground space-y-2 text-left">
+              <li>• FREE Inventory Management Template (Excel)</li>
+              <li>• 1 MONTH FREE when we launch (First 100 people only)</li>
+              <li>• Priority early access to OptimalStock Pro</li>
+              <li>• Entry to win ₦50,000 business grant</li>
+            </ul>
+          </div>
         </motion.div>
 
         <motion.div
@@ -175,12 +250,12 @@ const SurveyForm = () => {
               <h3 className="text-lg font-heading font-semibold text-foreground">Contact Information</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="businessName">Business Name</Label>
+                  <Label htmlFor="fullName">Full Name</Label>
                   <Input
-                    id="businessName"
-                    placeholder="Your business name"
-                    value={formData.businessName}
-                    onChange={(e) => setFormData({ ...formData, businessName: e.target.value })}
+                    id="fullName"
+                    placeholder="Your full name"
+                    value={formData.fullName}
+                    onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
                   />
                 </div>
                 <div className="space-y-2">
@@ -206,40 +281,80 @@ const SurveyForm = () => {
               </div>
             </div>
 
-            {/* Business Info */}
+            {/* Business Type */}
             <div className="space-y-4">
               <h3 className="text-lg font-heading font-semibold text-foreground">About Your Business</h3>
               
               <div className="space-y-2">
-                <Label>Business Type *</Label>
+                <Label>What type of business do you own or manage? *</Label>
                 <RadioGroup
                   value={formData.businessType}
                   onValueChange={(value) => setFormData({ ...formData, businessType: value })}
-                  className="grid grid-cols-2 md:grid-cols-3 gap-3"
+                  className="grid grid-cols-1 md:grid-cols-2 gap-3"
                 >
                   {businessTypes.map((type) => (
                     <div key={type} className="flex items-center space-x-2">
-                      <RadioGroupItem value={type} id={type} />
-                      <Label htmlFor={type} className="text-sm cursor-pointer">{type}</Label>
+                      <RadioGroupItem value={type} id={`biz-${type}`} />
+                      <Label htmlFor={`biz-${type}`} className="text-sm cursor-pointer">{type}</Label>
+                    </div>
+                  ))}
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="Other" id="biz-other" />
+                    <Label htmlFor="biz-other" className="text-sm cursor-pointer">Other</Label>
+                  </div>
+                </RadioGroup>
+                {formData.businessType === "Other" && (
+                  <Input
+                    placeholder="Please specify..."
+                    value={formData.businessTypeOther}
+                    onChange={(e) => setFormData({ ...formData, businessTypeOther: e.target.value })}
+                    className="mt-2"
+                  />
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <Label>How many employees do you have? *</Label>
+                <RadioGroup
+                  value={formData.employeeCount}
+                  onValueChange={(value) => setFormData({ ...formData, employeeCount: value })}
+                  className="grid grid-cols-2 md:grid-cols-3 gap-3"
+                >
+                  {employeeCounts.map((count) => (
+                    <div key={count} className="flex items-center space-x-2">
+                      <RadioGroupItem value={count} id={`emp-${count}`} />
+                      <Label htmlFor={`emp-${count}`} className="text-sm cursor-pointer">{count}</Label>
                     </div>
                   ))}
                 </RadioGroup>
               </div>
 
               <div className="space-y-2">
-                <Label>Number of Employees</Label>
+                <Label>Where's your business located? *</Label>
                 <RadioGroup
-                  value={formData.employeeCount}
-                  onValueChange={(value) => setFormData({ ...formData, employeeCount: value })}
-                  className="grid grid-cols-2 gap-3"
+                  value={formData.location}
+                  onValueChange={(value) => setFormData({ ...formData, location: value })}
+                  className="grid grid-cols-2 md:grid-cols-4 gap-3"
                 >
-                  {employeeCounts.map((count) => (
-                    <div key={count} className="flex items-center space-x-2">
-                      <RadioGroupItem value={count} id={count} />
-                      <Label htmlFor={count} className="text-sm cursor-pointer">{count}</Label>
+                  {locations.map((loc) => (
+                    <div key={loc} className="flex items-center space-x-2">
+                      <RadioGroupItem value={loc} id={`loc-${loc}`} />
+                      <Label htmlFor={`loc-${loc}`} className="text-sm cursor-pointer">{loc}</Label>
                     </div>
                   ))}
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="Other" id="loc-other" />
+                    <Label htmlFor="loc-other" className="text-sm cursor-pointer">Other</Label>
+                  </div>
                 </RadioGroup>
+                {formData.location === "Other" && (
+                  <Input
+                    placeholder="Please specify your city..."
+                    value={formData.locationOther}
+                    onChange={(e) => setFormData({ ...formData, locationOther: e.target.value })}
+                    className="mt-2"
+                  />
+                )}
               </div>
             </div>
 
@@ -256,8 +371,8 @@ const SurveyForm = () => {
                 >
                   {currentMethods.map((method) => (
                     <div key={method} className="flex items-center space-x-2">
-                      <RadioGroupItem value={method} id={method} />
-                      <Label htmlFor={method} className="text-sm cursor-pointer">{method}</Label>
+                      <RadioGroupItem value={method} id={`method-${method}`} />
+                      <Label htmlFor={`method-${method}`} className="text-sm cursor-pointer">{method}</Label>
                     </div>
                   ))}
                 </RadioGroup>
@@ -269,14 +384,20 @@ const SurveyForm = () => {
                   {challenges.map((challenge) => (
                     <div key={challenge} className="flex items-center space-x-2">
                       <Checkbox
-                        id={challenge}
+                        id={`chal-${challenge}`}
                         checked={formData.challenges.includes(challenge)}
                         onCheckedChange={(checked) => handleChallengeChange(challenge, checked as boolean)}
                       />
-                      <Label htmlFor={challenge} className="text-sm cursor-pointer">{challenge}</Label>
+                      <Label htmlFor={`chal-${challenge}`} className="text-sm cursor-pointer">{challenge}</Label>
                     </div>
                   ))}
                 </div>
+                <Input
+                  placeholder="Other challenges (optional)..."
+                  value={formData.challengesOther}
+                  onChange={(e) => setFormData({ ...formData, challengesOther: e.target.value })}
+                  className="mt-2"
+                />
               </div>
 
               <div className="space-y-2">
@@ -298,13 +419,66 @@ const SurveyForm = () => {
                 {interestedFeatures.map((feature) => (
                   <div key={feature} className="flex items-center space-x-2">
                     <Checkbox
-                      id={feature}
+                      id={`feat-${feature}`}
                       checked={formData.interestedFeatures.includes(feature)}
                       onCheckedChange={(checked) => handleFeatureChange(feature, checked as boolean)}
                     />
-                    <Label htmlFor={feature} className="text-sm cursor-pointer">{feature}</Label>
+                    <Label htmlFor={`feat-${feature}`} className="text-sm cursor-pointer">{feature}</Label>
                   </div>
                 ))}
+              </div>
+              <Input
+                placeholder="Other features you'd like (optional)..."
+                value={formData.featuresOther}
+                onChange={(e) => setFormData({ ...formData, featuresOther: e.target.value })}
+              />
+            </div>
+
+            {/* Budget & Interest */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-heading font-semibold text-foreground">Budget & Interest</h3>
+              
+              <div className="space-y-2">
+                <Label>What's your monthly budget for inventory software?</Label>
+                <RadioGroup
+                  value={formData.budgetRange}
+                  onValueChange={(value) => setFormData({ ...formData, budgetRange: value })}
+                  className="grid grid-cols-1 md:grid-cols-2 gap-3"
+                >
+                  {budgetRanges.map((range) => (
+                    <div key={range} className="flex items-center space-x-2">
+                      <RadioGroupItem value={range} id={`budget-${range}`} />
+                      <Label htmlFor={`budget-${range}`} className="text-sm cursor-pointer">{range}</Label>
+                    </div>
+                  ))}
+                </RadioGroup>
+              </div>
+
+              <div className="space-y-2">
+                <Label>Would you like to be notified when OptimalStock Pro launches?</Label>
+                <RadioGroup
+                  value={formData.launchInterest}
+                  onValueChange={(value) => setFormData({ ...formData, launchInterest: value })}
+                  className="grid grid-cols-1 gap-3"
+                >
+                  {launchInterests.map((interest) => (
+                    <div key={interest} className="flex items-center space-x-2">
+                      <RadioGroupItem value={interest} id={`interest-${interest}`} />
+                      <Label htmlFor={`interest-${interest}`} className="text-sm cursor-pointer">{interest}</Label>
+                    </div>
+                  ))}
+                </RadioGroup>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="additionalComments">Any additional comments or suggestions?</Label>
+                <Textarea
+                  id="additionalComments"
+                  placeholder="Your feedback helps us build better..."
+                  value={formData.additionalComments}
+                  onChange={(e) => setFormData({ ...formData, additionalComments: e.target.value })}
+                  rows={3}
+                />
               </div>
             </div>
 
@@ -316,12 +490,12 @@ const SurveyForm = () => {
                 ) : (
                   <>
                     <Send className="w-4 h-4 mr-2" />
-                    Submit & Get 30% Off
+                    Submit & Claim Your Rewards
                   </>
                 )}
               </Button>
               <p className="text-xs text-muted-foreground text-center mt-3">
-                Your information is secure and will only be used to improve Optimalstock.
+                Your information is secure and will only be used to improve OptimalStock Pro and send you your rewards.
               </p>
             </div>
           </form>

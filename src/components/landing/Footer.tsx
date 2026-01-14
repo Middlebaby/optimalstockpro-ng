@@ -20,18 +20,21 @@ const Footer = () => {
               Professional inventory management built specifically for Nigerian SMEs. Take control of your stock, reduce losses, and grow your business.
             </p>
             <div className="space-y-2">
-              <a href="mailto:hello@optimalstock.ng" className="flex items-center gap-2 text-primary-foreground/70 hover:text-primary transition-colors">
+              <a href="mailto:info@optimalstockpro.com" className="flex items-center gap-2 text-primary-foreground/70 hover:text-primary transition-colors">
                 <Mail className="w-4 h-4" />
-                hello@optimalstock.ng
+                info@optimalstockpro.com
               </a>
-              <a href="tel:+2348012345678" className="flex items-center gap-2 text-primary-foreground/70 hover:text-primary transition-colors">
+              <a href="tel:+2348148170730" className="flex items-center gap-2 text-primary-foreground/70 hover:text-primary transition-colors">
                 <Phone className="w-4 h-4" />
-                +234 801 234 5678
+                +234 814 817 0730
               </a>
               <p className="flex items-center gap-2 text-primary-foreground/70">
                 <MapPin className="w-4 h-4" />
-                Lagos, Nigeria
+                Abuja, Nigeria
               </p>
+              <a href="https://optimalstockpro.com" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-primary-foreground/70 hover:text-primary transition-colors">
+                🌐 optimalstockpro.com
+              </a>
             </div>
           </div>
 

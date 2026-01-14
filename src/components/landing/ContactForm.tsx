@@ -84,8 +84,8 @@ const ContactForm = () => {
                   <p className="text-muted-foreground">Mon-Fri, 9am-6pm WAT</p>
                 </div>
               </div>
-              <a href="tel:+2348012345678" className="text-lg font-medium text-primary hover:underline">
-                +234 801 234 5678
+              <a href="tel:+2348148170730" className="text-lg font-medium text-primary hover:underline">
+                +234 814 817 0730
               </a>
             </div>
 
@@ -99,8 +99,8 @@ const ContactForm = () => {
                   <p className="text-muted-foreground">We reply within 24 hours</p>
                 </div>
               </div>
-              <a href="mailto:hello@optimalstock.ng" className="text-lg font-medium text-primary hover:underline">
-                hello@optimalstock.ng
+              <a href="mailto:info@optimalstockpro.com" className="text-lg font-medium text-primary hover:underline">
+                info@optimalstockpro.com
               </a>
             </div>
 
@@ -115,8 +115,7 @@ const ContactForm = () => {
                 </div>
               </div>
               <p className="text-foreground">
-                12 Adeola Odeku Street,<br />
-                Victoria Island, Lagos
+                Abuja, Nigeria
               </p>
             </div>
 
@@ -129,7 +128,7 @@ const ContactForm = () => {
                 Get instant support via WhatsApp for quick questions.
               </p>
               <a
-                href="https://wa.me/2348012345678"
+                href="https://wa.me/2348148170730"
                 target="_blank"
                 rel="noopener noreferrer"
               >
