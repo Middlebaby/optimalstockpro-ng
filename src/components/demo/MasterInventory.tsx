@@ -32,12 +32,23 @@ interface InventoryItem {
 
 const MasterInventory = () => {
   const [items, setItems] = useState<InventoryItem[]>([
+    // Construction Materials
     { id: "1", name: "Premium Cement", category: "Raw Materials", quantity: 150, unit: "bags", unitCost: 4500, reorderLevel: 50, location: "Warehouse A", supplier: "Dangote Cement" },
     { id: "2", name: "Steel Rods (12mm)", category: "Raw Materials", quantity: 200, unit: "pieces", unitCost: 2500, reorderLevel: 100, location: "Warehouse A", supplier: "Steel Masters" },
-    { id: "3", name: "Paint - White", category: "Finished Products", quantity: 45, unit: "buckets", unitCost: 8000, reorderLevel: 20, location: "Store Room", supplier: "Dulux Nigeria" },
-    { id: "4", name: "Plywood Sheets", category: "Raw Materials", quantity: 5, unit: "sheets", unitCost: 12000, reorderLevel: 10, location: "Warehouse B", supplier: "Timber Supplies" },
-    { id: "5", name: "PVC Pipes", category: "Supplies", quantity: 8, unit: "pieces", unitCost: 3500, reorderLevel: 15, location: "Warehouse B", supplier: "Pipe World" },
-    { id: "6", name: "Electrical Wire", category: "Supplies", quantity: 2, unit: "rolls", unitCost: 15000, reorderLevel: 10, location: "Store Room", supplier: "Power Cables" },
+    // Food & Restaurant
+    { id: "3", name: "Rice (50kg bags)", category: "Food Products", quantity: 100, unit: "bags", unitCost: 45000, reorderLevel: 30, location: "Main Store", supplier: "Lagos Rice Mill" },
+    { id: "4", name: "Chicken Laps", category: "Food Products", quantity: 50, unit: "kilos", unitCost: 3500, reorderLevel: 20, location: "Cold Room", supplier: "Obasanjo Farms" },
+    { id: "5", name: "Vegetable Oil (25L)", category: "Food Products", quantity: 25, unit: "kegs", unitCost: 35000, reorderLevel: 10, location: "Main Store", supplier: "Kings Oil" },
+    { id: "6", name: "Frozen Fish (Tilapia)", category: "Food Products", quantity: 8, unit: "cartons", unitCost: 28000, reorderLevel: 15, location: "Cold Room", supplier: "Fresh Catch Ltd" },
+    // Retail & General
+    { id: "7", name: "Bottled Water (75cl)", category: "Beverages", quantity: 500, unit: "cartons", unitCost: 2500, reorderLevel: 100, location: "Warehouse B", supplier: "Eva Water" },
+    { id: "8", name: "Soft Drinks (35cl)", category: "Beverages", quantity: 3, unit: "crates", unitCost: 3200, reorderLevel: 50, location: "Shop Floor", supplier: "Coca-Cola" },
+    // Electronics & Tech
+    { id: "9", name: "Phone Chargers (Type-C)", category: "Electronics", quantity: 150, unit: "pieces", unitCost: 1500, reorderLevel: 50, location: "Display Unit", supplier: "Tech Hub" },
+    { id: "10", name: "LED Bulbs (18W)", category: "Electronics", quantity: 0, unit: "pieces", unitCost: 1200, reorderLevel: 30, location: "Warehouse A", supplier: "Philips Nigeria" },
+    // Fashion & Clothing
+    { id: "11", name: "Ankara Fabric", category: "Textiles", quantity: 75, unit: "yards", unitCost: 2500, reorderLevel: 25, location: "Fabric Section", supplier: "ABC Wax" },
+    { id: "12", name: "Men's Polo Shirts", category: "Clothing", quantity: 45, unit: "pieces", unitCost: 4500, reorderLevel: 20, location: "Shop Floor", supplier: "Fashion House" },
   ]);
 
   const [searchQuery, setSearchQuery] = useState("");
@@ -53,7 +64,7 @@ const MasterInventory = () => {
     supplier: "",
   });
 
-  const categories = ["Raw Materials", "Finished Products", "Supplies", "Equipment"];
+  const categories = ["Raw Materials", "Food Products", "Beverages", "Electronics", "Textiles", "Clothing", "Supplies", "Equipment"];
 
   const getStatus = (quantity: number, reorderLevel: number) => {
     if (quantity === 0) return { label: "Out of Stock", color: "bg-destructive text-destructive-foreground" };
