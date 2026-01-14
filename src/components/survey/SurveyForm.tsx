@@ -191,10 +191,6 @@ const SurveyForm = () => {
                   <CheckCircle className="w-5 h-5 text-primary" />
                   Priority early access to OptimalStock Pro
                 </p>
-                <p className="flex items-center gap-2 text-foreground">
-                  <CheckCircle className="w-5 h-5 text-primary" />
-                  Entry to win ₦50,000 business grant
-                </p>
               </div>
               <p className="text-sm text-muted-foreground">
                 Check your email at <span className="font-semibold text-primary">{formData.email}</span> for details.
@@ -232,7 +228,6 @@ const SurveyForm = () => {
               <li>• FREE Inventory Management Template (Excel)</li>
               <li>• 1 MONTH FREE when we launch (First 100 people only)</li>
               <li>• Priority early access to OptimalStock Pro</li>
-              <li>• Entry to win ₦50,000 business grant</li>
             </ul>
           </div>
         </motion.div>
