@@ -29,7 +29,7 @@ const SurveyHero = () => {
               Help Us Build the Perfect Inventory Solution for You
             </h1>
             <p className="text-lg md:text-xl text-primary-foreground/80 mb-10 max-w-2xl mx-auto">
-              Share your business challenges and get exclusive early access to Optimalstock — plus a special discount for participating.
+              Share your business challenges and get exclusive early access to Optimalstock Pro — plus a special discount for participating.
             </p>
           </motion.div>
 

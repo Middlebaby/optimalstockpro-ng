@@ -133,19 +133,45 @@ const SurveyForm = () => {
     setIsSubmitting(true);
     
     try {
-      // Send email notification
-      const { error } = await supabase.functions.invoke('send-survey-notification', {
-        body: {
-          surveyData: {
-            ...formData,
-            businessType: formData.businessType === "Other" ? formData.businessTypeOther : formData.businessType,
-            location: formData.location === "Other" ? formData.locationOther : formData.location,
-          }
-        }
-      });
+      // Save survey response to database
+      const { error: dbError } = await supabase
+        .from('survey_responses')
+        .insert({
+          full_name: formData.fullName,
+          email: formData.email,
+          phone: formData.phone,
+          business_type: formData.businessType === "Other" ? formData.businessTypeOther : formData.businessType,
+          employee_count: formData.employeeCount,
+          location: formData.location === "Other" ? formData.locationOther : formData.location,
+          current_method: formData.currentMethod,
+          challenges: formData.challenges,
+          challenges_other: formData.challengesOther,
+          biggest_pain: formData.biggestPain,
+          interested_features: formData.interestedFeatures,
+          features_other: formData.featuresOther,
+          budget_range: formData.budgetRange,
+          launch_interest: formData.launchInterest,
+          additional_comments: formData.additionalComments,
+        });
 
-      if (error) {
-        console.error('Error sending notification:', error);
+      if (dbError) {
+        console.error('Error saving survey:', dbError);
+        throw dbError;
+      }
+
+      // Try to send email notification (optional - won't fail submission)
+      try {
+        await supabase.functions.invoke('send-survey-notification', {
+          body: {
+            surveyData: {
+              ...formData,
+              businessType: formData.businessType === "Other" ? formData.businessTypeOther : formData.businessType,
+              location: formData.location === "Other" ? formData.locationOther : formData.location,
+            }
+          }
+        });
+      } catch (emailError) {
+        console.log('Email notification failed (non-critical):', emailError);
       }
 
       setIsSubmitted(true);

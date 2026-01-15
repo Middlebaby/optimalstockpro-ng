@@ -63,7 +63,7 @@ const SetupGuide = () => {
           Setup Guide
         </h1>
         <p className="text-muted-foreground">
-          Follow these steps to get the most out of Optimalstock
+          Follow these steps to get the most out of Optimalstock Pro
         </p>
       </div>
 

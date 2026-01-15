@@ -9,16 +9,16 @@ import {
 const FAQ = () => {
   const faqs = [
     {
-      question: "How quickly can I set up Optimalstock?",
+      question: "How quickly can I set up Optimalstock Pro?",
       answer: "You can be up and running in less than 30 minutes. Our setup wizard guides you through adding your first items, and our support team is available to help if you get stuck.",
     },
     {
       question: "Do I need any technical skills?",
-      answer: "Not at all! Optimalstock is designed for business owners, not IT experts. If you can use WhatsApp or Facebook, you can use Optimalstock.",
+      answer: "Not at all! Optimalstock Pro is designed for business owners, not IT experts. If you can use WhatsApp or Facebook, you can use Optimalstock Pro.",
     },
     {
       question: "Can I access it on my phone?",
-      answer: "Yes! Optimalstock works on any device with a web browser - phones, tablets, laptops, and desktop computers. No app download required.",
+      answer: "Yes! Optimalstock Pro works on any device with a web browser - phones, tablets, laptops, and desktop computers. No app download required.",
     },
     {
       question: "What happens to my data if I cancel?",

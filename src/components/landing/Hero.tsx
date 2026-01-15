@@ -7,7 +7,7 @@ const Hero = () => {
   const stats = [
     { value: "₦500k+", label: "Average Annual Savings" },
     { value: "85%", label: "Reduction in Stock-Outs" },
-    { value: "50+", label: "SMEs Using Optimalstock" },
+    { value: "50+", label: "SMEs Using Optimalstock Pro" },
     { value: "2hrs", label: "Saved Daily" },
   ];
 

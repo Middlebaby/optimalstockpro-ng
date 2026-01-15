@@ -15,7 +15,7 @@ const SurveyDemo = () => {
           className="text-center mb-10"
         >
           <h2 className="text-3xl md:text-4xl font-heading font-bold text-foreground mb-4">
-            See Optimalstock in Action
+            See Optimalstock Pro in Action
           </h2>
           <p className="text-muted-foreground max-w-2xl mx-auto">
             Explore our interactive demo to see how easy inventory management can be.
@@ -40,7 +40,7 @@ const SurveyDemo = () => {
               </div>
               <div className="flex-1 flex justify-center">
                 <div className="bg-background rounded-md px-4 py-1 text-xs text-muted-foreground">
-                  app.optimalstock.ng/dashboard
+                  optimalstockpro.com/dashboard
                 </div>
               </div>
             </div>

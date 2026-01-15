@@ -24,7 +24,7 @@ const Header = () => {
               <BarChart3 className="w-6 h-6 text-primary-foreground" />
             </div>
             <span className="text-xl font-heading font-bold text-foreground">
-              Optimalstock
+              Optimalstock Pro
             </span>
           </Link>
 

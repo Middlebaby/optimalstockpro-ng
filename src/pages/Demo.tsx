@@ -111,7 +111,7 @@ const Demo = () => {
               </div>
               <div className="hidden sm:block">
                 <span className="text-xl font-heading font-bold text-primary-foreground">
-                  Optimalstock
+                  Optimalstock Pro
                 </span>
                 <p className="text-xs text-primary-foreground/70">
                   Professional Inventory Management
