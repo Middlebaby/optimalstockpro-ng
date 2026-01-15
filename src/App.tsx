@@ -10,6 +10,7 @@ import Demo from "./pages/Demo";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
 import Survey from "./pages/Survey";
+import AdminSurvey from "./pages/AdminSurvey";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -28,6 +29,7 @@ const App = () => (
             <Route path="/auth" element={<Auth />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/survey" element={<Survey />} />
+            <Route path="/admin/survey" element={<AdminSurvey />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
