@@ -27,7 +27,7 @@ const CTA = () => {
               Ready to Take Control of Your Inventory?
             </h2>
             <p className="text-lg text-primary-foreground/80 mb-8 max-w-2xl mx-auto">
-              Join 50+ Nigerian SMEs already saving time and money with Optimalstock. Set up takes less than 30 minutes.
+              Join 50+ Nigerian SMEs already saving time and money with Optimalstock Pro. Set up takes less than 30 minutes.
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <Link to="/get-started">

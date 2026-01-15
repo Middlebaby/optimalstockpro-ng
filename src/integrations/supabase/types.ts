@@ -442,6 +442,66 @@ export type Database = {
         }
         Relationships: []
       }
+      survey_responses: {
+        Row: {
+          additional_comments: string | null
+          biggest_pain: string | null
+          budget_range: string | null
+          business_type: string
+          challenges: string[] | null
+          challenges_other: string | null
+          created_at: string
+          current_method: string | null
+          email: string
+          employee_count: string
+          features_other: string | null
+          full_name: string | null
+          id: string
+          interested_features: string[] | null
+          launch_interest: string | null
+          location: string
+          phone: string | null
+        }
+        Insert: {
+          additional_comments?: string | null
+          biggest_pain?: string | null
+          budget_range?: string | null
+          business_type: string
+          challenges?: string[] | null
+          challenges_other?: string | null
+          created_at?: string
+          current_method?: string | null
+          email: string
+          employee_count: string
+          features_other?: string | null
+          full_name?: string | null
+          id?: string
+          interested_features?: string[] | null
+          launch_interest?: string | null
+          location: string
+          phone?: string | null
+        }
+        Update: {
+          additional_comments?: string | null
+          biggest_pain?: string | null
+          budget_range?: string | null
+          business_type?: string
+          challenges?: string[] | null
+          challenges_other?: string | null
+          created_at?: string
+          current_method?: string | null
+          email?: string
+          employee_count?: string
+          features_other?: string | null
+          full_name?: string | null
+          id?: string
+          interested_features?: string[] | null
+          launch_interest?: string | null
+          location?: string
+          phone?: string | null
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string

@@ -13,7 +13,7 @@ const Footer = () => {
                 <BarChart3 className="w-6 h-6 text-primary-foreground" />
               </div>
               <span className="text-xl font-heading font-bold">
-                Optimalstock
+                Optimalstock Pro
               </span>
             </Link>
             <p className="text-primary-foreground/70 mb-6 max-w-md">
@@ -94,7 +94,7 @@ const Footer = () => {
         </div>
 
         <div className="border-t border-primary-foreground/10 mt-12 pt-8 text-center text-primary-foreground/50 text-sm">
-          © {new Date().getFullYear()} Optimalstock. All rights reserved.
+          © {new Date().getFullYear()} Optimalstock Pro. All rights reserved.
         </div>
       </div>
     </footer>

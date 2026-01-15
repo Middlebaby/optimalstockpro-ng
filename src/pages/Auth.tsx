@@ -145,7 +145,7 @@ const Auth = () => {
             <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-primary">
               <BarChart3 className="w-6 h-6 text-primary-foreground" />
             </div>
-            <span className="text-xl font-heading font-bold text-foreground">Optimalstock</span>
+            <span className="text-xl font-heading font-bold text-foreground">Optimalstock Pro</span>
           </Link>
 
           <h1 className="text-3xl font-heading font-bold text-foreground mb-2">
@@ -289,7 +289,7 @@ const Auth = () => {
             Take Control of Your Inventory
           </h2>
           <p className="text-primary-foreground/80 text-lg">
-            Join 50+ Nigerian SMEs who have reduced stock-outs by 85% and saved an average of ₦500,000 annually with Optimalstock.
+            Join 50+ Nigerian SMEs who have reduced stock-outs by 85% and saved an average of ₦500,000 annually with Optimalstock Pro.
           </p>
           <div className="mt-8 grid grid-cols-3 gap-4 text-center">
             <div>

@@ -4,7 +4,7 @@ import { Quote } from "lucide-react";
 const Testimonials = () => {
   const testimonials = [
     {
-      quote: "We were losing ₦200,000 monthly to missing items and stock-outs. Optimalstock helped us recover that and more.",
+      quote: "We were losing ₦200,000 monthly to missing items and stock-outs. Optimalstock Pro helped us recover that and more.",
       author: "Chidi Okonkwo",
       role: "Manufacturing Business Owner",
       location: "Lagos",

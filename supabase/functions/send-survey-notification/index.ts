@@ -113,7 +113,6 @@ const handler = async (req: Request): Promise<Response> => {
             <li style="padding: 8px 0;">✅ FREE Inventory Management Template (Excel) - <a href="https://optimalstockpro.com/template">Download here</a></li>
             <li style="padding: 8px 0;">✅ 1 MONTH FREE when we launch (First 100 people only)</li>
             <li style="padding: 8px 0;">✅ Priority early access to OptimalStock Pro</li>
-            <li style="padding: 8px 0;">✅ Entry to win ₦50,000 business grant</li>
           </ul>
         </div>
         
