@@ -20,7 +20,8 @@ import {
   ChevronRight,
   LogOut,
   User,
-  Settings as SettingsIcon
+  Settings as SettingsIcon,
+  ClipboardList
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -40,6 +41,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
 import DashboardView from "@/components/demo/DashboardView";
@@ -59,6 +61,7 @@ const Dashboard = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [proFeaturesOpen, setProFeaturesOpen] = useState(true);
+  const [isAdminOrManager, setIsAdminOrManager] = useState(false);
 
   const { user, loading, signOut } = useAuth();
   const navigate = useNavigate();
@@ -68,6 +71,24 @@ const Dashboard = () => {
       navigate("/auth");
     }
   }, [user, loading, navigate]);
+
+  // Check if user is admin or manager
+  useEffect(() => {
+    const checkRole = async () => {
+      if (!user) return;
+      
+      const { data } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', user.id)
+        .in('role', ['admin', 'manager'])
+        .maybeSingle();
+      
+      setIsAdminOrManager(!!data);
+    };
+    
+    checkRole();
+  }, [user]);
 
   const handleSignOut = async () => {
     await signOut();
@@ -317,6 +338,23 @@ const Dashboard = () => {
               <span className="font-medium">Settings</span>
             </button>
           </div>
+
+          {/* Admin Section */}
+          {isAdminOrManager && (
+            <div className="pt-4 border-t border-border mt-4 space-y-1">
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-4 mb-2">
+                Admin
+              </p>
+              <Link
+                to="/admin/survey"
+                className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left transition-colors text-muted-foreground hover:bg-muted hover:text-foreground"
+                onClick={() => setSidebarOpen(false)}
+              >
+                <ClipboardList className="w-5 h-5" />
+                <span className="font-medium">Survey Responses</span>
+              </Link>
+            </div>
+          )}
         </nav>
       </aside>
 
