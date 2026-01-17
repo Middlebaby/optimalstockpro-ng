@@ -9,7 +9,6 @@ const Header = () => {
 
   const navLinks = [
     { href: "#features", label: "Features" },
-    { href: "#pricing", label: "Pricing" },
     { href: "#testimonials", label: "Testimonials" },
     { href: "#faq", label: "FAQ" },
     { href: "/survey", label: "Survey", isRoute: true },
@@ -57,13 +56,8 @@ const Header = () => {
                 Try Demo
               </Button>
             </Link>
-            <Link to="/auth">
-              <Button variant="outline" size="sm">
-                Sign In
-              </Button>
-            </Link>
-            <Link to="/get-started">
-              <Button size="sm">Get Started</Button>
+            <Link to="/survey">
+              <Button size="sm">Take Survey</Button>
             </Link>
           </div>
 
@@ -113,13 +107,8 @@ const Header = () => {
                       Try Demo
                     </Button>
                   </Link>
-                  <Link to="/auth">
-                    <Button variant="outline" className="w-full">
-                      Sign In
-                    </Button>
-                  </Link>
-                  <Link to="/get-started">
-                    <Button className="w-full">Get Started</Button>
+                  <Link to="/survey">
+                    <Button className="w-full">Take Survey</Button>
                   </Link>
                 </div>
               </div>
