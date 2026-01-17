@@ -238,20 +238,16 @@ const Demo = () => {
           </div>
         </nav>
 
-        {/* Demo Banner */}
-        <div className="absolute bottom-4 left-4 right-4">
-          <div className="bg-accent/10 rounded-xl p-4 text-center">
-            <p className="text-sm text-accent-foreground font-medium mb-2">
-              This is a demo environment
-            </p>
-            <Link to="/get-started">
-              <Button variant="accent" size="sm" className="w-full">
-                Get Full Access
-              </Button>
-            </Link>
-          </div>
-        </div>
       </aside>
+
+      {/* Demo Banner - Fixed at bottom */}
+      <div className="fixed bottom-4 left-4 right-4 lg:left-4 lg:right-auto lg:w-56 z-30">
+        <div className="bg-accent/10 backdrop-blur-sm border border-accent/20 rounded-xl p-3 text-center">
+          <p className="text-xs text-accent-foreground font-medium">
+            📋 This is a demo environment
+          </p>
+        </div>
+      </div>
 
       {/* Main Content */}
       <main className="lg:ml-64 pt-16 min-h-screen">

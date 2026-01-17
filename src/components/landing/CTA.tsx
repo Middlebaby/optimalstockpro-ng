@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { ArrowRight, Sparkles } from "lucide-react";
+import { ArrowRight, ClipboardList } from "lucide-react";
 
 const CTA = () => {
   return (
@@ -20,19 +20,19 @@ const CTA = () => {
 
           <div className="relative text-center max-w-3xl mx-auto">
             <div className="inline-flex items-center gap-2 bg-primary-foreground/20 text-primary-foreground px-4 py-2 rounded-full text-sm font-medium mb-6">
-              <Sparkles className="w-4 h-4" />
-              Start Your 14-Day Free Trial
+              <ClipboardList className="w-4 h-4" />
+              Help Us Build For You
             </div>
             <h2 className="text-3xl md:text-4xl lg:text-5xl font-heading font-bold text-primary-foreground mb-6">
-              Ready to Take Control of Your Inventory?
+              We Want to Hear From You!
             </h2>
             <p className="text-lg text-primary-foreground/80 mb-8 max-w-2xl mx-auto">
-              Join 50+ Nigerian SMEs already saving time and money with Optimalstock Pro. Set up takes less than 30 minutes.
+              Take our quick 2-minute survey and help us build the perfect inventory management solution for Nigerian SMEs. Get 1 month free upon launch!
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Link to="/get-started">
+              <Link to="/survey">
                 <Button variant="hero" size="xl" className="group">
-                  Get Started Free
+                  Take the Survey
                   <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
                 </Button>
               </Link>
