@@ -4,22 +4,28 @@ import { Quote } from "lucide-react";
 const Testimonials = () => {
   const testimonials = [
     {
-      quote: "We were losing ₦200,000 monthly to missing items and stock-outs. Optimalstock Pro helped us recover that and more.",
-      author: "Chidi Okonkwo",
-      role: "Manufacturing Business Owner",
+      quote: "We use notebook to keep track of stocks but it's stressful. Also tried Excel and it's the same problem - can't keep up with daily movements.",
+      author: "Tunde",
+      role: "Frozen Food Seller",
       location: "Lagos",
     },
     {
-      quote: "Counting inventory used to take 4 hours every week. Now it takes 30 minutes. The time savings alone are worth it.",
-      author: "Amina Ibrahim",
+      quote: "Can't keep track of what I have in stock. My staffs steal a lot and I only find out when I do manual counting at month end.",
+      author: "Emeka",
+      role: "Fabrication Company Owner",
+      location: "Port Harcourt",
+    },
+    {
+      quote: "I've lost over ₦300,000 this year alone from items going missing. No system to track who took what and when.",
+      author: "Amina",
       role: "Retail Store Owner",
       location: "Abuja",
     },
     {
-      quote: "Staff accountability changed everything. Now everyone knows their transactions are tracked. Theft dropped to zero.",
-      author: "Tunde Adeleke",
-      role: "Restaurant Owner",
-      location: "Port Harcourt",
+      quote: "My suppliers deliver short quantities sometimes. Without proper records, I can't prove anything or hold them accountable.",
+      author: "Chidi",
+      role: "Construction Materials Dealer",
+      location: "Enugu",
     },
   ];
 
@@ -33,15 +39,18 @@ const Testimonials = () => {
           transition={{ duration: 0.5 }}
           className="text-center mb-12"
         >
+          <div className="inline-flex items-center gap-2 bg-accent/10 text-accent px-4 py-2 rounded-full text-sm font-medium mb-4">
+            ⭐ What Nigerian Business Owners Are Saying
+          </div>
           <h2 className="text-3xl md:text-4xl font-heading font-bold text-foreground mb-4">
-            What Business Owners Say
+            Real Problems, Real Business Owners
           </h2>
           <p className="text-muted-foreground max-w-2xl mx-auto">
-            Join the growing community of Nigerian SMEs transforming their inventory management.
+            These are actual challenges shared by Nigerian SME owners. Sound familiar?
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {testimonials.map((testimonial, index) => (
             <motion.div
               key={index}
@@ -49,20 +58,20 @@ const Testimonials = () => {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: index * 0.1 }}
-              className="bg-card rounded-xl p-8 shadow-card relative"
+              className="bg-card rounded-xl p-6 shadow-card relative border-l-4 border-accent"
             >
-              <Quote className="absolute top-6 right-6 w-8 h-8 text-primary/20" />
-              <p className="text-card-foreground mb-6 italic">
+              <Quote className="absolute top-4 right-4 w-6 h-6 text-accent/30" />
+              <p className="text-card-foreground mb-4 text-sm leading-relaxed">
                 "{testimonial.quote}"
               </p>
-              <div>
-                <p className="font-heading font-semibold text-foreground">
+              <div className="border-t border-border pt-4">
+                <p className="font-heading font-semibold text-foreground uppercase text-sm">
                   {testimonial.author}
                 </p>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-xs text-muted-foreground">
                   {testimonial.role}
                 </p>
-                <p className="text-sm text-primary">
+                <p className="text-xs text-primary">
                   {testimonial.location}
                 </p>
               </div>

@@ -4,10 +4,10 @@ import { Input } from "@/components/ui/input";
 
 const DashboardView = () => {
   const stats = [
-    { label: "Total Items", value: "24", icon: Package, color: "bg-primary" },
-    { label: "Total Value", value: "₦1,250,000", icon: DollarSign, color: "bg-primary-glow" },
-    { label: "Low Stock Items", value: "3", icon: AlertTriangle, color: "bg-accent" },
-    { label: "Out of Stock", value: "1", icon: XCircle, color: "bg-destructive" },
+    { label: "Stock Value", value: "₦2,450,000", icon: Package, color: "bg-primary", subtitle: "In warehouse" },
+    { label: "Stock In", value: "₦850,000", icon: DollarSign, color: "bg-primary-glow", subtitle: "This month" },
+    { label: "Stock Out", value: "₦1,125,000", icon: DollarSign, color: "bg-accent", subtitle: "This month" },
+    { label: "Low Stock", value: "3", icon: AlertTriangle, color: "bg-destructive", subtitle: "Items" },
   ];
 
   const recentActivity = [
@@ -46,6 +46,7 @@ const DashboardView = () => {
               <stat.icon className="w-5 h-5 opacity-80" />
             </div>
             <p className="text-3xl font-heading font-bold">{stat.value}</p>
+            <p className="text-xs opacity-70 mt-1">{stat.subtitle}</p>
           </div>
         ))}
       </div>
