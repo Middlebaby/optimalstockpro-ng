@@ -8,7 +8,7 @@ const Pricing = () => {
     {
       name: "Basic",
       icon: Building2,
-      price: "₦7,000",
+      price: "₦5,000",
       period: "/month",
       description: "Perfect for small businesses and retail stores",
       features: [
@@ -27,7 +27,7 @@ const Pricing = () => {
     {
       name: "Professional",
       icon: Factory,
-      price: "₦18,000",
+      price: "₦15,000",
       period: "/month",
       description: "For manufacturing, construction & multi-location businesses",
       features: [
