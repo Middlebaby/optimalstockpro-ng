@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
-import { BarChart3, Mail, Phone, MapPin } from "lucide-react";
+import { Mail, Phone, MapPin } from "lucide-react";
+import logo from "@/assets/logo.png";
 
 const Footer = () => {
   return (
@@ -9,12 +10,7 @@ const Footer = () => {
           {/* Brand */}
           <div className="md:col-span-2">
             <Link to="/" className="flex items-center gap-2 mb-4">
-              <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-primary">
-                <BarChart3 className="w-6 h-6 text-primary-foreground" />
-              </div>
-              <span className="text-xl font-heading font-bold">
-                Optimalstock Pro
-              </span>
+              <img src={logo} alt="OptimalStock Pro" className="h-12 w-auto brightness-0 invert" />
             </Link>
             <p className="text-primary-foreground/70 mb-6 max-w-md">
               Professional inventory management built specifically for Nigerian SMEs. Take control of your stock, reduce losses, and grow your business.
