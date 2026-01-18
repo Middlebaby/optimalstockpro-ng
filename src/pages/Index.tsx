@@ -9,6 +9,7 @@ import FAQ from "@/components/landing/FAQ";
 import ContactForm from "@/components/landing/ContactForm";
 import CTA from "@/components/landing/CTA";
 import Footer from "@/components/landing/Footer";
+import FloatingDemoButton from "@/components/landing/FloatingDemoButton";
 
 const Index = () => {
   return (
@@ -26,6 +27,7 @@ const Index = () => {
         <CTA />
       </main>
       <Footer />
+      <FloatingDemoButton />
     </div>
   );
 };

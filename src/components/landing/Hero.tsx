@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Play } from "lucide-react";
+import { ArrowRight, AlertTriangle, TrendingDown, Users, FileQuestion, Calculator, Package } from "lucide-react";
 import { motion } from "framer-motion";
 
 const Hero = () => {
@@ -9,6 +9,15 @@ const Hero = () => {
     { value: "85%", label: "Reduction in Stock-Outs" },
     { value: "50+", label: "SMEs Using Optimalstock Pro" },
     { value: "2hrs", label: "Saved Daily" },
+  ];
+
+  const problems = [
+    { icon: TrendingDown, text: "Stock disappearing without records?" },
+    { icon: Users, text: "Staff taking items you can't track?" },
+    { icon: FileQuestion, text: "Struggling with notebooks or Excel?" },
+    { icon: Calculator, text: "No idea how much stock is worth?" },
+    { icon: Package, text: "Always running out of key items?" },
+    { icon: AlertTriangle, text: "Can't tell what's selling fast?" },
   ];
 
   return (
@@ -32,21 +41,41 @@ const Hero = () => {
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-heading font-bold text-primary-foreground leading-tight mb-6">
               Stop Losing Money to Poor Inventory Management
             </h1>
-            <p className="text-lg md:text-xl text-primary-foreground/80 mb-10 max-w-2xl mx-auto">
+            <p className="text-lg md:text-xl text-primary-foreground/80 mb-8 max-w-2xl mx-auto">
               Professional Inventory System Built for Nigerian SMEs. Track stock, prevent theft, and make smarter business decisions.
             </p>
+          </motion.div>
+
+          {/* Inventory Problems Grid */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.15 }}
+            className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-10 max-w-3xl mx-auto"
+          >
+            {problems.map((problem, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.3, delay: 0.2 + index * 0.1 }}
+                className="flex items-center gap-2 bg-primary-foreground/10 backdrop-blur-sm rounded-lg px-3 py-2 text-left"
+              >
+                <problem.icon className="w-4 h-4 text-accent flex-shrink-0" />
+                <span className="text-xs md:text-sm text-primary-foreground/90">{problem.text}</span>
+              </motion.div>
+            ))}
           </motion.div>
 
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
+            transition={{ duration: 0.6, delay: 0.4 }}
             className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16"
           >
-            <Link to="/demo">
+            <Link to="/get-started">
               <Button variant="hero" size="xl" className="group">
-                <Play className="w-5 h-5" />
-                Try Live Demo
+                Get Started
                 <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
               </Button>
             </Link>

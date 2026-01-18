@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Menu, X, BarChart3, AlertCircle } from "lucide-react";
+import { Menu, X, AlertCircle } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import logo from "@/assets/logo.png";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -57,12 +58,7 @@ const Header = () => {
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <Link to="/" className="flex items-center gap-2">
-              <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-hero-gradient">
-                <BarChart3 className="w-6 h-6 text-primary-foreground" />
-              </div>
-              <span className="text-xl font-heading font-bold text-foreground">
-                Optimalstock Pro
-              </span>
+              <img src={logo} alt="OptimalStock Pro" className="h-10 w-auto" />
             </Link>
 
             {/* Desktop Navigation */}
