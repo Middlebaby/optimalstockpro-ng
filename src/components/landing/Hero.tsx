@@ -7,7 +7,6 @@ const Hero = () => {
   const stats = [
     { value: "₦500k+", label: "Average Annual Savings" },
     { value: "85%", label: "Reduction in Stock-Outs" },
-    { value: "50+", label: "SMEs Using Optimalstock Pro" },
     { value: "2hrs", label: "Saved Daily" },
   ];
 
@@ -73,9 +72,9 @@ const Hero = () => {
             transition={{ duration: 0.6, delay: 0.4 }}
             className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16"
           >
-            <Link to="/get-started">
+            <Link to="/demo">
               <Button variant="hero" size="xl" className="group">
-                Get Started
+                Try Live Demo
                 <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
               </Button>
             </Link>
@@ -91,7 +90,7 @@ const Hero = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.4 }}
-            className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8"
+            className="grid grid-cols-3 gap-6 md:gap-8 max-w-2xl mx-auto"
           >
             {stats.map((stat, index) => (
               <div key={index} className="text-center">

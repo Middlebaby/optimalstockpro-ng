@@ -10,7 +10,7 @@ const Footer = () => {
           {/* Brand */}
           <div className="md:col-span-2">
             <Link to="/" className="flex items-center gap-2 mb-4">
-              <img src={logo} alt="OptimalStock Pro" className="h-12 w-auto brightness-0 invert" />
+              <img src={logo} alt="OptimalStock Pro" className="h-14 w-auto brightness-0 invert" />
             </Link>
             <p className="text-primary-foreground/70 mb-6 max-w-md">
               Professional inventory management built specifically for Nigerian SMEs. Take control of your stock, reduce losses, and grow your business.
