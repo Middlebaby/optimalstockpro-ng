@@ -58,7 +58,7 @@ const Header = () => {
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <Link to="/" className="flex items-center gap-2">
-              <img src={logo} alt="OptimalStock Pro" className="h-10 w-auto" />
+              <img src={logo} alt="OptimalStock Pro" className="h-14 w-auto" style={{ mixBlendMode: 'multiply' }} />
             </Link>
 
             {/* Desktop Navigation */}
@@ -85,8 +85,8 @@ const Header = () => {
             </nav>
 
             <div className="hidden md:flex items-center gap-4">
-              <Link to="/get-started">
-                <Button size="sm">Get Started</Button>
+              <Link to="/demo">
+                <Button size="sm">Try Live Demo</Button>
               </Link>
             </div>
 
@@ -131,8 +131,8 @@ const Header = () => {
                     )
                   )}
                   <div className="flex flex-col gap-2 pt-2">
-                    <Link to="/get-started">
-                      <Button className="w-full">Get Started</Button>
+                    <Link to="/demo">
+                      <Button className="w-full">Try Live Demo</Button>
                     </Link>
                   </div>
                 </div>
