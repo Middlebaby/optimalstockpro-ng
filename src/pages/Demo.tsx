@@ -17,7 +17,8 @@ import {
   Wrench,
   ShoppingCart,
   ChevronDown,
-  ChevronRight
+  ChevronRight,
+  Truck
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -40,10 +41,12 @@ import Projects from "@/components/demo/Projects";
 import StoreTransfers from "@/components/demo/StoreTransfers";
 import Equipment from "@/components/demo/Equipment";
 import PurchaseOrders from "@/components/demo/PurchaseOrders";
+import Distribution from "@/components/demo/Distribution";
 
 const Demo = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [distributionFeaturesOpen, setDistributionFeaturesOpen] = useState(true);
   const [proFeaturesOpen, setProFeaturesOpen] = useState(true);
 
   const basicNavItems = [
@@ -53,6 +56,10 @@ const Demo = () => {
     { id: "outgoing", label: "Outgoing Stock", icon: ArrowUpCircle },
     { id: "suppliers", label: "Suppliers", icon: Users },
     { id: "reports", label: "Reports", icon: FileText },
+  ];
+
+  const distributionNavItems = [
+    { id: "distribution", label: "Distribution", icon: Truck },
   ];
 
   const proNavItems = [
@@ -78,6 +85,8 @@ const Demo = () => {
         return <Reports />;
       case "setup":
         return <SetupGuide />;
+      case "distribution":
+        return <Distribution />;
       case "projects":
         return <Projects />;
       case "transfers":
@@ -91,6 +100,7 @@ const Demo = () => {
     }
   };
 
+  const isDistributionFeature = distributionNavItems.some(item => item.id === activeTab);
   const isProFeature = proNavItems.some(item => item.id === activeTab);
 
   return (
@@ -183,13 +193,49 @@ const Demo = () => {
             </button>
           ))}
 
-          {/* Professional Features Section */}
+          {/* Distribution Features Section */}
           <div className="pt-4">
+            <Collapsible open={distributionFeaturesOpen} onOpenChange={setDistributionFeaturesOpen}>
+              <CollapsibleTrigger className="w-full flex items-center justify-between px-4 py-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider hover:text-foreground transition-colors">
+                <div className="flex items-center gap-2">
+                  Distribution
+                  <Badge variant="outline" className="text-[10px] px-1.5 py-0 border-green-500 text-green-600">TIER 2</Badge>
+                </div>
+                {distributionFeaturesOpen ? (
+                  <ChevronDown className="w-4 h-4" />
+                ) : (
+                  <ChevronRight className="w-4 h-4" />
+                )}
+              </CollapsibleTrigger>
+              <CollapsibleContent className="space-y-1 pt-2">
+                {distributionNavItems.map((item) => (
+                  <button
+                    key={item.id}
+                    onClick={() => {
+                      setActiveTab(item.id);
+                      setSidebarOpen(false);
+                    }}
+                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left transition-colors ${
+                      activeTab === item.id
+                        ? "bg-green-600 text-white"
+                        : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                    }`}
+                  >
+                    <item.icon className="w-5 h-5" />
+                    <span className="font-medium">{item.label}</span>
+                  </button>
+                ))}
+              </CollapsibleContent>
+            </Collapsible>
+          </div>
+
+          {/* Professional Features Section */}
+          <div className="pt-2">
             <Collapsible open={proFeaturesOpen} onOpenChange={setProFeaturesOpen}>
               <CollapsibleTrigger className="w-full flex items-center justify-between px-4 py-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider hover:text-foreground transition-colors">
                 <div className="flex items-center gap-2">
-                  Professional Features
-                  <Badge variant="outline" className="text-[10px] px-1.5 py-0">PRO</Badge>
+                  Professional
+                  <Badge variant="outline" className="text-[10px] px-1.5 py-0">TIER 3</Badge>
                 </div>
                 {proFeaturesOpen ? (
                   <ChevronDown className="w-4 h-4" />
