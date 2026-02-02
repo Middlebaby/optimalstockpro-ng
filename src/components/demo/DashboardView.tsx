@@ -1,6 +1,7 @@
-import { Package, DollarSign, AlertTriangle, XCircle, Calendar } from "lucide-react";
+import { Package, DollarSign, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import InventoryFlowDiagram from "./InventoryFlowDiagram";
 
 const DashboardView = () => {
   const stats = [
@@ -50,6 +51,9 @@ const DashboardView = () => {
           </div>
         ))}
       </div>
+
+      {/* Inventory Flow Diagram */}
+      <InventoryFlowDiagram />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Stock Alerts */}
