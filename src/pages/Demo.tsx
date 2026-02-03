@@ -18,7 +18,10 @@ import {
   ShoppingCart,
   ChevronDown,
   ChevronRight,
-  Truck
+  Truck,
+  Calendar,
+  Activity,
+  QrCode
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -42,18 +45,34 @@ import StoreTransfers from "@/components/demo/StoreTransfers";
 import Equipment from "@/components/demo/Equipment";
 import PurchaseOrders from "@/components/demo/PurchaseOrders";
 import Distribution from "@/components/demo/Distribution";
+import ExpiryAlerts from "@/components/demo/ExpiryAlerts";
+import ActivityLogs from "@/components/demo/ActivityLogs";
+import BarcodeScanner from "@/components/demo/BarcodeScanner";
+import { toast } from "sonner";
 
 const Demo = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [distributionFeaturesOpen, setDistributionFeaturesOpen] = useState(true);
   const [proFeaturesOpen, setProFeaturesOpen] = useState(true);
+  const [scannerOpen, setScannerOpen] = useState(false);
+
+  const handleBarcodeScan = (code: string, format: string) => {
+    toast.success(`Scanned: ${code}`, {
+      description: `Format: ${format}. Item lookup ready.`,
+      action: {
+        label: "View Item",
+        onClick: () => setActiveTab("inventory"),
+      },
+    });
+  };
 
   const basicNavItems = [
     { id: "dashboard", label: "Dashboard", icon: Home },
     { id: "inventory", label: "Master Inventory", icon: Package },
     { id: "incoming", label: "Incoming Stock", icon: ArrowDownCircle },
     { id: "outgoing", label: "Outgoing Stock", icon: ArrowUpCircle },
+    { id: "expiry", label: "Expiry Tracking", icon: Calendar },
     { id: "suppliers", label: "Suppliers", icon: Users },
     { id: "reports", label: "Reports", icon: FileText },
   ];
@@ -67,6 +86,7 @@ const Demo = () => {
     { id: "transfers", label: "Store Transfers", icon: ArrowRightLeft },
     { id: "equipment", label: "Equipment & Tools", icon: Wrench },
     { id: "purchase-orders", label: "Purchase Orders", icon: ShoppingCart },
+    { id: "activity-logs", label: "Activity Logs", icon: Activity },
   ];
 
   const renderContent = () => {
@@ -74,11 +94,13 @@ const Demo = () => {
       case "dashboard":
         return <DashboardView />;
       case "inventory":
-        return <MasterInventory />;
+        return <MasterInventory onOpenScanner={() => setScannerOpen(true)} />;
       case "incoming":
         return <IncomingStock />;
       case "outgoing":
         return <OutgoingStock />;
+      case "expiry":
+        return <ExpiryAlerts />;
       case "suppliers":
         return <Suppliers />;
       case "reports":
@@ -95,6 +117,8 @@ const Demo = () => {
         return <Equipment />;
       case "purchase-orders":
         return <PurchaseOrders />;
+      case "activity-logs":
+        return <ActivityLogs />;
       default:
         return <DashboardView />;
     }
@@ -138,6 +162,13 @@ const Demo = () => {
                 className="border-0 bg-transparent text-primary-foreground placeholder:text-primary-foreground/50 focus-visible:ring-0 w-48"
               />
             </div>
+            <button 
+              className="p-2 text-primary-foreground/70 hover:text-primary-foreground transition-colors"
+              onClick={() => setScannerOpen(true)}
+              title="Scan Barcode"
+            >
+              <QrCode className="w-5 h-5" />
+            </button>
             <button className="relative p-2 text-primary-foreground/70 hover:text-primary-foreground transition-colors">
               <Bell className="w-5 h-5" />
               <span className="absolute top-1 right-1 w-2 h-2 bg-accent rounded-full" />
@@ -311,6 +342,13 @@ const Demo = () => {
           </AnimatePresence>
         </div>
       </main>
+
+      {/* Barcode Scanner Modal */}
+      <BarcodeScanner
+        isOpen={scannerOpen}
+        onClose={() => setScannerOpen(false)}
+        onScan={handleBarcodeScan}
+      />
     </div>
   );
 };

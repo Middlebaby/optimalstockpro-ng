@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Plus, Edit, Trash2, Search } from "lucide-react";
+import { Plus, Edit, Trash2, Search, QrCode, Calendar, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -17,6 +17,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { format, addDays, differenceInDays, isPast, isToday } from "date-fns";
+import { Badge } from "@/components/ui/badge";
 
 interface InventoryItem {
   id: string;
@@ -28,27 +30,33 @@ interface InventoryItem {
   reorderLevel: number;
   location: string;
   supplier: string;
+  expiryDate?: Date;
+  sku?: string;
 }
 
-const MasterInventory = () => {
+interface MasterInventoryProps {
+  onOpenScanner?: () => void;
+}
+
+const MasterInventory = ({ onOpenScanner }: MasterInventoryProps) => {
   const [items, setItems] = useState<InventoryItem[]>([
     // Construction Materials
-    { id: "1", name: "Premium Cement", category: "Raw Materials", quantity: 150, unit: "bags", unitCost: 4500, reorderLevel: 50, location: "Warehouse A", supplier: "Dangote Cement" },
-    { id: "2", name: "Steel Rods (12mm)", category: "Raw Materials", quantity: 200, unit: "pieces", unitCost: 2500, reorderLevel: 100, location: "Warehouse A", supplier: "Steel Masters" },
-    // Food & Restaurant
-    { id: "3", name: "Rice (50kg bags)", category: "Food Products", quantity: 100, unit: "bags", unitCost: 45000, reorderLevel: 30, location: "Main Store", supplier: "Lagos Rice Mill" },
-    { id: "4", name: "Chicken Laps", category: "Food Products", quantity: 50, unit: "kilos", unitCost: 3500, reorderLevel: 20, location: "Cold Room", supplier: "Obasanjo Farms" },
-    { id: "5", name: "Vegetable Oil (25L)", category: "Food Products", quantity: 25, unit: "kegs", unitCost: 35000, reorderLevel: 10, location: "Main Store", supplier: "Kings Oil" },
-    { id: "6", name: "Frozen Fish (Tilapia)", category: "Food Products", quantity: 8, unit: "cartons", unitCost: 28000, reorderLevel: 15, location: "Cold Room", supplier: "Fresh Catch Ltd" },
+    { id: "1", name: "Premium Cement", category: "Raw Materials", quantity: 150, unit: "bags", unitCost: 4500, reorderLevel: 50, location: "Warehouse A", supplier: "Dangote Cement", sku: "CEM-DAN-050" },
+    { id: "2", name: "Steel Rods (12mm)", category: "Raw Materials", quantity: 200, unit: "pieces", unitCost: 2500, reorderLevel: 100, location: "Warehouse A", supplier: "Steel Masters", sku: "STL-12M-001" },
+    // Food & Restaurant (with expiry dates)
+    { id: "3", name: "Rice (50kg bags)", category: "Food Products", quantity: 100, unit: "bags", unitCost: 45000, reorderLevel: 30, location: "Main Store", supplier: "Lagos Rice Mill", sku: "RIC-50K-001", expiryDate: addDays(new Date(), 180) },
+    { id: "4", name: "Chicken Laps", category: "Food Products", quantity: 50, unit: "kilos", unitCost: 3500, reorderLevel: 20, location: "Cold Room", supplier: "Obasanjo Farms", sku: "CHK-LAP-001", expiryDate: new Date() },
+    { id: "5", name: "Vegetable Oil (25L)", category: "Food Products", quantity: 25, unit: "kegs", unitCost: 35000, reorderLevel: 10, location: "Main Store", supplier: "Kings Oil", sku: "OIL-VEG-025", expiryDate: addDays(new Date(), 365) },
+    { id: "6", name: "Frozen Fish (Tilapia)", category: "Food Products", quantity: 8, unit: "cartons", unitCost: 28000, reorderLevel: 15, location: "Cold Room", supplier: "Fresh Catch Ltd", sku: "FSH-TLP-001", expiryDate: addDays(new Date(), -2) },
     // Retail & General
-    { id: "7", name: "Bottled Water (75cl)", category: "Beverages", quantity: 500, unit: "cartons", unitCost: 2500, reorderLevel: 100, location: "Warehouse B", supplier: "Eva Water" },
-    { id: "8", name: "Soft Drinks (35cl)", category: "Beverages", quantity: 3, unit: "crates", unitCost: 3200, reorderLevel: 50, location: "Shop Floor", supplier: "Coca-Cola" },
+    { id: "7", name: "Bottled Water (75cl)", category: "Beverages", quantity: 500, unit: "cartons", unitCost: 2500, reorderLevel: 100, location: "Warehouse B", supplier: "Eva Water", sku: "WAT-75C-001", expiryDate: addDays(new Date(), 730) },
+    { id: "8", name: "Soft Drinks (35cl)", category: "Beverages", quantity: 3, unit: "crates", unitCost: 3200, reorderLevel: 50, location: "Shop Floor", supplier: "Coca-Cola", sku: "SDK-35C-001", expiryDate: addDays(new Date(), 90) },
     // Electronics & Tech
-    { id: "9", name: "Phone Chargers (Type-C)", category: "Electronics", quantity: 150, unit: "pieces", unitCost: 1500, reorderLevel: 50, location: "Display Unit", supplier: "Tech Hub" },
-    { id: "10", name: "LED Bulbs (18W)", category: "Electronics", quantity: 0, unit: "pieces", unitCost: 1200, reorderLevel: 30, location: "Warehouse A", supplier: "Philips Nigeria" },
+    { id: "9", name: "Phone Chargers (Type-C)", category: "Electronics", quantity: 150, unit: "pieces", unitCost: 1500, reorderLevel: 50, location: "Display Unit", supplier: "Tech Hub", sku: "CHG-TYC-001" },
+    { id: "10", name: "LED Bulbs (18W)", category: "Electronics", quantity: 0, unit: "pieces", unitCost: 1200, reorderLevel: 30, location: "Warehouse A", supplier: "Philips Nigeria", sku: "LED-18W-001" },
     // Fashion & Clothing
-    { id: "11", name: "Ankara Fabric", category: "Textiles", quantity: 75, unit: "yards", unitCost: 2500, reorderLevel: 25, location: "Fabric Section", supplier: "ABC Wax" },
-    { id: "12", name: "Men's Polo Shirts", category: "Clothing", quantity: 45, unit: "pieces", unitCost: 4500, reorderLevel: 20, location: "Shop Floor", supplier: "Fashion House" },
+    { id: "11", name: "Ankara Fabric", category: "Textiles", quantity: 75, unit: "yards", unitCost: 2500, reorderLevel: 25, location: "Fabric Section", supplier: "ABC Wax", sku: "ANK-FAB-001" },
+    { id: "12", name: "Men's Polo Shirts", category: "Clothing", quantity: 45, unit: "pieces", unitCost: 4500, reorderLevel: 20, location: "Shop Floor", supplier: "Fashion House", sku: "POL-MEN-001" },
   ]);
 
   const [searchQuery, setSearchQuery] = useState("");
@@ -66,7 +74,18 @@ const MasterInventory = () => {
 
   const categories = ["Raw Materials", "Food Products", "Beverages", "Electronics", "Textiles", "Clothing", "Supplies", "Equipment"];
 
-  const getStatus = (quantity: number, reorderLevel: number) => {
+  const getStatus = (quantity: number, reorderLevel: number, expiryDate?: Date) => {
+    // Check expiry first
+    if (expiryDate) {
+      const daysLeft = differenceInDays(expiryDate, new Date());
+      if (isPast(expiryDate) && !isToday(expiryDate)) {
+        return { label: "Expired", color: "bg-destructive text-destructive-foreground" };
+      }
+      if (isToday(expiryDate) || daysLeft <= 3) {
+        return { label: "Expiring Soon", color: "bg-accent text-accent-foreground" };
+      }
+    }
+    
     if (quantity === 0) return { label: "Out of Stock", color: "bg-destructive text-destructive-foreground" };
     if (quantity <= reorderLevel) return { label: "Low Stock", color: "bg-accent text-accent-foreground" };
     return { label: "In Stock", color: "bg-primary/10 text-primary" };
@@ -105,13 +124,20 @@ const MasterInventory = () => {
             Manage all your inventory items in one place
           </p>
         </div>
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogTrigger asChild>
-            <Button>
-              <Plus className="w-4 h-4" />
-              Add New Item
+        <div className="flex gap-2">
+          {onOpenScanner && (
+            <Button variant="outline" onClick={onOpenScanner}>
+              <QrCode className="w-4 h-4" />
+              <span className="hidden sm:inline ml-2">Scan Barcode</span>
             </Button>
-          </DialogTrigger>
+          )}
+          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+            <DialogTrigger asChild>
+              <Button>
+                <Plus className="w-4 h-4" />
+                Add New Item
+              </Button>
+            </DialogTrigger>
           <DialogContent className="max-w-lg">
             <DialogHeader>
               <DialogTitle>Add New Item</DialogTitle>
@@ -215,6 +241,7 @@ const MasterInventory = () => {
             </div>
           </DialogContent>
         </Dialog>
+        </div>
       </div>
 
       {/* Search */}
@@ -248,12 +275,17 @@ const MasterInventory = () => {
             </thead>
             <tbody>
               {filteredItems.map((item) => {
-                const status = getStatus(item.quantity, item.reorderLevel);
+                const status = getStatus(item.quantity, item.reorderLevel, item.expiryDate);
                 return (
                   <tr key={item.id} className="border-b border-border/50 hover:bg-muted/30 transition-colors">
                     <td className="py-4 px-4">
                       <p className="font-medium text-card-foreground">{item.name}</p>
-                      <p className="text-xs text-muted-foreground">{item.supplier}</p>
+                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                        <span>{item.supplier}</span>
+                        {item.sku && (
+                          <span className="font-mono bg-muted px-1 rounded">{item.sku}</span>
+                        )}
+                      </div>
                     </td>
                     <td className="py-4 px-4 text-sm text-card-foreground">{item.category}</td>
                     <td className="py-4 px-4 text-sm text-card-foreground">
@@ -266,9 +298,17 @@ const MasterInventory = () => {
                       ₦{(item.quantity * item.unitCost).toLocaleString()}
                     </td>
                     <td className="py-4 px-4">
-                      <span className={`text-xs px-2 py-1 rounded-full ${status.color}`}>
-                        {status.label}
-                      </span>
+                      <div className="flex flex-col gap-1">
+                        <span className={`text-xs px-2 py-1 rounded-full w-fit ${status.color}`}>
+                          {status.label}
+                        </span>
+                        {item.expiryDate && (
+                          <span className="text-xs text-muted-foreground flex items-center gap-1">
+                            <Calendar className="w-3 h-3" />
+                            {format(item.expiryDate, "MMM d, yyyy")}
+                          </span>
+                        )}
+                      </div>
                     </td>
                     <td className="py-4 px-4 text-sm text-card-foreground">{item.location}</td>
                     <td className="py-4 px-4">
