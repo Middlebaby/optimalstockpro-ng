@@ -8,10 +8,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
-import { Bell, User, Shield, Building2, Users, Save, Loader2 } from "lucide-react";
+import { Bell, User, Shield, Building2, Users, Save, Loader2, Smartphone, Send, BellRing } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
+import { usePushNotifications } from "@/hooks/usePushNotifications";
+import { useWhatsAppAlert } from "@/hooks/useWhatsAppAlert";
 
 interface Profile {
   id: string;
@@ -39,7 +41,9 @@ const Settings = () => {
   const { user } = useAuth();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  
+  const [sendingWhatsApp, setSendingWhatsApp] = useState(false);
+  const { isSupported: pushSupported, permission: pushPermission, requestPermission, notifyLowStock } = usePushNotifications();
+  const { sendLowStockAlert } = useWhatsAppAlert();
   const [profile, setProfile] = useState<Profile>({
     id: '',
     full_name: '',
@@ -362,6 +366,109 @@ const Settings = () => {
                   />
                 </div>
               </div>
+
+              <Separator />
+
+              {/* Push Notifications */}
+              <div className="space-y-4">
+                <h4 className="font-heading font-semibold text-foreground flex items-center gap-2">
+                  <BellRing className="w-4 h-4 text-primary" />
+                  Push Notifications
+                </h4>
+                <div className="p-4 bg-muted rounded-lg space-y-3">
+                  {pushSupported ? (
+                    <>
+                      <div className="flex items-center justify-between">
+                        <div className="space-y-0.5">
+                          <Label>Browser Notifications</Label>
+                          <p className="text-sm text-muted-foreground">
+                            {pushPermission === "granted"
+                              ? "Notifications are enabled"
+                              : pushPermission === "denied"
+                              ? "Notifications are blocked in your browser"
+                              : "Enable browser alerts for real-time updates"}
+                          </p>
+                        </div>
+                        <Badge variant={pushPermission === "granted" ? "default" : "secondary"}>
+                          {pushPermission === "granted" ? "Enabled" : pushPermission === "denied" ? "Blocked" : "Off"}
+                        </Badge>
+                      </div>
+                      {pushPermission !== "granted" && pushPermission !== "denied" && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={async () => {
+                            const granted = await requestPermission();
+                            if (granted) {
+                              toast.success("Push notifications enabled!");
+                            } else {
+                              toast.error("Permission denied. Enable in browser settings.");
+                            }
+                          }}
+                          className="gap-2"
+                        >
+                          <Bell className="w-4 h-4" />
+                          Enable Notifications
+                        </Button>
+                      )}
+                      {pushPermission === "granted" && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => notifyLowStock("Sample Item", 5, 20)}
+                          className="gap-2"
+                        >
+                          <Send className="w-4 h-4" />
+                          Test Notification
+                        </Button>
+                      )}
+                    </>
+                  ) : (
+                    <p className="text-sm text-muted-foreground">
+                      Push notifications are not supported on this browser. Try Chrome or Edge.
+                    </p>
+                  )}
+                </div>
+              </div>
+
+              <Separator />
+
+              {/* WhatsApp Test */}
+              {notifications.whatsapp_notifications && notifications.whatsapp_number && (
+                <div className="space-y-3">
+                  <h4 className="font-heading font-semibold text-foreground flex items-center gap-2">
+                    <Smartphone className="w-4 h-4 text-primary" />
+                    WhatsApp Test
+                  </h4>
+                  <div className="p-4 bg-muted rounded-lg space-y-3">
+                    <p className="text-sm text-muted-foreground">
+                      Send a test low-stock alert to {notifications.whatsapp_number}
+                    </p>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      disabled={sendingWhatsApp}
+                      onClick={async () => {
+                        setSendingWhatsApp(true);
+                        try {
+                          await sendLowStockAlert(notifications.whatsapp_number, [
+                            { name: "Sample Product", quantity: 3, reorderLevel: 10 },
+                          ]);
+                          toast.success("WhatsApp test alert sent!");
+                        } catch (err: any) {
+                          toast.error(err.message || "Failed to send WhatsApp alert");
+                        } finally {
+                          setSendingWhatsApp(false);
+                        }
+                      }}
+                      className="gap-2"
+                    >
+                      {sendingWhatsApp ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+                      Send Test Alert
+                    </Button>
+                  </div>
+                </div>
+              )}
 
               <Separator />
               <Button onClick={saveNotifications} disabled={saving}>
