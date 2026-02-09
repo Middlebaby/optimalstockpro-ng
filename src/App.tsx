@@ -12,6 +12,7 @@ import Dashboard from "./pages/Dashboard";
 import Survey from "./pages/Survey";
 import AdminSurvey from "./pages/AdminSurvey";
 import Flyers from "./pages/Flyers";
+import Install from "./pages/Install";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -32,6 +33,7 @@ const App = () => (
             <Route path="/survey" element={<Survey />} />
             <Route path="/admin/survey" element={<AdminSurvey />} />
             <Route path="/flyers" element={<Flyers />} />
+            <Route path="/install" element={<Install />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

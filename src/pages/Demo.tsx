@@ -21,7 +21,8 @@ import {
   Truck,
   Calendar,
   Activity,
-  QrCode
+  QrCode,
+  Settings as SettingsIcon
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -48,6 +49,7 @@ import Distribution from "@/components/demo/Distribution";
 import ExpiryAlerts from "@/components/demo/ExpiryAlerts";
 import ActivityLogs from "@/components/demo/ActivityLogs";
 import BarcodeScanner from "@/components/demo/BarcodeScanner";
+import Settings from "@/components/demo/Settings";
 import { toast } from "sonner";
 
 const Demo = () => {
@@ -87,6 +89,7 @@ const Demo = () => {
     { id: "equipment", label: "Equipment & Tools", icon: Wrench },
     { id: "purchase-orders", label: "Purchase Orders", icon: ShoppingCart },
     { id: "activity-logs", label: "Activity Logs", icon: Activity },
+    { id: "settings", label: "Settings", icon: SettingsIcon },
   ];
 
   const renderContent = () => {
@@ -119,6 +122,8 @@ const Demo = () => {
         return <PurchaseOrders />;
       case "activity-logs":
         return <ActivityLogs />;
+      case "settings":
+        return <Settings />;
       default:
         return <DashboardView />;
     }
