@@ -1,1 +1,4 @@
 project_id = "gelczbmbttziuaawwkxb"
+
+[functions.send-lifecycle-email]
+verify_jwt = false
