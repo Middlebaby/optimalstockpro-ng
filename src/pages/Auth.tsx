@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/hooks/useAuth";
+import { useLifecycleEmail } from "@/hooks/useLifecycleEmail";
 import { toast } from "sonner";
 import { z } from "zod";
 
@@ -37,6 +38,7 @@ const Auth = () => {
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const { signIn, signUp, user, loading } = useAuth();
+  const { sendEmail } = useLifecycleEmail();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -113,6 +115,10 @@ const Auth = () => {
           }
         } else {
           toast.success("Account created successfully!");
+          // Fire welcome email in the background
+          sendEmail("welcome", formData.email, { name: formData.fullName }).catch((err) =>
+            console.error("Welcome email failed:", err)
+          );
           navigate("/dashboard");
         }
       }
