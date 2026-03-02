@@ -85,6 +85,9 @@ const Header = () => {
             </nav>
 
             <div className="hidden md:flex items-center gap-4">
+              <Link to="/auth">
+                <Button variant="outline" size="sm">Sign In</Button>
+              </Link>
               <Link to="/demo">
                 <Button size="sm">Try Live Demo</Button>
               </Link>
@@ -130,7 +133,10 @@ const Header = () => {
                       </a>
                     )
                   )}
-                  <div className="flex flex-col gap-2 pt-2">
+                    <div className="flex flex-col gap-2 pt-2">
+                    <Link to="/auth">
+                      <Button variant="outline" className="w-full">Sign In</Button>
+                    </Link>
                     <Link to="/demo">
                       <Button className="w-full">Try Live Demo</Button>
                     </Link>
