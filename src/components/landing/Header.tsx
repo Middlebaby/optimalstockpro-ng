@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Menu, X, AlertCircle } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import logo from "@/assets/logo.png";
+import ThemeToggle from "@/components/ThemeToggle";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -85,6 +86,7 @@ const Header = () => {
             </nav>
 
             <div className="hidden md:flex items-center gap-4">
+              <ThemeToggle />
               <Link to="/auth">
                 <Button variant="outline" size="sm">Sign In</Button>
               </Link>
@@ -134,6 +136,10 @@ const Header = () => {
                     )
                   )}
                     <div className="flex flex-col gap-2 pt-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-muted-foreground">Theme</span>
+                      <ThemeToggle />
+                    </div>
                     <Link to="/auth">
                       <Button variant="outline" className="w-full">Sign In</Button>
                     </Link>
