@@ -167,7 +167,7 @@ const handler = async (req: Request): Promise<Response> => {
 
     const userEmailResponse = await sendEmail(
       [surveyData.email],
-      "Thank You for Your Survey Response - Your Rewards Inside! 🎁",
+      "Thank you for completing the survey — here is your exclusive discount",
       userEmailHtml
     );
 
