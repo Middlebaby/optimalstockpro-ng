@@ -132,20 +132,20 @@ const handler = async (req: Request): Promise<Response> => {
 
     const userEmailHtml = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #333;">
-        <h1 style="color: #16a34a; font-size: 22px;">Thank you for completing the survey — here is your exclusive discount.</h1>
+        <h1 style="color: #16a34a; font-size: 22px;">Thank you for completing the survey — here is your exclusive reward.</h1>
         
         <p style="font-size: 15px; line-height: 1.6;">Dear ${firstName},</p>
         
         <p style="font-size: 15px; line-height: 1.6;">Thank you for taking the time to complete our survey. We truly appreciate your input — responses like yours are what will help us build an inventory solution that works for Nigerian SMEs in the real world.</p>
         
-        <p style="font-size: 15px; line-height: 1.6;">As promised, here is your exclusive discount code for <strong>50% off your first month</strong> when OptimalStockPro launches:</p>
+        <p style="font-size: 15px; line-height: 1.6;">As promised, here is your exclusive code for <strong>1 month free access</strong> when OptimalStockPro launches:</p>
         
         <div style="background: #f0fdf4; padding: 24px; border-radius: 12px; margin: 24px 0; text-align: center;">
-          <p style="font-size: 14px; color: #166534; margin: 0 0 8px 0;">🌟 Discount Code</p>
-          <p style="font-size: 28px; font-weight: bold; color: #16a34a; letter-spacing: 4px; margin: 0;">SURVEY050</p>
+          <p style="font-size: 14px; color: #166534; margin: 0 0 8px 0;">🌟 Your Free Access Code</p>
+          <p style="font-size: 28px; font-weight: bold; color: #16a34a; letter-spacing: 4px; margin: 0;">SURVEYFREE1</p>
         </div>
         
-        <p style="font-size: 15px; line-height: 1.6;">Please save this email so you have the code ready at checkout. We will notify you as soon as we go live.</p>
+        <p style="font-size: 15px; line-height: 1.6;">Please save this email so you have the code ready when you sign up. We will notify you as soon as we go live.</p>
         
         <p style="font-size: 15px; line-height: 1.6;">In the meantime, feel free to explore our platform and see what we are building:</p>
         
@@ -167,7 +167,7 @@ const handler = async (req: Request): Promise<Response> => {
 
     const userEmailResponse = await sendEmail(
       [surveyData.email],
-      "Thank you for completing the survey — here is your exclusive discount",
+      "Thank you for completing the survey — here is your 1 month free access",
       userEmailHtml
     );
 
