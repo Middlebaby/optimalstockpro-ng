@@ -45,7 +45,7 @@ async function sendEmail(to: string[], subject: string, html: string) {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      from: "OptimalStock Pro <onboarding@resend.dev>",
+      from: "OptimalStock Pro <info@optimalstockpro.com>",
       to,
       subject,
       html,
