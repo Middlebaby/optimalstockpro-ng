@@ -48,7 +48,7 @@ const wrapper = (content: string) => `
   <div style="margin-top:40px;padding-top:24px;border-top:1px solid #e5e7eb;text-align:center;color:${brand.muted};font-size:13px;">
     <p style="margin:0 0 8px;">OptimalStock Pro — Smart Inventory for Nigerian Businesses</p>
     <p style="margin:0;">📧 info@optimalstockpro.com · 📞 +234 814 817 0730</p>
-    <p style="margin:8px 0 0;">Best regards,<br><strong style="color:${brand.foreground};">Arinola Abolarin</strong><br>Founder, OptimalStock Pro</p>
+    <p style="margin:8px 0 0;">Best regards,<br><strong style="color:${brand.foreground};">Arinola Abolarin</strong></p>
   </div>
 </div>
 </body>
