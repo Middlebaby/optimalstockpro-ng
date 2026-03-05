@@ -157,8 +157,7 @@ const handler = async (req: Request): Promise<Response> => {
         
         <p style="font-size: 15px; line-height: 1.6; margin-top: 32px;">
           Kind regards,<br><br>
-          <strong>Arinola Abolarin</strong><br>
-          Founder, OptimalStockPro<br><br>
+          <strong>Arinola Abolarin</strong><br><br>
           📧 <a href="mailto:info@optimalstockpro.com" style="color: #16a34a;">info@optimalstockpro.com</a><br>
           🌐 <a href="https://optimalstockpro-ng.lovable.app" style="color: #16a34a;">optimalstockpro.com</a>
         </p>
