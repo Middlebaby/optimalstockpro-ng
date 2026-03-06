@@ -12,12 +12,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { BarChart3, ArrowRight, CheckCircle } from "lucide-react";
+import { BarChart3, ArrowRight, CheckCircle, Loader2 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 import Header from "@/components/landing/Header";
 import Footer from "@/components/landing/Footer";
 
 const GetStarted = () => {
   const [step, setStep] = useState(1);
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     businessName: "",
     email: "",
@@ -49,20 +52,70 @@ const GetStarted = () => {
     "50+ employees",
   ];
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const plans = [
+    { id: "starter", name: "Starter", price: 15000, display: "₦15,000/mo" },
+    { id: "professional", name: "Professional", price: 35000, display: "₦35,000/mo", popular: true },
+    { id: "enterprise", name: "Enterprise", price: 0, display: "Custom", isCustom: true },
+  ];
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
     if (step < 3) {
       setStep(step + 1);
-    } else {
-      // In a real app, this would submit to a backend
+      return;
+    }
+
+    // Step 3: Initialize Paystack payment
+    const selectedPlan = plans.find((p) => p.id === formData.plan);
+
+    if (selectedPlan?.isCustom) {
+      // Enterprise → redirect to contact
+      toast.info("Our team will reach out to you shortly for a custom quote.");
       setStep(4);
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const callbackUrl = `${window.location.origin}/payment/verify`;
+
+      const { data, error } = await supabase.functions.invoke("paystack", {
+        body: {
+          action: "initialize",
+          email: formData.email,
+          amount: selectedPlan!.price,
+          callback_url: callbackUrl,
+          metadata: {
+            plan: formData.plan,
+            business_name: formData.businessName,
+            phone: formData.phone,
+            business_type: formData.businessType,
+            employees: formData.employees,
+          },
+        },
+      });
+
+      if (error) throw error;
+
+      if (data?.status && data?.data?.authorization_url) {
+        // Redirect to Paystack checkout
+        window.location.href = data.data.authorization_url;
+      } else {
+        toast.error(data?.message || "Could not initialize payment. Please try again.");
+      }
+    } catch (err) {
+      console.error("Payment error:", err);
+      toast.error("Something went wrong. Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      
+
       <main className="pt-32 pb-20">
         <div className="container mx-auto px-4">
           <div className="max-w-2xl mx-auto">
@@ -215,11 +268,7 @@ const GetStarted = () => {
                         Start with a 14-day free trial. Cancel anytime.
                       </p>
                       <div className="space-y-4 mb-8">
-                        {[
-                          { id: "starter", name: "Starter", price: "₦15,000/mo" },
-                          { id: "professional", name: "Professional", price: "₦35,000/mo", popular: true },
-                          { id: "enterprise", name: "Enterprise", price: "Custom" },
-                        ].map((plan) => (
+                        {plans.map((plan) => (
                           <label
                             key={plan.id}
                             className={`flex items-center justify-between p-4 rounded-xl border-2 cursor-pointer transition-all ${
@@ -262,7 +311,7 @@ const GetStarted = () => {
                               </div>
                             </div>
                             <span className="font-semibold text-foreground">
-                              {plan.price}
+                              {plan.display}
                             </span>
                           </label>
                         ))}
@@ -276,7 +325,15 @@ const GetStarted = () => {
                           }
                         />
                         <Label htmlFor="terms" className="text-sm text-muted-foreground leading-relaxed">
-                          I agree to the Terms of Service and Privacy Policy. I understand I can cancel my subscription at any time.
+                          I agree to the{" "}
+                          <Link to="/terms-of-service" className="text-primary underline">
+                            Terms of Service
+                          </Link>{" "}
+                          and{" "}
+                          <Link to="/privacy-policy" className="text-primary underline">
+                            Privacy Policy
+                          </Link>
+                          . I understand I can cancel my subscription at any time.
                         </Label>
                       </div>
                     </>
@@ -295,10 +352,24 @@ const GetStarted = () => {
                     <Button
                       type="submit"
                       className={step === 1 ? "ml-auto" : ""}
-                      disabled={step === 3 && !formData.acceptTerms}
+                      disabled={(step === 3 && !formData.acceptTerms) || loading}
                     >
-                      {step === 3 ? "Start Free Trial" : "Continue"}
-                      <ArrowRight className="w-4 h-4" />
+                      {loading ? (
+                        <>
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                          Processing...
+                        </>
+                      ) : step === 3 ? (
+                        <>
+                          Pay & Start Trial
+                          <ArrowRight className="w-4 h-4" />
+                        </>
+                      ) : (
+                        <>
+                          Continue
+                          <ArrowRight className="w-4 h-4" />
+                        </>
+                      )}
                     </Button>
                   </div>
                 </form>
@@ -313,15 +384,15 @@ const GetStarted = () => {
                   <CheckCircle className="w-10 h-10" />
                 </div>
                 <h1 className="text-3xl font-heading font-bold text-foreground mb-4">
-                  You're all set!
+                  Thank you!
                 </h1>
                 <p className="text-muted-foreground mb-8 max-w-md mx-auto">
-                  Your account has been created. You can now access your inventory management dashboard.
+                  Our team will reach out to you with a custom Enterprise quote.
                 </p>
                 <Link to="/demo">
                   <Button size="xl">
                     <BarChart3 className="w-5 h-5" />
-                    Go to Dashboard
+                    Try Live Demo
                   </Button>
                 </Link>
               </motion.div>
