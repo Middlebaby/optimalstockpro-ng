@@ -87,9 +87,6 @@ const Header = () => {
 
             <div className="hidden md:flex items-center gap-4">
               <ThemeToggle />
-              <Link to="/auth">
-                <Button variant="outline" size="sm">Sign In</Button>
-              </Link>
               <Link to="/demo">
                 <Button size="sm">Try Live Demo</Button>
               </Link>
@@ -140,9 +137,6 @@ const Header = () => {
                       <span className="text-sm text-muted-foreground">Theme</span>
                       <ThemeToggle />
                     </div>
-                    <Link to="/auth">
-                      <Button variant="outline" className="w-full">Sign In</Button>
-                    </Link>
                     <Link to="/demo">
                       <Button className="w-full">Try Live Demo</Button>
                     </Link>

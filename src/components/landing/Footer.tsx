@@ -85,6 +85,11 @@ const Footer = () => {
                   Cookie Policy
                 </Link>
               </li>
+              <li>
+                <Link to="/auth" className="text-primary-foreground/70 hover:text-primary transition-colors">
+                  Admin
+                </Link>
+              </li>
             </ul>
           </div>
         </div>
