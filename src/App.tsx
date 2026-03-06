@@ -43,6 +43,7 @@ const App = () => (
               <Route path="/privacy-policy" element={<PrivacyPolicy />} />
               <Route path="/terms-of-service" element={<TermsOfService />} />
               <Route path="/cookie-policy" element={<CookiePolicy />} />
+              <Route path="/payment/verify" element={<PaymentVerify />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
