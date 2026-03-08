@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { 
   BarChart3, Package, ArrowDownCircle, ArrowUpCircle, Users, FileText,
-  BookOpen, Home, Menu, Bell, Search, FolderKanban, ArrowRightLeft,
+  BookOpen, Home, Menu, Bell, Search, FolderKanban, ArrowRightLeft, Truck,
   Wrench, ShoppingCart, ChevronDown, ChevronRight, LogOut, User,
   Settings as SettingsIcon, ClipboardList, Shield
 } from "lucide-react";
