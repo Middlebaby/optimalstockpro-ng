@@ -385,7 +385,7 @@ const InventoryFlowDiagram = ({ onNavigate }: InventoryFlowDiagramProps) => {
         <div className="md:hidden space-y-4">
           {steps.map((step, index) => {
             const status = getStepStatus(index);
-            const itemCount = stageItems[index]?.length || 0;
+            const itemCount = stepCounts[index as keyof typeof stepCounts] || 0;
             return (
               <motion.div
                 key={index}
