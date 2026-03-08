@@ -20,13 +20,13 @@ function escapeHtml(str: string | undefined | null): string {
     .replace(/'/g, "&#039;");
 }
 
-// Brand tokens
+// Brand tokens — green identity
 const brand = {
-  primary: "#6366f1",       // hsl(239,84%,67%)
-  primaryDark: "#7c3aed",   // hsl(263,70%,58%)
-  foreground: "#3b4963",    // hsl(215,25%,27%)
-  muted: "#6b7994",         // hsl(215,16%,47%)
-  bg: "#f7f8fa",            // light bg
+  primary: "#16a34a",       // green-600
+  primaryDark: "#15803d",   // green-700
+  foreground: "#1a2e1a",    // dark green-tinted text
+  muted: "#4b6b4b",         // muted green-grey
+  bg: "#f0fdf4",            // green-50 light bg
   white: "#ffffff",
   success: "#10b981",
   warning: "#f59e0b",
