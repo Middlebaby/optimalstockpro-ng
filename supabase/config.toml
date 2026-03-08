@@ -5,3 +5,18 @@ verify_jwt = false
 
 [functions.send-scheduled-emails]
 verify_jwt = false
+
+[functions.list-users]
+verify_jwt = false
+
+[functions.update-user-role]
+verify_jwt = false
+
+[functions.paystack]
+verify_jwt = false
+
+[functions.send-survey-notification]
+verify_jwt = false
+
+[functions.send-whatsapp-alert]
+verify_jwt = false
