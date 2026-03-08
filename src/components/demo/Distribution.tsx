@@ -836,6 +836,17 @@ const Distribution = () => {
             </Card>
           )}
         </TabsContent>
+
+        {/* ─── Analytics Tab ──────────────────────────────────────── */}
+        <TabsContent value="analytics" className="space-y-6">
+          <DistributionAnalytics
+            locationSummaries={locationSummaries}
+            batches={batches}
+            distributions={distributions}
+            sales={sales}
+            getDaysToExpiry={getDaysToExpiry}
+          />
+        </TabsContent>
       </Tabs>
 
       {/* ═══════════════════════════════════════════════════════════════
