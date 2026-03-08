@@ -66,7 +66,9 @@ const Dashboard = () => {
         supabase.from('profiles').select('plan').eq('user_id', user.id).maybeSingle(),
       ]);
       setIsAdmin(!!roleRes.data);
-      setUserPlan(profileRes.data?.plan || "basic");
+      const fetchedPlan = profileRes.data?.plan || "basic";
+      console.log("Fetched plan:", fetchedPlan, "Profile data:", profileRes.data, "Error:", profileRes.error);
+      setUserPlan(fetchedPlan);
     };
     checkRoleAndPlan();
   }, [user]);
