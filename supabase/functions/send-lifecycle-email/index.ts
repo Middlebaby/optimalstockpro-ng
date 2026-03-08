@@ -359,7 +359,7 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
-    const payload: EmailPayload = await req.json();
+    // payload already parsed above
 
     if (!payload.emailType || !payload.to) {
       return new Response(
