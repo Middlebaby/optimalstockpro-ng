@@ -1,10 +1,9 @@
-import { useState } from "react";
-import { Plus, Wrench, AlertTriangle, CheckCircle, Clock, Search, Calendar, MoreVertical } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Plus, Wrench, Search, MoreVertical, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
 import {
   Dialog,
   DialogContent,
@@ -25,61 +24,91 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
+import { toast } from "sonner";
 
-interface Equipment {
+interface EquipmentItem {
   id: string;
   name: string;
-  category: string;
-  serialNumber: string;
-  status: "available" | "in-use" | "maintenance" | "retired";
-  condition: number; // 0-100
-  location: string;
-  assignedTo?: string;
-  assignedProject?: string;
-  purchaseDate: string;
-  purchaseValue: number;
-  lastMaintenance: string;
-  nextMaintenance: string;
-}
-
-interface MaintenanceRecord {
-  id: string;
-  equipmentId: string;
-  type: "routine" | "repair" | "inspection";
-  date: string;
-  description: string;
-  cost: number;
-  performedBy: string;
+  serial_number: string | null;
+  status: string | null;
+  location: string | null;
+  purchase_date: string | null;
+  purchase_price: number | null;
+  description: string | null;
 }
 
 const EquipmentTracking = () => {
-  const [equipment] = useState<Equipment[]>([]);
-
-  const [maintenanceRecords] = useState<MaintenanceRecord[]>([]);
-
+  const { user } = useAuth();
+  const [equipment, setEquipment] = useState<EquipmentItem[]>([]);
+  const [loading, setLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [filterStatus, setFilterStatus] = useState<string>("all");
+  const [filterStatus, setFilterStatus] = useState("all");
+  const [form, setForm] = useState({
+    name: "", serial_number: "", status: "available", location: "",
+    purchase_date: "", purchase_price: "", description: "",
+  });
 
-  const getStatusColor = (status: Equipment["status"]) => {
+  const fetchEquipment = async () => {
+    if (!user) return;
+    const { data, error } = await supabase
+      .from("equipment")
+      .select("*")
+      .order("created_at", { ascending: false });
+    if (error) toast.error("Failed to load equipment");
+    else setEquipment(data || []);
+    setLoading(false);
+  };
+
+  useEffect(() => { fetchEquipment(); }, [user]);
+
+  const handleAdd = async () => {
+    if (!user || !form.name) { toast.error("Equipment name is required"); return; }
+    const { error } = await supabase.from("equipment").insert({
+      name: form.name,
+      serial_number: form.serial_number || null,
+      status: form.status || "available",
+      location: form.location || null,
+      purchase_date: form.purchase_date || null,
+      purchase_price: form.purchase_price ? Number(form.purchase_price) : null,
+      description: form.description || null,
+      user_id: user.id,
+    });
+    if (error) { toast.error("Failed to add equipment"); return; }
+    toast.success("Equipment added");
+    setForm({ name: "", serial_number: "", status: "available", location: "", purchase_date: "", purchase_price: "", description: "" });
+    setIsDialogOpen(false);
+    fetchEquipment();
+  };
+
+  const handleDelete = async (id: string) => {
+    const { error } = await supabase.from("equipment").delete().eq("id", id);
+    if (error) { toast.error("Failed to delete"); return; }
+    toast.success("Equipment deleted");
+    fetchEquipment();
+  };
+
+  const handleStatusChange = async (id: string, status: string) => {
+    const { error } = await supabase.from("equipment").update({ status }).eq("id", id);
+    if (error) { toast.error("Failed to update status"); return; }
+    fetchEquipment();
+  };
+
+  const getStatusColor = (status: string | null) => {
     switch (status) {
       case "available": return "bg-green-500/10 text-green-600";
       case "in-use": return "bg-primary/10 text-primary";
       case "maintenance": return "bg-accent/10 text-accent";
       case "retired": return "bg-muted text-muted-foreground";
+      default: return "bg-muted text-muted-foreground";
     }
   };
 
-  const getConditionColor = (condition: number) => {
-    if (condition >= 80) return "bg-green-500";
-    if (condition >= 50) return "bg-accent";
-    return "bg-destructive";
-  };
-
-  const filteredEquipment = equipment.filter(e => {
+  const filtered = equipment.filter(e => {
     const matchesSearch = e.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      e.serialNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      e.category.toLowerCase().includes(searchQuery.toLowerCase());
+      (e.serial_number || "").toLowerCase().includes(searchQuery.toLowerCase());
     const matchesStatus = filterStatus === "all" || e.status === filterStatus;
     return matchesSearch && matchesStatus;
   });
@@ -89,93 +118,67 @@ const EquipmentTracking = () => {
     available: equipment.filter(e => e.status === "available").length,
     inUse: equipment.filter(e => e.status === "in-use").length,
     maintenance: equipment.filter(e => e.status === "maintenance").length,
-    totalValue: equipment.reduce((sum, e) => sum + e.purchaseValue, 0),
+    totalValue: equipment.reduce((sum, e) => sum + (e.purchase_price || 0), 0),
   };
-
-  const upcomingMaintenance = equipment
-    .filter(e => new Date(e.nextMaintenance) <= new Date(Date.now() + 30 * 24 * 60 * 60 * 1000))
-    .sort((a, b) => new Date(a.nextMaintenance).getTime() - new Date(b.nextMaintenance).getTime());
 
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <h1 className="text-2xl font-heading font-bold text-foreground">
-              Equipment & Tools
-            </h1>
+            <h1 className="text-2xl font-heading font-bold text-foreground">Equipment & Tools</h1>
             <Badge variant="outline" className="text-xs">Professional</Badge>
           </div>
-          <p className="text-muted-foreground">
-            Track equipment, tools, and maintenance schedules
-          </p>
+          <p className="text-muted-foreground">Track equipment, tools, and maintenance schedules</p>
         </div>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
-            <Button>
-              <Plus className="w-4 h-4" />
-              Add Equipment
-            </Button>
+            <Button><Plus className="w-4 h-4" /> Add Equipment</Button>
           </DialogTrigger>
           <DialogContent className="max-w-lg">
-            <DialogHeader>
-              <DialogTitle>Add New Equipment</DialogTitle>
-            </DialogHeader>
+            <DialogHeader><DialogTitle>Add New Equipment</DialogTitle></DialogHeader>
             <div className="grid gap-4 py-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label>Equipment Name *</Label>
-                  <Input className="mt-1" placeholder="e.g., Concrete Mixer" />
+                  <Input className="mt-1" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
                 </div>
                 <div>
-                  <Label>Category *</Label>
-                  <Select>
-                    <SelectTrigger className="mt-1">
-                      <SelectValue placeholder="Select category" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="heavy">Heavy Machinery</SelectItem>
-                      <SelectItem value="power">Power Equipment</SelectItem>
-                      <SelectItem value="tools">Tools</SelectItem>
-                      <SelectItem value="safety">Safety Equipment</SelectItem>
-                      <SelectItem value="vehicles">Vehicles</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <Label>Serial Number</Label>
+                  <Input className="mt-1" value={form.serial_number} onChange={(e) => setForm({ ...form, serial_number: e.target.value })} />
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label>Serial Number *</Label>
-                  <Input className="mt-1" placeholder="e.g., CM-2024-001" />
+                  <Label>Purchase Price (₦)</Label>
+                  <Input type="number" className="mt-1" value={form.purchase_price} onChange={(e) => setForm({ ...form, purchase_price: e.target.value })} />
                 </div>
                 <div>
-                  <Label>Purchase Value (₦) *</Label>
-                  <Input type="number" className="mt-1" placeholder="0" />
+                  <Label>Purchase Date</Label>
+                  <Input type="date" className="mt-1" value={form.purchase_date} onChange={(e) => setForm({ ...form, purchase_date: e.target.value })} />
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label>Purchase Date *</Label>
-                  <Input type="date" className="mt-1" />
+                  <Label>Location</Label>
+                  <Input className="mt-1" value={form.location} onChange={(e) => setForm({ ...form, location: e.target.value })} />
                 </div>
                 <div>
-                  <Label>Location *</Label>
-                  <Select>
-                    <SelectTrigger className="mt-1">
-                      <SelectValue placeholder="Select location" />
-                    </SelectTrigger>
+                  <Label>Status</Label>
+                  <Select value={form.status} onValueChange={(v) => setForm({ ...form, status: v })}>
+                    <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="warehouse">Main Warehouse</SelectItem>
-                      <SelectItem value="lekki">Lekki Store</SelectItem>
-                      <SelectItem value="vi">VI Site Office</SelectItem>
-                      <SelectItem value="apapa">Apapa Depot</SelectItem>
+                      <SelectItem value="available">Available</SelectItem>
+                      <SelectItem value="in-use">In Use</SelectItem>
+                      <SelectItem value="maintenance">Maintenance</SelectItem>
+                      <SelectItem value="retired">Retired</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
               </div>
               <div className="flex justify-end gap-2 mt-2">
                 <Button variant="outline" onClick={() => setIsDialogOpen(false)}>Cancel</Button>
-                <Button onClick={() => setIsDialogOpen(false)}>Add Equipment</Button>
+                <Button onClick={handleAdd}>Add Equipment</Button>
               </div>
             </div>
           </DialogContent>
@@ -185,7 +188,7 @@ const EquipmentTracking = () => {
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
         <div className="bg-card rounded-xl p-4 shadow-card">
-          <p className="text-sm text-muted-foreground">Total Equipment</p>
+          <p className="text-sm text-muted-foreground">Total</p>
           <p className="text-2xl font-heading font-bold text-foreground">{stats.total}</p>
         </div>
         <div className="bg-card rounded-xl p-4 shadow-card">
@@ -197,7 +200,7 @@ const EquipmentTracking = () => {
           <p className="text-2xl font-heading font-bold text-primary">{stats.inUse}</p>
         </div>
         <div className="bg-card rounded-xl p-4 shadow-card">
-          <p className="text-sm text-muted-foreground">Under Maintenance</p>
+          <p className="text-sm text-muted-foreground">Maintenance</p>
           <p className="text-2xl font-heading font-bold text-accent">{stats.maintenance}</p>
         </div>
         <div className="bg-card rounded-xl p-4 shadow-card">
@@ -206,38 +209,14 @@ const EquipmentTracking = () => {
         </div>
       </div>
 
-      {/* Maintenance Alerts */}
-      {upcomingMaintenance.length > 0 && (
-        <div className="bg-accent/10 rounded-xl p-4 border border-accent/20">
-          <div className="flex items-center gap-2 mb-3">
-            <Calendar className="w-5 h-5 text-accent" />
-            <h3 className="font-medium text-foreground">Upcoming Maintenance (Next 30 Days)</h3>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            {upcomingMaintenance.map((e) => (
-              <Badge key={e.id} variant="outline" className="bg-background">
-                {e.name} - Due {e.nextMaintenance}
-              </Badge>
-            ))}
-          </div>
-        </div>
-      )}
-
       {/* Search & Filter */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
         <div className="relative flex-1 max-w-md">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-          <Input
-            placeholder="Search equipment..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10"
-          />
+          <Input placeholder="Search equipment..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="pl-10" />
         </div>
         <Select value={filterStatus} onValueChange={setFilterStatus}>
-          <SelectTrigger className="w-40">
-            <SelectValue />
-          </SelectTrigger>
+          <SelectTrigger className="w-40"><SelectValue /></SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Status</SelectItem>
             <SelectItem value="available">Available</SelectItem>
@@ -249,71 +228,67 @@ const EquipmentTracking = () => {
       </div>
 
       {/* Equipment Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        {filteredEquipment.map((item) => (
-          <div key={item.id} className="bg-card rounded-xl p-5 shadow-card">
-            <div className="flex items-start justify-between mb-3">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                  <Wrench className="w-5 h-5 text-primary" />
+      {loading ? (
+        <div className="text-center py-12 text-muted-foreground">Loading equipment...</div>
+      ) : filtered.length === 0 ? (
+        <div className="text-center py-12">
+          <p className="text-muted-foreground mb-2">No equipment found</p>
+          <p className="text-sm text-muted-foreground">Click "Add Equipment" to get started</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          {filtered.map((item) => (
+            <div key={item.id} className="bg-card rounded-xl p-5 shadow-card">
+              <div className="flex items-start justify-between mb-3">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                    <Wrench className="w-5 h-5 text-primary" />
+                  </div>
+                  <div>
+                    <h3 className="font-heading font-semibold text-card-foreground">{item.name}</h3>
+                    {item.serial_number && <p className="text-xs text-muted-foreground">{item.serial_number}</p>}
+                  </div>
                 </div>
-                <div>
-                  <h3 className="font-heading font-semibold text-card-foreground">{item.name}</h3>
-                  <p className="text-xs text-muted-foreground">{item.serialNumber}</p>
+                <div className="flex items-center gap-2">
+                  <Badge className={getStatusColor(item.status)}>{item.status || "unknown"}</Badge>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="icon" className="h-8 w-8"><MoreVertical className="w-4 h-4" /></Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onClick={() => handleStatusChange(item.id, "available")}>Set Available</DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => handleStatusChange(item.id, "in-use")}>Set In Use</DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => handleStatusChange(item.id, "maintenance")}>Set Maintenance</DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => handleStatusChange(item.id, "retired")}>Set Retired</DropdownMenuItem>
+                      <DropdownMenuItem className="text-destructive" onClick={() => handleDelete(item.id)}>Delete</DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </div>
               </div>
-              <div className="flex items-center gap-2">
-                <Badge className={getStatusColor(item.status)}>{item.status}</Badge>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon" className="h-8 w-8">
-                      <MoreVertical className="w-4 h-4" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem>View Details</DropdownMenuItem>
-                    <DropdownMenuItem>Assign to Project</DropdownMenuItem>
-                    <DropdownMenuItem>Schedule Maintenance</DropdownMenuItem>
-                    <DropdownMenuItem>View History</DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+              <div className="grid grid-cols-2 gap-4 text-sm">
+                {item.location && (
+                  <div>
+                    <p className="text-muted-foreground">Location</p>
+                    <p className="text-card-foreground">{item.location}</p>
+                  </div>
+                )}
+                {item.purchase_price && (
+                  <div>
+                    <p className="text-muted-foreground">Value</p>
+                    <p className="text-card-foreground">₦{item.purchase_price.toLocaleString()}</p>
+                  </div>
+                )}
+                {item.purchase_date && (
+                  <div>
+                    <p className="text-muted-foreground">Purchased</p>
+                    <p className="text-card-foreground">{item.purchase_date}</p>
+                  </div>
+                )}
               </div>
             </div>
-
-            <div className="grid grid-cols-2 gap-4 mb-4 text-sm">
-              <div>
-                <p className="text-muted-foreground">Category</p>
-                <p className="text-card-foreground">{item.category}</p>
-              </div>
-              <div>
-                <p className="text-muted-foreground">Location</p>
-                <p className="text-card-foreground">{item.location}</p>
-              </div>
-              {item.assignedProject && (
-                <div className="col-span-2">
-                  <p className="text-muted-foreground">Assigned To</p>
-                  <p className="text-card-foreground">{item.assignedProject} ({item.assignedTo})</p>
-                </div>
-              )}
-            </div>
-
-            <div className="space-y-2">
-              <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">Condition</span>
-                <span className="font-medium text-foreground">{item.condition}%</span>
-              </div>
-              <Progress value={item.condition} className={`h-2 ${getConditionColor(item.condition)}`} />
-            </div>
-
-            <div className="flex items-center justify-between mt-4 pt-4 border-t border-border text-xs text-muted-foreground">
-              <span>Last Maintenance: {item.lastMaintenance}</span>
-              <span className={new Date(item.nextMaintenance) < new Date(Date.now() + 14 * 24 * 60 * 60 * 1000) ? "text-accent font-medium" : ""}>
-                Next: {item.nextMaintenance}
-              </span>
-            </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 };
