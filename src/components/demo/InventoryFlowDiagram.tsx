@@ -230,6 +230,7 @@ const InventoryFlowDiagram = ({ onNavigate }: InventoryFlowDiagramProps) => {
         </div>
 
         {/* Recent Item Progress Tracker */}
+        {recentItem ? (
         <motion.div 
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -280,6 +281,11 @@ const InventoryFlowDiagram = ({ onNavigate }: InventoryFlowDiagramProps) => {
             </div>
           </div>
         </motion.div>
+        ) : (
+          <div className="mb-6 p-4 bg-muted/50 border border-border rounded-lg text-center">
+            <p className="text-sm text-muted-foreground">No stock movements yet today. Add items to see the flow in action.</p>
+          </div>
+        )}
 
         {/* Desktop Flow */}
         <div className="hidden md:flex items-center justify-between gap-2">
