@@ -27,7 +27,7 @@ const GetStarted = () => {
     phone: "",
     businessType: "",
     employees: "",
-    plan: "professional",
+    plan: "distribution",
     acceptTerms: false,
   });
 
