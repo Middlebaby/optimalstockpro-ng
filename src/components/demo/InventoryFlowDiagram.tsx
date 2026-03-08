@@ -58,79 +58,135 @@ const stepToTabLabel: Record<number, string> = {
 const InventoryFlowDiagram = ({ onNavigate }: InventoryFlowDiagramProps) => {
   const [selectedStep, setSelectedStep] = useState<number | null>(null);
   
-  // Current step for the most recent item (0-indexed)
-  const currentItemStep = 2; // Currently at "Warehouse" step
+  const { user } = useAuth();
   
-  const recentItem = {
-    name: "Premium Cement (50 bags)",
-    sku: "CEM-001",
-    arrivedAt: "10:30 AM",
-  };
+  // Live data state
+  const [incomingItems, setIncomingItems] = useState<any[]>([]);
+  const [inventoryItems, setInventoryItems] = useState<any[]>([]);
+  const [outgoingItems, setOutgoingItems] = useState<any[]>([]);
+  const [distributionItems, setDistributionItems] = useState<any[]>([]);
 
-  const steps = [
-    {
-      icon: Truck,
-      title: "Receiving",
-      description: "Stock arrives from suppliers",
-      color: "bg-primary",
-    },
-    {
-      icon: ClipboardCheck,
-      title: "Quality Check",
-      description: "Verify & log incoming items",
-      color: "bg-primary-glow",
-    },
-    {
-      icon: Warehouse,
-      title: "Warehouse",
-      description: "Store in master inventory",
-      color: "bg-primary",
-    },
-    {
-      icon: Package,
-      title: "Pick & Pack",
-      description: "Prepare for distribution",
-      color: "bg-accent",
-    },
-    {
-      icon: Store,
-      title: "Distribution",
-      description: "Dispatch to retail locations",
-      color: "bg-primary-glow",
-    },
-  ];
+  useEffect(() => {
+    if (!user) return;
+    const today = format(startOfDay(new Date()), "yyyy-MM-dd'T'HH:mm:ss");
 
-  // Demo data for items at each stage
-  const stageItems: Record<number, StageItem[]> = {
-    0: [
-      { id: "1", name: "Rice (50kg bags)", sku: "RIC-001", quantity: "100 bags", arrivedAt: "09:15 AM", status: "in-progress" },
-      { id: "2", name: "Cooking Oil (25L)", sku: "OIL-003", quantity: "50 cans", arrivedAt: "09:45 AM", status: "waiting" },
-      { id: "3", name: "Sugar (50kg bags)", sku: "SUG-002", quantity: "75 bags", arrivedAt: "10:00 AM", status: "waiting" },
-    ],
-    1: [
-      { id: "4", name: "Chicken Laps (frozen)", sku: "CHK-001", quantity: "200 kg", arrivedAt: "08:30 AM", status: "in-progress" },
-      { id: "5", name: "Floor Tiles (60x60)", sku: "TIL-005", quantity: "500 pcs", arrivedAt: "08:45 AM", status: "ready" },
-    ],
-    2: [
-      { id: "6", name: "Premium Cement", sku: "CEM-001", quantity: "50 bags", arrivedAt: "10:30 AM", status: "in-progress" },
-      { id: "7", name: "Iron Rods (12mm)", sku: "IRN-012", quantity: "300 pcs", arrivedAt: "07:00 AM", status: "ready" },
-      { id: "8", name: "PVC Pipes (4 inch)", sku: "PVC-004", quantity: "150 pcs", arrivedAt: "07:30 AM", status: "ready" },
-      { id: "9", name: "Paint (White)", sku: "PNT-001", quantity: "40 buckets", arrivedAt: "08:00 AM", status: "waiting" },
-    ],
-    3: [
-      { id: "10", name: "Ceiling Boards", sku: "CLG-002", quantity: "200 sheets", arrivedAt: "Yesterday", status: "in-progress" },
-      { id: "11", name: "Electrical Cables", sku: "ELC-001", quantity: "50 rolls", arrivedAt: "Yesterday", status: "ready" },
-    ],
-    4: [
-      { id: "12", name: "Roofing Sheets", sku: "ROF-003", quantity: "100 pcs", arrivedAt: "2 days ago", status: "ready" },
-    ],
-  };
+    const fetchAll = async () => {
+      const [incRes, invRes, outRes, distRes] = await Promise.all([
+        supabase
+          .from("stock_movements")
+          .select("id, quantity, notes, created_at, movement_type, inventory_items(name, sku)")
+          .eq("user_id", user.id)
+          .eq("movement_type", "incoming")
+          .gte("created_at", today)
+          .order("created_at", { ascending: false }),
+        supabase
+          .from("inventory_items")
+          .select("id, name, sku, quantity, unit, is_logged, created_at")
+          .eq("user_id", user.id)
+          .order("created_at", { ascending: false }),
+        supabase
+          .from("stock_movements")
+          .select("id, quantity, notes, created_at, movement_type, inventory_items(name, sku)")
+          .eq("user_id", user.id)
+          .in("movement_type", ["outgoing", "sale", "transfer"])
+          .gte("created_at", today)
+          .order("created_at", { ascending: false }),
+        supabase
+          .from("distributions")
+          .select("id, quantity, status, created_at, production_batches(product_name, batch_number)")
+          .eq("user_id", user.id)
+          .order("created_at", { ascending: false })
+          .limit(20),
+      ]);
 
-  const getStepStatus = (index: number) => {
-    if (index < currentItemStep) return "completed";
-    if (index === currentItemStep) return "current";
-    return "pending";
-  };
+      setIncomingItems(incRes.data || []);
+      setInventoryItems(invRes.data || []);
+      setOutgoingItems(outRes.data || []);
+      setDistributionItems(distRes.data || []);
+    };
+
+    fetchAll();
+  }, [user]);
+
+  // Derive counts per step
+  const unloggedItems = useMemo(() => inventoryItems.filter(i => !i.is_logged), [inventoryItems]);
+  const loggedItems = useMemo(() => inventoryItems.filter(i => i.is_logged), [inventoryItems]);
+
+  const stepCounts = useMemo(() => ({
+    0: incomingItems.length,          // Receiving
+    1: unloggedItems.length,          // Quality Check (unverified)
+    2: loggedItems.length,            // Warehouse (verified inventory)
+    3: outgoingItems.length,          // Pick & Pack
+    4: distributionItems.length,      // Distribution
+  }), [incomingItems, unloggedItems, loggedItems, outgoingItems, distributionItems]);
+
+  // Find most recent item across all movements
+  const recentItem = useMemo(() => {
+    const allMovements = [...incomingItems, ...outgoingItems];
+    if (allMovements.length === 0) return null;
+    const latest = allMovements[0];
+    const itemName = (latest as any).inventory_items?.name || "Unknown Item";
+    const itemSku = (latest as any).inventory_items?.sku || "N/A";
+    return {
+      name: itemName,
+      sku: itemSku,
+      arrivedAt: format(new Date(latest.created_at), "h:mm a"),
+    };
+  }, [incomingItems, outgoingItems]);
+
+  // Determine current step based on where recent activity is
+  const currentItemStep = useMemo(() => {
+    if (distributionItems.length > 0) return 4;
+    if (outgoingItems.length > 0) return 3;
+    if (loggedItems.length > 0) return 2;
+    if (unloggedItems.length > 0) return 1;
+    if (incomingItems.length > 0) return 0;
+    return 0;
+  }, [incomingItems, unloggedItems, loggedItems, outgoingItems, distributionItems]);
+
+  // Build stage items for dialog from real data
+  const stageItems: Record<number, StageItem[]> = useMemo(() => ({
+    0: incomingItems.slice(0, 10).map(m => ({
+      id: m.id,
+      name: (m as any).inventory_items?.name || "Item",
+      sku: (m as any).inventory_items?.sku || "N/A",
+      quantity: `${m.quantity} units`,
+      arrivedAt: format(new Date(m.created_at), "h:mm a"),
+      status: "in-progress" as const,
+    })),
+    1: unloggedItems.slice(0, 10).map(i => ({
+      id: i.id,
+      name: i.name,
+      sku: i.sku || "N/A",
+      quantity: `${i.quantity} ${i.unit || "pcs"}`,
+      arrivedAt: format(new Date(i.created_at), "h:mm a"),
+      status: "waiting" as const,
+    })),
+    2: loggedItems.slice(0, 10).map(i => ({
+      id: i.id,
+      name: i.name,
+      sku: i.sku || "N/A",
+      quantity: `${i.quantity} ${i.unit || "pcs"}`,
+      arrivedAt: format(new Date(i.created_at), "h:mm a"),
+      status: "ready" as const,
+    })),
+    3: outgoingItems.slice(0, 10).map(m => ({
+      id: m.id,
+      name: (m as any).inventory_items?.name || "Item",
+      sku: (m as any).inventory_items?.sku || "N/A",
+      quantity: `${m.quantity} units`,
+      arrivedAt: format(new Date(m.created_at), "h:mm a"),
+      status: "in-progress" as const,
+    })),
+    4: distributionItems.slice(0, 10).map(d => ({
+      id: d.id,
+      name: (d as any).production_batches?.product_name || "Batch",
+      sku: (d as any).production_batches?.batch_number || "N/A",
+      quantity: `${d.quantity} units`,
+      arrivedAt: format(new Date(d.created_at), "h:mm a"),
+      status: d.status === "delivered" ? "ready" as const : "in-progress" as const,
+    })),
+  }), [incomingItems, unloggedItems, loggedItems, outgoingItems, distributionItems]);
 
   const getStatusBadge = (status: StageItem["status"]) => {
     switch (status) {
