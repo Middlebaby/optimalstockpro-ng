@@ -28,6 +28,7 @@ const AdminUsers = () => {
   const [updating, setUpdating] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   const fetchUsers = async () => {
     setLoading(true);
@@ -54,6 +55,21 @@ const AdminUsers = () => {
 
   useEffect(() => {
     if (user) fetchUsers();
+  }, [user]);
+
+  // Check if user is admin
+  useEffect(() => {
+    const checkAdmin = async () => {
+      if (!user) return;
+      const { data } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', user.id)
+        .eq('role', 'admin')
+        .maybeSingle();
+      setIsAdmin(!!data);
+    };
+    checkAdmin();
   }, [user]);
 
   const handleRoleChange = async (userId: string, newRole: string) => {
@@ -108,6 +124,18 @@ const AdminUsers = () => {
           <AlertTriangle className="w-12 h-12 text-destructive" />
           <p className="text-destructive font-medium">{error}</p>
           <Button variant="outline" onClick={fetchUsers}>Retry</Button>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (!isAdmin) {
+    return (
+      <Card>
+        <CardContent className="flex flex-col items-center justify-center py-12 gap-4">
+          <AlertTriangle className="w-12 h-12 text-destructive" />
+          <p className="text-destructive font-medium">Access Denied</p>
+          <p className="text-muted-foreground text-center">Only admins can access the User Management panel</p>
         </CardContent>
       </Card>
     );
