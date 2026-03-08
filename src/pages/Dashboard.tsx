@@ -103,6 +103,10 @@ const Dashboard = () => {
     navigate("/");
   };
 
+  // Plan access helpers
+  const hasDistribution = userPlan === "distribution" || userPlan === "professional";
+  const hasProfessional = userPlan === "professional";
+
   const basicNavItems = [
     { id: "dashboard", label: "Dashboard", icon: Home },
     { id: "inventory", label: "Master Inventory", icon: Package },
@@ -112,13 +116,31 @@ const Dashboard = () => {
     { id: "reports", label: "Reports", icon: FileText },
   ];
 
+  const distributionNavItems = [
+    { id: "distribution", label: "Distribution", icon: Truck },
+  ];
+
   const proNavItems = [
     { id: "projects", label: "Projects", icon: FolderKanban },
     { id: "transfers", label: "Store Transfers", icon: ArrowRightLeft },
     { id: "equipment", label: "Equipment & Tools", icon: Wrench },
     { id: "purchase-orders", label: "Purchase Orders", icon: ShoppingCart },
-    { id: "distribution", label: "Distribution", icon: Truck },
   ];
+
+  const distributionTabs = ["distribution"];
+  const proTabs = ["projects", "transfers", "equipment", "purchase-orders"];
+
+  const isTabLocked = (tabId: string) => {
+    if (distributionTabs.includes(tabId) && !hasDistribution) return true;
+    if (proTabs.includes(tabId) && !hasProfessional) return true;
+    return false;
+  };
+
+  const getRequiredPlan = (tabId: string) => {
+    if (distributionTabs.includes(tabId)) return "Distribution";
+    if (proTabs.includes(tabId)) return "Professional";
+    return "Basic";
+  };
 
   const renderContent = () => {
     switch (activeTab) {
