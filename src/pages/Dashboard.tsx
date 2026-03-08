@@ -269,7 +269,7 @@ const Dashboard = () => {
       case "admin-users":
         return <AdminUsers />;
       default:
-        return <DashboardView />;
+        return <DashboardView onNavigate={setActiveTab} />;
     }
   };
 
