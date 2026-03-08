@@ -506,7 +506,7 @@ const Distribution = () => {
 
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-4 lg:w-auto lg:inline-flex">
+        <TabsList className="grid w-full grid-cols-5 lg:w-auto lg:inline-flex">
           <TabsTrigger value="locations" className="gap-1.5">
             <MapPin className="w-4 h-4" />
             <span className="hidden sm:inline">Locations</span>
@@ -522,6 +522,10 @@ const Distribution = () => {
           <TabsTrigger value="sales" className="gap-1.5">
             <TrendingUp className="w-4 h-4" />
             <span className="hidden sm:inline">Sales</span>
+          </TabsTrigger>
+          <TabsTrigger value="analytics" className="gap-1.5">
+            <BarChart3 className="w-4 h-4" />
+            <span className="hidden sm:inline">Analytics</span>
           </TabsTrigger>
         </TabsList>
 
