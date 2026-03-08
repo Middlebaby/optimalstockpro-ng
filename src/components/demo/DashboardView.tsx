@@ -114,7 +114,7 @@ const DashboardView = ({ onNavigate }: DashboardViewProps) => {
       </div>
 
       {/* Inventory Flow Diagram */}
-      <InventoryFlowDiagram />
+      <InventoryFlowDiagram onNavigate={onNavigate} />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Stock Alerts */}
