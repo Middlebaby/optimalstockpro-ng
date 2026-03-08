@@ -69,10 +69,8 @@ const GetStarted = () => {
     // Step 3: Initialize Paystack payment
     const selectedPlan = plans.find((p) => p.id === formData.plan);
 
-    if (selectedPlan?.isCustom) {
-      // Enterprise → redirect to contact
-      toast.info("Our team will reach out to you shortly for a custom quote.");
-      setStep(4);
+    if (!selectedPlan) {
+      toast.error("Please select a plan.");
       return;
     }
 
