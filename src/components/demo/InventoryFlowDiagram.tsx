@@ -20,6 +20,7 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface StageItem {
@@ -31,7 +32,27 @@ interface StageItem {
   status: "waiting" | "in-progress" | "ready";
 }
 
-const InventoryFlowDiagram = () => {
+interface InventoryFlowDiagramProps {
+  onNavigate?: (tab: string) => void;
+}
+
+const stepToTab: Record<number, string> = {
+  0: "incoming",
+  1: "incoming",
+  2: "inventory",
+  3: "outgoing",
+  4: "distribution",
+};
+
+const stepToTabLabel: Record<number, string> = {
+  0: "Incoming Stock",
+  1: "Incoming Stock",
+  2: "Master Inventory",
+  3: "Outgoing Stock",
+  4: "Distribution",
+};
+
+const InventoryFlowDiagram = ({ onNavigate }: InventoryFlowDiagramProps) => {
   const [selectedStep, setSelectedStep] = useState<number | null>(null);
   
   // Current step for the most recent item (0-indexed)
@@ -440,11 +461,24 @@ const InventoryFlowDiagram = () => {
             )}
           </ScrollArea>
           
-          {selectedStep !== null && stageItems[selectedStep]?.length > 0 && (
-            <div className="pt-3 border-t border-border">
-              <p className="text-sm text-muted-foreground text-center">
-                {stageItems[selectedStep].length} item{stageItems[selectedStep].length !== 1 ? 's' : ''} at this stage
+          {selectedStep !== null && (
+            <div className="pt-3 border-t border-border flex items-center justify-between">
+              <p className="text-sm text-muted-foreground">
+                {(stageItems[selectedStep]?.length || 0)} item{(stageItems[selectedStep]?.length || 0) !== 1 ? 's' : ''} at this stage
               </p>
+              {onNavigate && (
+                <Button
+                  size="sm"
+                  onClick={() => {
+                    onNavigate(stepToTab[selectedStep]);
+                    setSelectedStep(null);
+                  }}
+                  className="gap-1"
+                >
+                  Go to {stepToTabLabel[selectedStep]}
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </Button>
+              )}
             </div>
           )}
         </DialogContent>

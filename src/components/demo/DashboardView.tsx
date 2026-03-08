@@ -7,7 +7,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { format, startOfMonth } from "date-fns";
 
-const DashboardView = () => {
+interface DashboardViewProps {
+  onNavigate?: (tab: string) => void;
+}
+
+const DashboardView = ({ onNavigate }: DashboardViewProps) => {
   const { user } = useAuth();
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({
@@ -110,7 +114,7 @@ const DashboardView = () => {
       </div>
 
       {/* Inventory Flow Diagram */}
-      <InventoryFlowDiagram />
+      <InventoryFlowDiagram onNavigate={onNavigate} />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Stock Alerts */}
