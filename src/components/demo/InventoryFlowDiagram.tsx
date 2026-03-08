@@ -463,15 +463,15 @@ const InventoryFlowDiagram = ({ onNavigate }: InventoryFlowDiagramProps) => {
         {/* Live Stats */}
         <div className="mt-6 pt-4 border-t border-border grid grid-cols-3 gap-4 text-center">
           <div>
-            <p className="text-2xl font-heading font-bold text-primary">24</p>
-            <p className="text-xs text-muted-foreground">Items Received Today</p>
+            <p className="text-2xl font-heading font-bold text-primary">{stepCounts[0]}</p>
+            <p className="text-xs text-muted-foreground">Received Today</p>
           </div>
           <div>
-            <p className="text-2xl font-heading font-bold text-accent">18</p>
-            <p className="text-xs text-muted-foreground">In Processing</p>
+            <p className="text-2xl font-heading font-bold text-accent">{inventoryItems.length}</p>
+            <p className="text-xs text-muted-foreground">In Warehouse</p>
           </div>
           <div>
-            <p className="text-2xl font-heading font-bold text-primary-glow">12</p>
+            <p className="text-2xl font-heading font-bold text-primary-glow">{stepCounts[4]}</p>
             <p className="text-xs text-muted-foreground">Distributed</p>
           </div>
         </div>
