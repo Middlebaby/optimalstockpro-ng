@@ -41,7 +41,7 @@ const Dashboard = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [proFeaturesOpen, setProFeaturesOpen] = useState(true);
-  const [isAdminOrManager, setIsAdminOrManager] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [showTour, setShowTour] = useState(false);
   const [triggerAddDialog, setTriggerAddDialog] = useState(false);
 
