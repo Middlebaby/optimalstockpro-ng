@@ -4,7 +4,7 @@ import {
   BarChart3, Package, ArrowDownCircle, ArrowUpCircle, Users, FileText,
   BookOpen, Home, Menu, Bell, Search, FolderKanban, ArrowRightLeft, Truck,
   Wrench, ShoppingCart, ChevronDown, ChevronRight, LogOut, User,
-  Settings as SettingsIcon, ClipboardList, Shield
+  Settings as SettingsIcon, ClipboardList, Shield, Lock, Crown
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
