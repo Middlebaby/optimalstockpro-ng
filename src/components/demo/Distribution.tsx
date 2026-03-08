@@ -82,6 +82,288 @@ interface Sale {
   location_name?: string;
 }
 
+const CHART_COLORS = [
+  "hsl(var(--primary))",
+  "hsl(var(--accent))",
+  "hsl(var(--destructive))",
+  "#8b5cf6",
+  "#06b6d4",
+  "#f59e0b",
+  "#10b981",
+  "#ec4899",
+];
+
+// ─── Analytics Sub-Component ─────────────────────────────────────────
+interface AnalyticsProps {
+  locationSummaries: Array<any>;
+  batches: Batch[];
+  distributions: Distribution[];
+  sales: Sale[];
+  getDaysToExpiry: (d: string | null) => number | null;
+}
+
+const DistributionAnalytics = ({ locationSummaries, batches, distributions, sales, getDaysToExpiry }: AnalyticsProps) => {
+  // Revenue by date (last 30 days)
+  const revenueByDate = useMemo(() => {
+    const last30 = Array.from({ length: 30 }, (_, i) => {
+      const date = format(subDays(new Date(), 29 - i), "yyyy-MM-dd");
+      const label = format(subDays(new Date(), 29 - i), "MMM d");
+      const dayRevenue = sales.filter((s) => s.sale_date === date).reduce((sum, s) => sum + s.revenue, 0);
+      return { date: label, revenue: dayRevenue };
+    });
+    return last30.filter((_, i) => i % 3 === 0 || i === 29); // Sample every 3 days for readability
+  }, [sales]);
+
+  // Sell-through by location
+  const sellThroughData = useMemo(() => {
+    return locationSummaries
+      .filter((l) => l.totalUnits > 0)
+      .map((l) => ({ name: l.name.length > 15 ? l.name.slice(0, 15) + "…" : l.name, sellThrough: l.sellThrough, revenue: l.locRevenue, fullName: l.name }))
+      .sort((a, b) => b.sellThrough - a.sellThrough);
+  }, [locationSummaries]);
+
+  // Batch utilization (pie chart)
+  const batchUtilization = useMemo(() => {
+    const totalProduced = batches.reduce((s, b) => s + b.quantity_produced, 0);
+    const totalRemaining = batches.reduce((s, b) => s + b.quantity_remaining, 0);
+    const distributed = totalProduced - totalRemaining;
+    const sold = sales.reduce((s, x) => s + x.units_sold, 0);
+    const inTransit = Math.max(0, distributed - sold);
+    return [
+      { name: "In Warehouse", value: totalRemaining },
+      { name: "Sold", value: sold },
+      { name: "At Locations", value: inTransit },
+    ].filter((d) => d.value > 0);
+  }, [batches, sales]);
+
+  // Revenue by location (bar chart)
+  const revenueByLocation = useMemo(() => {
+    return locationSummaries
+      .filter((l) => l.locRevenue > 0)
+      .map((l) => ({
+        name: l.name.length > 12 ? l.name.slice(0, 12) + "…" : l.name,
+        revenue: l.locRevenue,
+        outstanding: l.totalDue,
+        fullName: l.name,
+      }))
+      .sort((a, b) => b.revenue - a.revenue);
+  }, [locationSummaries]);
+
+  // Batch expiry timeline
+  const batchExpiryData = useMemo(() => {
+    return batches
+      .filter((b) => b.status === "active" && b.expiry_date)
+      .map((b) => {
+        const daysLeft = getDaysToExpiry(b.expiry_date) || 0;
+        return {
+          name: b.batch_number.replace("BATCH-", ""),
+          product: b.product_name,
+          daysLeft,
+          remaining: b.quantity_remaining,
+          value: b.quantity_remaining * b.unit_price,
+        };
+      })
+      .sort((a, b) => a.daysLeft - b.daysLeft);
+  }, [batches, getDaysToExpiry]);
+
+  const hasData = sales.length > 0 || distributions.length > 0 || batches.length > 0;
+
+  if (!hasData) {
+    return (
+      <Card className="border-dashed">
+        <CardContent className="py-12 text-center">
+          <BarChart3 className="w-12 h-12 text-muted-foreground/30 mx-auto mb-4" />
+          <h3 className="text-lg font-semibold mb-2">No analytics data yet</h3>
+          <p className="text-muted-foreground">Start adding batches, distributing stock, and recording sales to see performance charts</p>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  const CustomTooltip = ({ active, payload, label }: any) => {
+    if (!active || !payload?.length) return null;
+    return (
+      <div className="bg-popover border border-border rounded-lg p-3 shadow-lg">
+        <p className="text-sm font-medium text-foreground mb-1">{payload[0]?.payload?.fullName || label}</p>
+        {payload.map((entry: any, i: number) => (
+          <p key={i} className="text-xs text-muted-foreground">
+            {entry.name}: <span className="font-medium text-foreground">
+              {entry.name.toLowerCase().includes("revenue") || entry.name.toLowerCase().includes("outstanding") || entry.name.toLowerCase().includes("value")
+                ? `₦${entry.value.toLocaleString()}`
+                : entry.name.toLowerCase().includes("sell") ? `${entry.value}%` : entry.value.toLocaleString()}
+            </span>
+          </p>
+        ))}
+      </div>
+    );
+  };
+
+  return (
+    <div className="space-y-6">
+      {/* Revenue Trend */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <TrendingUp className="w-5 h-5 text-primary" />
+            Revenue Trend (Last 30 Days)
+          </CardTitle>
+          <CardDescription>Daily sales revenue across all locations</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="h-[280px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={revenueByDate}>
+                <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
+                <XAxis dataKey="date" tick={{ fontSize: 11 }} className="text-muted-foreground" />
+                <YAxis tick={{ fontSize: 11 }} tickFormatter={(v) => `₦${(v / 1000).toFixed(0)}k`} className="text-muted-foreground" />
+                <Tooltip content={<CustomTooltip />} />
+                <Line type="monotone" dataKey="revenue" name="Revenue" stroke="hsl(var(--primary))" strokeWidth={2.5} dot={{ r: 3 }} activeDot={{ r: 5 }} />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        </CardContent>
+      </Card>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Sell-Through by Location */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <MapPin className="w-5 h-5 text-accent" />
+              Sell-Through Rate by Location
+            </CardTitle>
+            <CardDescription>Percentage of distributed stock that's been sold</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {sellThroughData.length > 0 ? (
+              <div className="h-[280px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={sellThroughData} layout="vertical">
+                    <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
+                    <XAxis type="number" domain={[0, 100]} tick={{ fontSize: 11 }} tickFormatter={(v) => `${v}%`} />
+                    <YAxis type="category" dataKey="name" tick={{ fontSize: 11 }} width={100} />
+                    <Tooltip content={<CustomTooltip />} />
+                    <Bar dataKey="sellThrough" name="Sell-Through" fill="hsl(var(--primary))" radius={[0, 4, 4, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            ) : (
+              <p className="text-center text-muted-foreground py-8">No distribution data yet</p>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Batch Utilization Pie */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Package className="w-5 h-5 text-primary" />
+              Stock Distribution
+            </CardTitle>
+            <CardDescription>Where your produced stock currently sits</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {batchUtilization.length > 0 ? (
+              <div className="h-[280px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={batchUtilization}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={60}
+                      outerRadius={100}
+                      paddingAngle={3}
+                      dataKey="value"
+                      label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                    >
+                      {batchUtilization.map((_, i) => (
+                        <Cell key={i} fill={CHART_COLORS[i % CHART_COLORS.length]} />
+                      ))}
+                    </Pie>
+                    <Tooltip formatter={(value: number) => value.toLocaleString()} />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+            ) : (
+              <p className="text-center text-muted-foreground py-8">No batch data yet</p>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Revenue by Location */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <DollarSign className="w-5 h-5 text-primary" />
+              Revenue & Outstanding by Location
+            </CardTitle>
+            <CardDescription>Compare earnings vs outstanding payments</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {revenueByLocation.length > 0 ? (
+              <div className="h-[280px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={revenueByLocation}>
+                    <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
+                    <XAxis dataKey="name" tick={{ fontSize: 11 }} />
+                    <YAxis tick={{ fontSize: 11 }} tickFormatter={(v) => `₦${(v / 1000).toFixed(0)}k`} />
+                    <Tooltip content={<CustomTooltip />} />
+                    <Legend />
+                    <Bar dataKey="revenue" name="Revenue" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
+                    <Bar dataKey="outstanding" name="Outstanding" fill="hsl(var(--destructive))" radius={[4, 4, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            ) : (
+              <p className="text-center text-muted-foreground py-8">No revenue data yet</p>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Batch Expiry Timeline */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <AlertTriangle className="w-5 h-5 text-destructive" />
+              Batch Expiry Timeline
+            </CardTitle>
+            <CardDescription>Active batches ordered by urgency</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {batchExpiryData.length > 0 ? (
+              <div className="space-y-3">
+                {batchExpiryData.map((b, i) => (
+                  <div key={i} className="flex items-center gap-3">
+                    <div className="w-24 text-xs font-mono text-muted-foreground">{b.name}</div>
+                    <div className="flex-1">
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-sm font-medium truncate max-w-[150px]">{b.product}</span>
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs text-muted-foreground">{b.remaining} units</span>
+                          <Badge variant={b.daysLeft <= 7 ? "destructive" : b.daysLeft <= 14 ? "secondary" : "outline"} className="text-[10px]">
+                            {b.daysLeft <= 0 ? "EXPIRED" : `${b.daysLeft}d left`}
+                          </Badge>
+                        </div>
+                      </div>
+                      <Progress
+                        value={Math.max(0, Math.min(100, (b.daysLeft / 30) * 100))}
+                        className={`h-2 ${b.daysLeft <= 7 ? "[&>div]:bg-destructive" : b.daysLeft <= 14 ? "[&>div]:bg-accent" : ""}`}
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-center text-muted-foreground py-8">No active batches with expiry dates</p>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
+};
+
 // ─── Component ───────────────────────────────────────────────────────
 const Distribution = () => {
   const { user } = useAuth();
