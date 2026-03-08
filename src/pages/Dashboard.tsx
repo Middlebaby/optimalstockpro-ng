@@ -57,19 +57,18 @@ const Dashboard = () => {
     }
   }, [user, loading, navigate]);
 
-  // Check if user is admin
+  // Check if user is admin + fetch plan
   useEffect(() => {
-    const checkRole = async () => {
+    const checkRoleAndPlan = async () => {
       if (!user) return;
-      const { data } = await supabase
-        .from('user_roles')
-        .select('role')
-        .eq('user_id', user.id)
-        .eq('role', 'admin')
-        .maybeSingle();
-      setIsAdmin(!!data);
+      const [roleRes, profileRes] = await Promise.all([
+        supabase.from('user_roles').select('role').eq('user_id', user.id).eq('role', 'admin').maybeSingle(),
+        supabase.from('profiles').select('plan').eq('user_id', user.id).maybeSingle(),
+      ]);
+      setIsAdmin(!!roleRes.data);
+      setUserPlan(profileRes.data?.plan || "basic");
     };
-    checkRole();
+    checkRoleAndPlan();
   }, [user]);
 
   // Check if new user (no inventory) → show onboarding tour
