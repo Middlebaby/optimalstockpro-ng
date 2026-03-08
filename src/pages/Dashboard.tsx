@@ -337,6 +337,17 @@ const Dashboard = () => {
           {isAdminOrManager && (
             <div className="pt-4 border-t border-border mt-4 space-y-1">
               <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-4 mb-2">Admin</p>
+              <button
+                onClick={() => { setActiveTab("admin-users"); setSidebarOpen(false); }}
+                className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left transition-colors ${
+                  activeTab === "admin-users"
+                    ? "bg-primary text-primary-foreground"
+                    : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                }`}
+              >
+                <Shield className="w-5 h-5" />
+                <span className="font-medium">User Management</span>
+              </button>
               <Link
                 to="/admin/survey"
                 className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left transition-colors text-muted-foreground hover:bg-muted hover:text-foreground"
