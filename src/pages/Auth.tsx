@@ -1,12 +1,11 @@
 import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { BarChart3, Mail, Lock, User, ArrowRight, Eye, EyeOff } from "lucide-react";
+import { BarChart3, Mail, Lock, ArrowRight, Eye, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/hooks/useAuth";
-import { useLifecycleEmail } from "@/hooks/useLifecycleEmail";
 import { toast } from "sonner";
 import { z } from "zod";
 
@@ -15,30 +14,16 @@ const loginSchema = z.object({
   password: z.string().min(6, { message: "Password must be at least 6 characters" }),
 });
 
-const signupSchema = z.object({
-  fullName: z.string().trim().min(2, { message: "Name must be at least 2 characters" }).max(100),
-  email: z.string().trim().email({ message: "Please enter a valid email address" }),
-  password: z.string().min(6, { message: "Password must be at least 6 characters" }),
-  confirmPassword: z.string(),
-}).refine((data) => data.password === data.confirmPassword, {
-  message: "Passwords do not match",
-  path: ["confirmPassword"],
-});
-
 const Auth = () => {
-  const [isLogin, setIsLogin] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
-    fullName: "",
     email: "",
     password: "",
-    confirmPassword: "",
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  const { signIn, signUp, user, loading } = useAuth();
-  const { sendEmail } = useLifecycleEmail();
+  const { signIn, user, loading } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -62,65 +47,33 @@ const Auth = () => {
     setIsSubmitting(true);
 
     try {
-      if (isLogin) {
-        const result = loginSchema.safeParse({
-          email: formData.email,
-          password: formData.password,
-        });
+      const result = loginSchema.safeParse({
+        email: formData.email,
+        password: formData.password,
+      });
 
-        if (!result.success) {
-          const fieldErrors: Record<string, string> = {};
-          result.error.errors.forEach((err) => {
-            if (err.path[0]) {
-              fieldErrors[err.path[0] as string] = err.message;
-            }
-          });
-          setErrors(fieldErrors);
-          setIsSubmitting(false);
-          return;
-        }
-
-        const { error } = await signIn(formData.email, formData.password);
-        if (error) {
-          if (error.message.includes("Invalid login credentials")) {
-            toast.error("Invalid email or password");
-          } else {
-            toast.error(error.message);
+      if (!result.success) {
+        const fieldErrors: Record<string, string> = {};
+        result.error.errors.forEach((err) => {
+          if (err.path[0]) {
+            fieldErrors[err.path[0] as string] = err.message;
           }
+        });
+        setErrors(fieldErrors);
+        setIsSubmitting(false);
+        return;
+      }
+
+      const { error } = await signIn(formData.email, formData.password);
+      if (error) {
+        if (error.message.includes("Invalid login credentials")) {
+          toast.error("Invalid email or password");
         } else {
-          toast.success("Welcome back!");
-          navigate("/dashboard");
+          toast.error(error.message);
         }
       } else {
-        const result = signupSchema.safeParse(formData);
-
-        if (!result.success) {
-          const fieldErrors: Record<string, string> = {};
-          result.error.errors.forEach((err) => {
-            if (err.path[0]) {
-              fieldErrors[err.path[0] as string] = err.message;
-            }
-          });
-          setErrors(fieldErrors);
-          setIsSubmitting(false);
-          return;
-        }
-
-        const { error } = await signUp(formData.email, formData.password, formData.fullName);
-        if (error) {
-          if (error.message.includes("already registered")) {
-            toast.error("This email is already registered. Please sign in instead.");
-          } else {
-            toast.error(error.message);
-          }
-        } else {
-          toast.success("Account created successfully!");
-          // Fire welcome email in the background
-          sendEmail("welcome", formData.email, { name: formData.fullName }).catch((err) =>
-            console.error("Welcome email failed:", err)
-          );
-          navigate("/dashboard");
-        }
+        toast.success("Welcome back!");
+        navigate("/dashboard");
       }
     } catch (error) {
       toast.error("An unexpected error occurred. Please try again.");
@@ -155,36 +108,13 @@ const Auth = () => {
           </Link>
 
           <h1 className="text-3xl font-heading font-bold text-foreground mb-2">
-            {isLogin ? "Welcome back" : "Create your account"}
+            Welcome back
           </h1>
           <p className="text-muted-foreground mb-8">
-            {isLogin
-              ? "Sign in to access your inventory dashboard"
-              : "Start managing your inventory like a pro"}
+            Sign in to access your inventory dashboard
           </p>
 
           <form onSubmit={handleSubmit} className="space-y-4">
-            {!isLogin && (
-              <div>
-                <Label htmlFor="fullName">Full Name</Label>
-                <div className="relative mt-1">
-                  <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-                  <Input
-                    id="fullName"
-                    name="fullName"
-                    type="text"
-                    placeholder="Chidi Okonkwo"
-                    value={formData.fullName}
-                    onChange={handleInputChange}
-                    className={`pl-10 ${errors.fullName ? 'border-destructive' : ''}`}
-                  />
-                </div>
-                {errors.fullName && (
-                  <p className="text-sm text-destructive mt-1">{errors.fullName}</p>
-                )}
-              </div>
-            )}
-
             <div>
               <Label htmlFor="email">Email Address</Label>
               <div className="relative mt-1">
@@ -230,53 +160,17 @@ const Auth = () => {
               )}
             </div>
 
-            {!isLogin && (
-              <div>
-                <Label htmlFor="confirmPassword">Confirm Password</Label>
-                <div className="relative mt-1">
-                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-                  <Input
-                    id="confirmPassword"
-                    name="confirmPassword"
-                    type={showPassword ? "text" : "password"}
-                    placeholder="••••••••"
-                    value={formData.confirmPassword}
-                    onChange={handleInputChange}
-                    className={`pl-10 ${errors.confirmPassword ? 'border-destructive' : ''}`}
-                  />
-                </div>
-                {errors.confirmPassword && (
-                  <p className="text-sm text-destructive mt-1">{errors.confirmPassword}</p>
-                )}
-              </div>
-            )}
-
             <Button type="submit" size="lg" className="w-full" disabled={isSubmitting}>
               {isSubmitting ? (
                 <div className="w-5 h-5 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
               ) : (
                 <>
-                  {isLogin ? "Sign In" : "Create Account"}
+                  Sign In
                   <ArrowRight className="w-4 h-4 ml-2" />
                 </>
               )}
             </Button>
           </form>
-
-          <p className="text-center text-muted-foreground mt-6">
-            {isLogin ? "Don't have an account? " : "Already have an account? "}
-            <button
-              type="button"
-              onClick={() => {
-                setIsLogin(!isLogin);
-                setErrors({});
-                setFormData({ fullName: "", email: "", password: "", confirmPassword: "" });
-              }}
-              className="text-primary font-medium hover:underline"
-            >
-              {isLogin ? "Sign up" : "Sign in"}
-            </button>
-          </p>
         </motion.div>
       </div>
 
