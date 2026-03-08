@@ -27,7 +27,7 @@ const GetStarted = () => {
     phone: "",
     businessType: "",
     employees: "",
-    plan: "professional",
+    plan: "distribution",
     acceptTerms: false,
   });
 
@@ -53,9 +53,9 @@ const GetStarted = () => {
   ];
 
   const plans = [
-    { id: "starter", name: "Starter", price: 15000, display: "₦15,000/mo" },
-    { id: "professional", name: "Professional", price: 35000, display: "₦35,000/mo", popular: true },
-    { id: "enterprise", name: "Enterprise", price: 0, display: "Custom", isCustom: true },
+    { id: "basic", name: "Basic", price: 8000, display: "₦8,000/mo" },
+    { id: "distribution", name: "Distribution", price: 12000, display: "₦12,000/mo", popular: true },
+    { id: "professional", name: "Professional", price: 18000, display: "₦18,000/mo" },
   ];
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -69,10 +69,8 @@ const GetStarted = () => {
     // Step 3: Initialize Paystack payment
     const selectedPlan = plans.find((p) => p.id === formData.plan);
 
-    if (selectedPlan?.isCustom) {
-      // Enterprise → redirect to contact
-      toast.info("Our team will reach out to you shortly for a custom quote.");
-      setStep(4);
+    if (!selectedPlan) {
+      toast.error("Please select a plan.");
       return;
     }
 
