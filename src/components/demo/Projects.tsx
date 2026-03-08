@@ -69,11 +69,7 @@ const Projects = () => {
 
   const [allocations] = useState<MaterialAllocation[]>([]);
 
-  const [workOrders] = useState<WorkOrder[]>([
-    { id: "1", projectId: "1", title: "Foundation Reinforcement", description: "Complete steel reinforcement for ground floor", status: "completed", assignedTo: "Team Alpha", dueDate: "2025-12-20", priority: "high" },
-    { id: "2", projectId: "1", title: "First Floor Slab", description: "Pour concrete for first floor slab", status: "in-progress", assignedTo: "Team Beta", dueDate: "2026-01-10", priority: "high" },
-    { id: "3", projectId: "1", title: "Electrical Conduit Installation", description: "Install electrical conduits for floors 1-3", status: "pending", assignedTo: "Electrical Team", dueDate: "2026-01-25", priority: "medium" },
-  ]);
+  const [workOrders] = useState<WorkOrder[]>([]);
 
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);

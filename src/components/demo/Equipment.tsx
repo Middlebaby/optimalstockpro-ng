@@ -55,11 +55,7 @@ interface MaintenanceRecord {
 const EquipmentTracking = () => {
   const [equipment] = useState<Equipment[]>([]);
 
-  const [maintenanceRecords] = useState<MaintenanceRecord[]>([
-    { id: "1", equipmentId: "1", type: "routine", date: "2025-12-15", description: "Oil change and belt inspection", cost: 45000, performedBy: "Maintenance Team" },
-    { id: "2", equipmentId: "3", type: "repair", date: "2025-12-28", description: "Hydraulic system repair - cylinder replacement", cost: 850000, performedBy: "CAT Service Center" },
-    { id: "3", equipmentId: "2", type: "routine", date: "2025-11-01", description: "Full service and filter replacement", cost: 120000, performedBy: "Maintenance Team" },
-  ]);
+  const [maintenanceRecords] = useState<MaintenanceRecord[]>([]);
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
