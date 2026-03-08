@@ -106,8 +106,9 @@ const Dashboard = () => {
   };
 
   // Plan access helpers
-  const hasDistribution = userPlan === "distribution" || userPlan === "professional";
-  const hasProfessional = userPlan === "professional";
+  // All tiers unlocked for testing
+  const hasDistribution = true;
+  const hasProfessional = true;
 
   const basicNavItems = [
     { id: "dashboard", label: "Dashboard", icon: Home },
