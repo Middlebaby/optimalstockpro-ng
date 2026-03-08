@@ -43,12 +43,7 @@ interface Transfer {
 }
 
 const StoreTransfers = () => {
-  const [locations] = useState<Location[]>([
-    { id: "1", name: "Main Warehouse", address: "Industrial Estate, Ikeja", type: "warehouse", itemCount: 156, manager: "Chidi Okonkwo" },
-    { id: "2", name: "Lekki Store", address: "Admiralty Way, Lekki Phase 1", type: "store", itemCount: 45, manager: "Amina Ibrahim" },
-    { id: "3", name: "VI Site Office", address: "Adeola Odeku, Victoria Island", type: "site", itemCount: 23, manager: "Tunde Adeyemi" },
-    { id: "4", name: "Apapa Depot", address: "Wharf Road, Apapa", type: "warehouse", itemCount: 89, manager: "Ngozi Eze" },
-  ]);
+  const [locations] = useState<Location[]>([]);
 
   const [transfers] = useState<Transfer[]>([
     { id: "1", fromLocation: "Main Warehouse", toLocation: "VI Site Office", item: "Premium Cement", quantity: 100, unit: "bags", status: "in-transit", requestedBy: "Tunde Adeyemi", requestedDate: "2026-01-02", notes: "Urgent for foundation work" },
