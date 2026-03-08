@@ -57,6 +57,21 @@ const AdminUsers = () => {
     if (user) fetchUsers();
   }, [user]);
 
+  // Check if user is admin
+  useEffect(() => {
+    const checkAdmin = async () => {
+      if (!user) return;
+      const { data } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', user.id)
+        .eq('role', 'admin')
+        .maybeSingle();
+      setIsAdmin(!!data);
+    };
+    checkAdmin();
+  }, [user]);
+
   const handleRoleChange = async (userId: string, newRole: string) => {
     setUpdating(userId);
     try {
