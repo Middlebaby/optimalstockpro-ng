@@ -20,6 +20,7 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface StageItem {
@@ -31,7 +32,27 @@ interface StageItem {
   status: "waiting" | "in-progress" | "ready";
 }
 
-const InventoryFlowDiagram = () => {
+interface InventoryFlowDiagramProps {
+  onNavigate?: (tab: string) => void;
+}
+
+const stepToTab: Record<number, string> = {
+  0: "incoming",
+  1: "incoming",
+  2: "inventory",
+  3: "outgoing",
+  4: "distribution",
+};
+
+const stepToTabLabel: Record<number, string> = {
+  0: "Incoming Stock",
+  1: "Incoming Stock",
+  2: "Master Inventory",
+  3: "Outgoing Stock",
+  4: "Distribution",
+};
+
+const InventoryFlowDiagram = ({ onNavigate }: InventoryFlowDiagramProps) => {
   const [selectedStep, setSelectedStep] = useState<number | null>(null);
   
   // Current step for the most recent item (0-indexed)
