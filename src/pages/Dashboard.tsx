@@ -142,23 +142,91 @@ const Dashboard = () => {
     return "Basic";
   };
 
-  const UpgradePrompt = ({ feature, plan }: { feature: string; plan: string }) => (
-    <div className="flex flex-col items-center justify-center py-20 px-4 text-center">
-      <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center mb-6">
-        <Crown className="w-10 h-10 text-primary" />
+  const planPrices: Record<string, { amount: number; display: string; planId: string }> = {
+    Distribution: { amount: 12000, display: "₦12,000/mo", planId: "distribution" },
+    Professional: { amount: 18000, display: "₦18,000/mo", planId: "professional" },
+  };
+
+  const [upgradeLoading, setUpgradeLoading] = useState(false);
+
+  const handleUpgradePayment = async (plan: string) => {
+    if (!user) return;
+    const planInfo = planPrices[plan];
+    if (!planInfo) {
+      navigate("/get-started");
+      return;
+    }
+
+    setUpgradeLoading(true);
+    try {
+      const callbackUrl = `${window.location.origin}/payment/verify`;
+      const { data, error } = await supabase.functions.invoke("paystack", {
+        body: {
+          action: "initialize",
+          email: user.email,
+          amount: planInfo.amount,
+          callback_url: callbackUrl,
+          metadata: {
+            plan: planInfo.planId,
+            user_id: user.id,
+          },
+        },
+      });
+
+      if (error) throw error;
+
+      if (data?.status && data?.data?.authorization_url) {
+        window.location.href = data.data.authorization_url;
+      } else {
+        toast.error(data?.message || "Could not initialize payment. Please try again.");
+      }
+    } catch (err) {
+      console.error("Payment error:", err);
+      toast.error("Something went wrong. Please try again.");
+    } finally {
+      setUpgradeLoading(false);
+    }
+  };
+
+  const UpgradePrompt = ({ feature, plan }: { feature: string; plan: string }) => {
+    const planInfo = planPrices[plan];
+    return (
+      <div className="flex flex-col items-center justify-center py-20 px-4 text-center">
+        <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center mb-6">
+          <Crown className="w-10 h-10 text-primary" />
+        </div>
+        <h2 className="text-2xl font-heading font-bold text-foreground mb-3">
+          Upgrade to {plan} Plan
+        </h2>
+        <p className="text-muted-foreground max-w-md mb-4">
+          The <span className="font-semibold text-foreground">{feature}</span> feature is available on the {plan} plan. Upgrade to unlock this and more powerful tools for your business.
+        </p>
+        {planInfo && (
+          <p className="text-lg font-semibold text-foreground mb-6">
+            {planInfo.display}
+          </p>
+        )}
+        <Button
+          size="lg"
+          onClick={() => handleUpgradePayment(plan)}
+          disabled={upgradeLoading}
+          className="gap-2"
+        >
+          {upgradeLoading ? (
+            <>
+              <Loader2 className="w-4 h-4 animate-spin" />
+              Processing...
+            </>
+          ) : (
+            <>
+              <Crown className="w-4 h-4" />
+              Upgrade Now — {planInfo?.display || "View Plans"}
+            </>
+          )}
+        </Button>
       </div>
-      <h2 className="text-2xl font-heading font-bold text-foreground mb-3">
-        Upgrade to {plan} Plan
-      </h2>
-      <p className="text-muted-foreground max-w-md mb-6">
-        The <span className="font-semibold text-foreground">{feature}</span> feature is available on the {plan} plan. Upgrade to unlock this and more powerful tools for your business.
-      </p>
-      <Button size="lg" onClick={() => navigate("/get-started")} className="gap-2">
-        <Crown className="w-4 h-4" />
-        Upgrade Now
-      </Button>
-    </div>
-  );
+    );
+  };
 
   const renderContent = () => {
     // Check if the tab is locked
