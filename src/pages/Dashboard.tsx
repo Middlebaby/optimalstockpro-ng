@@ -42,9 +42,11 @@ const Dashboard = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [proFeaturesOpen, setProFeaturesOpen] = useState(true);
+  const [distFeaturesOpen, setDistFeaturesOpen] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
   const [showTour, setShowTour] = useState(false);
   const [triggerAddDialog, setTriggerAddDialog] = useState(false);
+  const [userPlan, setUserPlan] = useState<string>("basic");
 
   const { user, loading, signOut } = useAuth();
   const navigate = useNavigate();
