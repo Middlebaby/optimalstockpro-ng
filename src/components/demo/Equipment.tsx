@@ -53,85 +53,9 @@ interface MaintenanceRecord {
 }
 
 const EquipmentTracking = () => {
-  const [equipment] = useState<Equipment[]>([
-    {
-      id: "1",
-      name: "Concrete Mixer - 350L",
-      category: "Heavy Machinery",
-      serialNumber: "CM-2024-001",
-      status: "in-use",
-      condition: 85,
-      location: "VI Site Office",
-      assignedTo: "Team Alpha",
-      assignedProject: "Victoria Island Office Complex",
-      purchaseDate: "2024-03-15",
-      purchaseValue: 2500000,
-      lastMaintenance: "2025-12-15",
-      nextMaintenance: "2026-03-15"
-    },
-    {
-      id: "2",
-      name: "Generator - 100KVA",
-      category: "Power Equipment",
-      serialNumber: "GEN-2023-015",
-      status: "available",
-      condition: 72,
-      location: "Main Warehouse",
-      purchaseDate: "2023-06-20",
-      purchaseValue: 4500000,
-      lastMaintenance: "2025-11-01",
-      nextMaintenance: "2026-02-01"
-    },
-    {
-      id: "3",
-      name: "Excavator - Mini",
-      category: "Heavy Machinery",
-      serialNumber: "EXC-2024-003",
-      status: "maintenance",
-      condition: 45,
-      location: "Apapa Depot",
-      purchaseDate: "2024-01-10",
-      purchaseValue: 15000000,
-      lastMaintenance: "2025-12-28",
-      nextMaintenance: "2026-01-28"
-    },
-    {
-      id: "4",
-      name: "Welding Machine",
-      category: "Tools",
-      serialNumber: "WM-2022-042",
-      status: "in-use",
-      condition: 90,
-      location: "Lekki Store",
-      assignedTo: "Fabrication Team",
-      assignedProject: "Lekki Housing Estate Phase 2",
-      purchaseDate: "2022-08-05",
-      purchaseValue: 350000,
-      lastMaintenance: "2025-10-20",
-      nextMaintenance: "2026-04-20"
-    },
-    {
-      id: "5",
-      name: "Scaffolding Set (20 units)",
-      category: "Safety Equipment",
-      serialNumber: "SC-2023-100",
-      status: "in-use",
-      condition: 78,
-      location: "VI Site Office",
-      assignedTo: "Team Beta",
-      assignedProject: "Victoria Island Office Complex",
-      purchaseDate: "2023-02-28",
-      purchaseValue: 1200000,
-      lastMaintenance: "2025-09-15",
-      nextMaintenance: "2026-03-15"
-    },
-  ]);
+  const [equipment] = useState<Equipment[]>([]);
 
-  const [maintenanceRecords] = useState<MaintenanceRecord[]>([
-    { id: "1", equipmentId: "1", type: "routine", date: "2025-12-15", description: "Oil change and belt inspection", cost: 45000, performedBy: "Maintenance Team" },
-    { id: "2", equipmentId: "3", type: "repair", date: "2025-12-28", description: "Hydraulic system repair - cylinder replacement", cost: 850000, performedBy: "CAT Service Center" },
-    { id: "3", equipmentId: "2", type: "routine", date: "2025-11-01", description: "Full service and filter replacement", cost: 120000, performedBy: "Maintenance Team" },
-  ]);
+  const [maintenanceRecords] = useState<MaintenanceRecord[]>([]);
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");

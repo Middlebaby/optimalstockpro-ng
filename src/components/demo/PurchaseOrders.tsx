@@ -45,76 +45,7 @@ interface PurchaseOrder {
 }
 
 const PurchaseOrders = () => {
-  const [orders] = useState<PurchaseOrder[]>([
-    {
-      id: "1",
-      poNumber: "PO-2026-001",
-      supplier: "Dangote Cement",
-      status: "confirmed",
-      items: [
-        { id: "1", name: "Premium Cement", quantity: 500, unit: "bags", unitPrice: 4500 },
-        { id: "2", name: "Binding Wire", quantity: 50, unit: "rolls", unitPrice: 2500 },
-      ],
-      subtotal: 2375000,
-      vat: 178125,
-      total: 2553125,
-      createdDate: "2026-01-02",
-      expectedDelivery: "2026-01-10",
-      deliveryAddress: "Main Warehouse, Industrial Estate, Ikeja",
-      notes: "Urgent delivery needed for VI project",
-      createdBy: "Chidi Okonkwo"
-    },
-    {
-      id: "2",
-      poNumber: "PO-2026-002",
-      supplier: "Steel Masters Nigeria",
-      status: "sent",
-      items: [
-        { id: "1", name: "Steel Rods (12mm)", quantity: 1000, unit: "pieces", unitPrice: 2500 },
-        { id: "2", name: "Steel Rods (16mm)", quantity: 500, unit: "pieces", unitPrice: 3500 },
-      ],
-      subtotal: 4250000,
-      vat: 318750,
-      total: 4568750,
-      createdDate: "2026-01-03",
-      expectedDelivery: "2026-01-15",
-      deliveryAddress: "VI Site Office, Adeola Odeku, Victoria Island",
-      createdBy: "Amina Ibrahim"
-    },
-    {
-      id: "3",
-      poNumber: "PO-2025-098",
-      supplier: "Dulux Nigeria",
-      status: "received",
-      items: [
-        { id: "1", name: "Paint - White", quantity: 100, unit: "buckets", unitPrice: 8000 },
-        { id: "2", name: "Paint - Cream", quantity: 50, unit: "buckets", unitPrice: 8500 },
-      ],
-      subtotal: 1225000,
-      vat: 91875,
-      total: 1316875,
-      createdDate: "2025-12-20",
-      expectedDelivery: "2025-12-28",
-      deliveryAddress: "Lekki Store, Admiralty Way, Lekki Phase 1",
-      createdBy: "Tunde Adeyemi"
-    },
-    {
-      id: "4",
-      poNumber: "PO-2026-003",
-      supplier: "Pipe World Ltd",
-      status: "draft",
-      items: [
-        { id: "1", name: "PVC Pipes (4 inch)", quantity: 200, unit: "pieces", unitPrice: 3500 },
-      ],
-      subtotal: 700000,
-      vat: 52500,
-      total: 752500,
-      createdDate: "2026-01-03",
-      expectedDelivery: "2026-01-20",
-      deliveryAddress: "Main Warehouse, Industrial Estate, Ikeja",
-      createdBy: "Ngozi Eze"
-    },
-  ]);
+  const [orders] = useState<PurchaseOrder[]>([]);
 
   const [selectedOrder, setSelectedOrder] = useState<PurchaseOrder | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);

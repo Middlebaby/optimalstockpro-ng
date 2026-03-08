@@ -65,63 +65,11 @@ interface WorkOrder {
 }
 
 const Projects = () => {
-  const [projects] = useState<Project[]>([
-    {
-      id: "1",
-      name: "Victoria Island Office Complex",
-      client: "Sterling Properties Ltd",
-      status: "in-progress",
-      startDate: "2025-11-01",
-      endDate: "2026-06-30",
-      budget: 45000000,
-      spent: 18500000,
-      progress: 42,
-      description: "12-floor commercial office building with underground parking",
-      location: "Plot 15, Adeola Odeku, Victoria Island",
-      manager: "Engr. Chidi Okonkwo"
-    },
-    {
-      id: "2",
-      name: "Lekki Housing Estate Phase 2",
-      client: "Lekki Gardens",
-      status: "planning",
-      startDate: "2026-02-01",
-      endDate: "2027-01-31",
-      budget: 120000000,
-      spent: 2500000,
-      progress: 5,
-      description: "50 units of 3-bedroom semi-detached duplexes",
-      location: "Lekki Phase 2, Lagos",
-      manager: "Engr. Amina Ibrahim"
-    },
-    {
-      id: "3",
-      name: "Ikeja Factory Renovation",
-      client: "NigeriaMFG Ltd",
-      status: "completed",
-      startDate: "2025-06-01",
-      endDate: "2025-12-15",
-      budget: 28000000,
-      spent: 26800000,
-      progress: 100,
-      description: "Complete renovation of manufacturing floor and office spaces",
-      location: "Industrial Avenue, Ikeja",
-      manager: "Engr. Tunde Adeyemi"
-    },
-  ]);
+  const [projects] = useState<Project[]>([]);
 
-  const [allocations] = useState<MaterialAllocation[]>([
-    { id: "1", projectId: "1", itemName: "Premium Cement", allocated: 500, used: 280, returned: 0, unit: "bags" },
-    { id: "2", projectId: "1", itemName: "Steel Rods (12mm)", allocated: 1000, used: 650, returned: 20, unit: "pieces" },
-    { id: "3", projectId: "1", itemName: "Granite (20mm)", allocated: 200, used: 120, returned: 0, unit: "tonnes" },
-    { id: "4", projectId: "2", itemName: "Plywood Sheets", allocated: 50, used: 10, returned: 0, unit: "sheets" },
-  ]);
+  const [allocations] = useState<MaterialAllocation[]>([]);
 
-  const [workOrders] = useState<WorkOrder[]>([
-    { id: "1", projectId: "1", title: "Foundation Reinforcement", description: "Complete steel reinforcement for ground floor", status: "completed", assignedTo: "Team Alpha", dueDate: "2025-12-20", priority: "high" },
-    { id: "2", projectId: "1", title: "First Floor Slab", description: "Pour concrete for first floor slab", status: "in-progress", assignedTo: "Team Beta", dueDate: "2026-01-10", priority: "high" },
-    { id: "3", projectId: "1", title: "Electrical Conduit Installation", description: "Install electrical conduits for floors 1-3", status: "pending", assignedTo: "Electrical Team", dueDate: "2026-01-25", priority: "medium" },
-  ]);
+  const [workOrders] = useState<WorkOrder[]>([]);
 
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);

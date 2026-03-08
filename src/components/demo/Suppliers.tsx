@@ -23,12 +23,7 @@ interface Supplier {
 }
 
 const Suppliers = () => {
-  const [suppliers, setSuppliers] = useState<Supplier[]>([
-    { id: "1", name: "Dangote Cement", contact: "Mr. Adebayo", phone: "+234 801 234 5678", email: "orders@dangote.com", address: "Lagos, Nigeria", items: ["Premium Cement"] },
-    { id: "2", name: "Steel Masters", contact: "Mrs. Okonkwo", phone: "+234 802 345 6789", email: "sales@steelmasters.ng", address: "Port Harcourt, Nigeria", items: ["Steel Rods (12mm)", "Steel Rods (16mm)"] },
-    { id: "3", name: "Dulux Nigeria", contact: "Mr. Ibrahim", phone: "+234 803 456 7890", email: "wholesale@dulux.ng", address: "Abuja, Nigeria", items: ["Paint - White", "Paint - Blue", "Paint - Red"] },
-    { id: "4", name: "Timber Supplies", contact: "Chief Olamide", phone: "+234 804 567 8901", email: "orders@timbersupplies.com", address: "Benin City, Nigeria", items: ["Plywood Sheets", "Hardwood"] },
-  ]);
+  const [suppliers, setSuppliers] = useState<Supplier[]>([]);
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [newSupplier, setNewSupplier] = useState({

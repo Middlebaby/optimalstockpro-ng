@@ -43,19 +43,9 @@ interface Transfer {
 }
 
 const StoreTransfers = () => {
-  const [locations] = useState<Location[]>([
-    { id: "1", name: "Main Warehouse", address: "Industrial Estate, Ikeja", type: "warehouse", itemCount: 156, manager: "Chidi Okonkwo" },
-    { id: "2", name: "Lekki Store", address: "Admiralty Way, Lekki Phase 1", type: "store", itemCount: 45, manager: "Amina Ibrahim" },
-    { id: "3", name: "VI Site Office", address: "Adeola Odeku, Victoria Island", type: "site", itemCount: 23, manager: "Tunde Adeyemi" },
-    { id: "4", name: "Apapa Depot", address: "Wharf Road, Apapa", type: "warehouse", itemCount: 89, manager: "Ngozi Eze" },
-  ]);
+  const [locations] = useState<Location[]>([]);
 
-  const [transfers] = useState<Transfer[]>([
-    { id: "1", fromLocation: "Main Warehouse", toLocation: "VI Site Office", item: "Premium Cement", quantity: 100, unit: "bags", status: "in-transit", requestedBy: "Tunde Adeyemi", requestedDate: "2026-01-02", notes: "Urgent for foundation work" },
-    { id: "2", fromLocation: "Apapa Depot", toLocation: "Main Warehouse", item: "Steel Rods (12mm)", quantity: 500, unit: "pieces", status: "completed", requestedBy: "Chidi Okonkwo", requestedDate: "2025-12-28", completedDate: "2025-12-30" },
-    { id: "3", fromLocation: "Main Warehouse", toLocation: "Lekki Store", item: "Paint - White", quantity: 25, unit: "buckets", status: "pending", requestedBy: "Amina Ibrahim", requestedDate: "2026-01-03" },
-    { id: "4", fromLocation: "Lekki Store", toLocation: "VI Site Office", item: "PVC Pipes", quantity: 30, unit: "pieces", status: "cancelled", requestedBy: "Tunde Adeyemi", requestedDate: "2025-12-20", notes: "No longer needed" },
-  ]);
+  const [transfers] = useState<Transfer[]>([]);
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
