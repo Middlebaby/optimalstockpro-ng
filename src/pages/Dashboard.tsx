@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { 
   BarChart3, Package, ArrowDownCircle, ArrowUpCircle, Users, FileText,
-  BookOpen, Home, Menu, Bell, Search, FolderKanban, ArrowRightLeft,
+  BookOpen, Home, Menu, Bell, Search, FolderKanban, ArrowRightLeft, Truck,
   Wrench, ShoppingCart, ChevronDown, ChevronRight, LogOut, User,
   Settings as SettingsIcon, ClipboardList, Shield
 } from "lucide-react";
@@ -35,6 +35,7 @@ import Equipment from "@/components/demo/Equipment";
 import PurchaseOrders from "@/components/demo/PurchaseOrders";
 import Settings from "@/components/demo/Settings";
 import AdminUsers from "@/components/demo/AdminUsers";
+import Distribution from "@/components/demo/Distribution";
 import OnboardingTour from "@/components/demo/OnboardingTour";
 
 const Dashboard = () => {
@@ -115,6 +116,7 @@ const Dashboard = () => {
     { id: "transfers", label: "Store Transfers", icon: ArrowRightLeft },
     { id: "equipment", label: "Equipment & Tools", icon: Wrench },
     { id: "purchase-orders", label: "Purchase Orders", icon: ShoppingCart },
+    { id: "distribution", label: "Distribution", icon: Truck },
   ];
 
   const renderContent = () => {
@@ -146,6 +148,8 @@ const Dashboard = () => {
         return <Equipment />;
       case "purchase-orders":
         return <PurchaseOrders />;
+      case "distribution":
+        return <Distribution />;
       case "settings":
         return <Settings />;
       case "admin-users":
