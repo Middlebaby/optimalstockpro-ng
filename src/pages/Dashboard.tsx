@@ -236,7 +236,7 @@ const Dashboard = () => {
 
     switch (activeTab) {
       case "dashboard":
-        return <DashboardView />;
+        return <DashboardView onNavigate={setActiveTab} />;
       case "inventory":
         return (
           <MasterInventory
