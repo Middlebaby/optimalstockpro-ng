@@ -1,0 +1,1 @@
+UPDATE profiles SET plan = 'distribution' WHERE user_id = '1189f1cd-d0df-4599-b31d-0d14808391f6';
