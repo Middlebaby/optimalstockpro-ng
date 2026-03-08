@@ -24,7 +24,8 @@ import { Progress } from "@/components/ui/progress";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { format, differenceInDays, parseISO } from "date-fns";
+import { format, differenceInDays, parseISO, subDays, startOfDay } from "date-fns";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line, Legend } from "recharts";
 
 // ─── Types ───────────────────────────────────────────────────────────
 interface Location {
