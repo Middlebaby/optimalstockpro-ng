@@ -66,7 +66,9 @@ const Dashboard = () => {
         supabase.from('profiles').select('plan').eq('user_id', user.id).maybeSingle(),
       ]);
       setIsAdmin(!!roleRes.data);
-      setUserPlan(profileRes.data?.plan || "basic");
+      const fetchedPlan = profileRes.data?.plan || "basic";
+      console.log("Fetched plan:", fetchedPlan, "Profile data:", profileRes.data, "Error:", profileRes.error);
+      setUserPlan(fetchedPlan);
     };
     checkRoleAndPlan();
   }, [user]);
@@ -104,8 +106,9 @@ const Dashboard = () => {
   };
 
   // Plan access helpers
-  const hasDistribution = userPlan === "distribution" || userPlan === "professional";
-  const hasProfessional = userPlan === "professional";
+  // All tiers unlocked for testing
+  const hasDistribution = true;
+  const hasProfessional = true;
 
   const basicNavItems = [
     { id: "dashboard", label: "Dashboard", icon: Home },
