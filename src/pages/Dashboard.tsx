@@ -116,6 +116,7 @@ const Dashboard = () => {
     { id: "transfers", label: "Store Transfers", icon: ArrowRightLeft },
     { id: "equipment", label: "Equipment & Tools", icon: Wrench },
     { id: "purchase-orders", label: "Purchase Orders", icon: ShoppingCart },
+    { id: "distribution", label: "Distribution", icon: Truck },
   ];
 
   const renderContent = () => {
