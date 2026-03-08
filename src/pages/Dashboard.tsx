@@ -1,43 +1,21 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { 
-  BarChart3, 
-  Package, 
-  ArrowDownCircle, 
-  ArrowUpCircle,
-  Users,
-  FileText,
-  BookOpen,
-  Home,
-  Menu,
-  Bell,
-  Search,
-  FolderKanban,
-  ArrowRightLeft,
-  Wrench,
-  ShoppingCart,
-  ChevronDown,
-  ChevronRight,
-  LogOut,
-  User,
-  Settings as SettingsIcon,
-  ClipboardList
+  BarChart3, Package, ArrowDownCircle, ArrowUpCircle, Users, FileText,
+  BookOpen, Home, Menu, Bell, Search, FolderKanban, ArrowRightLeft,
+  Wrench, ShoppingCart, ChevronDown, ChevronRight, LogOut, User,
+  Settings as SettingsIcon, ClipboardList
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
+  Collapsible, CollapsibleContent, CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
+  DropdownMenu, DropdownMenuContent, DropdownMenuItem,
+  DropdownMenuSeparator, DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
 import { useAuth } from "@/hooks/useAuth";
@@ -56,12 +34,15 @@ import StoreTransfers from "@/components/demo/StoreTransfers";
 import Equipment from "@/components/demo/Equipment";
 import PurchaseOrders from "@/components/demo/PurchaseOrders";
 import Settings from "@/components/demo/Settings";
+import OnboardingTour from "@/components/demo/OnboardingTour";
 
 const Dashboard = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [proFeaturesOpen, setProFeaturesOpen] = useState(true);
   const [isAdminOrManager, setIsAdminOrManager] = useState(false);
+  const [showTour, setShowTour] = useState(false);
+  const [triggerAddDialog, setTriggerAddDialog] = useState(false);
 
   const { user, loading, signOut } = useAuth();
   const navigate = useNavigate();
@@ -76,19 +57,42 @@ const Dashboard = () => {
   useEffect(() => {
     const checkRole = async () => {
       if (!user) return;
-      
       const { data } = await supabase
         .from('user_roles')
         .select('role')
         .eq('user_id', user.id)
         .in('role', ['admin', 'manager'])
         .maybeSingle();
-      
       setIsAdminOrManager(!!data);
     };
-    
     checkRole();
   }, [user]);
+
+  // Check if new user (no inventory) → show onboarding tour
+  useEffect(() => {
+    const checkNewUser = async () => {
+      if (!user) return;
+      const tourCompleted = localStorage.getItem(`tour_completed_${user.id}`);
+      if (tourCompleted) return;
+
+      const { count } = await supabase
+        .from("inventory_items")
+        .select("id", { count: "exact", head: true })
+        .eq("user_id", user.id);
+
+      if (count === 0) {
+        setShowTour(true);
+      }
+    };
+    checkNewUser();
+  }, [user]);
+
+  const handleTourComplete = () => {
+    if (user) {
+      localStorage.setItem(`tour_completed_${user.id}`, "true");
+    }
+    setShowTour(false);
+  };
 
   const handleSignOut = async () => {
     await signOut();
@@ -117,7 +121,12 @@ const Dashboard = () => {
       case "dashboard":
         return <DashboardView />;
       case "inventory":
-        return <MasterInventory />;
+        return (
+          <MasterInventory
+            triggerAddDialog={triggerAddDialog}
+            onAddDialogOpened={() => setTriggerAddDialog(false)}
+          />
+        );
       case "incoming":
         return <IncomingStock />;
       case "outgoing":
@@ -157,6 +166,15 @@ const Dashboard = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      {/* Onboarding Tour */}
+      {showTour && (
+        <OnboardingTour
+          onComplete={handleTourComplete}
+          onNavigate={(tab) => setActiveTab(tab)}
+          onAddFirstItem={() => setTriggerAddDialog(true)}
+        />
+      )}
+
       {/* Top Header */}
       <header className="fixed top-0 left-0 right-0 z-50 h-16 bg-hero-gradient">
         <div className="h-full flex items-center justify-between px-4">
@@ -212,10 +230,7 @@ const Dashboard = () => {
                   <p className="text-xs text-muted-foreground">{user.email}</p>
                 </div>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem 
-                  onClick={() => setActiveTab("settings")} 
-                  className="cursor-pointer"
-                >
+                <DropdownMenuItem onClick={() => setActiveTab("settings")} className="cursor-pointer">
                   <SettingsIcon className="w-4 h-4 mr-2" />
                   Settings
                 </DropdownMenuItem>
@@ -249,17 +264,13 @@ const Dashboard = () => {
         }`}
       >
         <nav className="p-4 space-y-1">
-          {/* Basic Features Section */}
           <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-4 mb-2">
             Basic Features
           </p>
           {basicNavItems.map((item) => (
             <button
               key={item.id}
-              onClick={() => {
-                setActiveTab(item.id);
-                setSidebarOpen(false);
-              }}
+              onClick={() => { setActiveTab(item.id); setSidebarOpen(false); }}
               className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left transition-colors ${
                 activeTab === item.id
                   ? "bg-primary text-primary-foreground"
@@ -271,7 +282,6 @@ const Dashboard = () => {
             </button>
           ))}
 
-          {/* Professional Features Section */}
           <div className="pt-4">
             <Collapsible open={proFeaturesOpen} onOpenChange={setProFeaturesOpen}>
               <CollapsibleTrigger className="w-full flex items-center justify-between px-4 py-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider hover:text-foreground transition-colors">
@@ -279,20 +289,13 @@ const Dashboard = () => {
                   Professional Features
                   <Badge variant="outline" className="text-[10px] px-1.5 py-0">PRO</Badge>
                 </div>
-                {proFeaturesOpen ? (
-                  <ChevronDown className="w-4 h-4" />
-                ) : (
-                  <ChevronRight className="w-4 h-4" />
-                )}
+                {proFeaturesOpen ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
               </CollapsibleTrigger>
               <CollapsibleContent className="space-y-1 pt-2">
                 {proNavItems.map((item) => (
                   <button
                     key={item.id}
-                    onClick={() => {
-                      setActiveTab(item.id);
-                      setSidebarOpen(false);
-                    }}
+                    onClick={() => { setActiveTab(item.id); setSidebarOpen(false); }}
                     className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left transition-colors ${
                       activeTab === item.id
                         ? "bg-primary text-primary-foreground"
@@ -307,31 +310,20 @@ const Dashboard = () => {
             </Collapsible>
           </div>
 
-          {/* Setup Guide & Settings */}
           <div className="pt-4 border-t border-border mt-4 space-y-1">
             <button
-              onClick={() => {
-                setActiveTab("setup");
-                setSidebarOpen(false);
-              }}
+              onClick={() => { setActiveTab("setup"); setSidebarOpen(false); }}
               className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left transition-colors ${
-                activeTab === "setup"
-                  ? "bg-primary text-primary-foreground"
-                  : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                activeTab === "setup" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted hover:text-foreground"
               }`}
             >
               <BookOpen className="w-5 h-5" />
               <span className="font-medium">Setup Guide</span>
             </button>
             <button
-              onClick={() => {
-                setActiveTab("settings");
-                setSidebarOpen(false);
-              }}
+              onClick={() => { setActiveTab("settings"); setSidebarOpen(false); }}
               className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left transition-colors ${
-                activeTab === "settings"
-                  ? "bg-primary text-primary-foreground"
-                  : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                activeTab === "settings" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted hover:text-foreground"
               }`}
             >
               <SettingsIcon className="w-5 h-5" />
@@ -339,12 +331,9 @@ const Dashboard = () => {
             </button>
           </div>
 
-          {/* Admin Section */}
           {isAdminOrManager && (
             <div className="pt-4 border-t border-border mt-4 space-y-1">
-              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-4 mb-2">
-                Admin
-              </p>
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-4 mb-2">Admin</p>
               <Link
                 to="/admin/survey"
                 className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left transition-colors text-muted-foreground hover:bg-muted hover:text-foreground"
