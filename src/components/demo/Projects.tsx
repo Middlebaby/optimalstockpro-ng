@@ -67,12 +67,7 @@ interface WorkOrder {
 const Projects = () => {
   const [projects] = useState<Project[]>([]);
 
-  const [allocations] = useState<MaterialAllocation[]>([
-    { id: "1", projectId: "1", itemName: "Premium Cement", allocated: 500, used: 280, returned: 0, unit: "bags" },
-    { id: "2", projectId: "1", itemName: "Steel Rods (12mm)", allocated: 1000, used: 650, returned: 20, unit: "pieces" },
-    { id: "3", projectId: "1", itemName: "Granite (20mm)", allocated: 200, used: 120, returned: 0, unit: "tonnes" },
-    { id: "4", projectId: "2", itemName: "Plywood Sheets", allocated: 50, used: 10, returned: 0, unit: "sheets" },
-  ]);
+  const [allocations] = useState<MaterialAllocation[]>([]);
 
   const [workOrders] = useState<WorkOrder[]>([
     { id: "1", projectId: "1", title: "Foundation Reinforcement", description: "Complete steel reinforcement for ground floor", status: "completed", assignedTo: "Team Alpha", dueDate: "2025-12-20", priority: "high" },
