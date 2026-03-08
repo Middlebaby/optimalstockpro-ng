@@ -334,7 +334,7 @@ const Dashboard = () => {
             </button>
           </div>
 
-          {isAdminOrManager && (
+          {isAdmin && (
             <div className="pt-4 border-t border-border mt-4 space-y-1">
               <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-4 mb-2">Admin</p>
               <button

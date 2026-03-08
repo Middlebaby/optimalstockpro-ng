@@ -28,6 +28,7 @@ const AdminUsers = () => {
   const [updating, setUpdating] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   const fetchUsers = async () => {
     setLoading(true);
