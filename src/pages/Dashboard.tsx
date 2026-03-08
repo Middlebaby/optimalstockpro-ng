@@ -142,7 +142,30 @@ const Dashboard = () => {
     return "Basic";
   };
 
+  const UpgradePrompt = ({ feature, plan }: { feature: string; plan: string }) => (
+    <div className="flex flex-col items-center justify-center py-20 px-4 text-center">
+      <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center mb-6">
+        <Crown className="w-10 h-10 text-primary" />
+      </div>
+      <h2 className="text-2xl font-heading font-bold text-foreground mb-3">
+        Upgrade to {plan} Plan
+      </h2>
+      <p className="text-muted-foreground max-w-md mb-6">
+        The <span className="font-semibold text-foreground">{feature}</span> feature is available on the {plan} plan. Upgrade to unlock this and more powerful tools for your business.
+      </p>
+      <Button size="lg" onClick={() => navigate("/get-started")} className="gap-2">
+        <Crown className="w-4 h-4" />
+        Upgrade Now
+      </Button>
+    </div>
+  );
+
   const renderContent = () => {
+    // Check if the tab is locked
+    if (isTabLocked(activeTab)) {
+      return <UpgradePrompt feature={activeTab.replace("-", " ").replace(/\b\w/g, (c) => c.toUpperCase())} plan={getRequiredPlan(activeTab)} />;
+    }
+
     switch (activeTab) {
       case "dashboard":
         return <DashboardView />;
