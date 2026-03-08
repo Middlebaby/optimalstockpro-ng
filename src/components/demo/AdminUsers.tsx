@@ -129,6 +129,18 @@ const AdminUsers = () => {
     );
   }
 
+  if (!isAdmin) {
+    return (
+      <Card>
+        <CardContent className="flex flex-col items-center justify-center py-12 gap-4">
+          <AlertTriangle className="w-12 h-12 text-destructive" />
+          <p className="text-destructive font-medium">Access Denied</p>
+          <p className="text-muted-foreground text-center">Only admins can access the User Management panel</p>
+        </CardContent>
+      </Card>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <div>
