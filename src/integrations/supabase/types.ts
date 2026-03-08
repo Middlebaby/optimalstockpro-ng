@@ -50,6 +50,165 @@ export type Database = {
         }
         Relationships: []
       }
+      distribution_locations: {
+        Row: {
+          address: string | null
+          contact_person: string | null
+          created_at: string
+          id: string
+          name: string
+          notes: string | null
+          phone: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          address?: string | null
+          contact_person?: string | null
+          created_at?: string
+          id?: string
+          name: string
+          notes?: string | null
+          phone?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          address?: string | null
+          contact_person?: string | null
+          created_at?: string
+          id?: string
+          name?: string
+          notes?: string | null
+          phone?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      distribution_sales: {
+        Row: {
+          created_at: string
+          distribution_id: string | null
+          id: string
+          location_id: string
+          notes: string | null
+          product_name: string
+          returns: number | null
+          revenue: number | null
+          sale_date: string
+          unit_price: number | null
+          units_sold: number
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          distribution_id?: string | null
+          id?: string
+          location_id: string
+          notes?: string | null
+          product_name: string
+          returns?: number | null
+          revenue?: number | null
+          sale_date?: string
+          unit_price?: number | null
+          units_sold?: number
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          distribution_id?: string | null
+          id?: string
+          location_id?: string
+          notes?: string | null
+          product_name?: string
+          returns?: number | null
+          revenue?: number | null
+          sale_date?: string
+          unit_price?: number | null
+          units_sold?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "distribution_sales_distribution_id_fkey"
+            columns: ["distribution_id"]
+            isOneToOne: false
+            referencedRelation: "distributions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "distribution_sales_location_id_fkey"
+            columns: ["location_id"]
+            isOneToOne: false
+            referencedRelation: "distribution_locations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      distributions: {
+        Row: {
+          amount_due: number | null
+          amount_paid: number | null
+          batch_id: string
+          created_at: string
+          distributed_at: string
+          id: string
+          location_id: string
+          notes: string | null
+          quantity: number
+          status: string
+          total_amount: number | null
+          unit_price: number | null
+          user_id: string
+        }
+        Insert: {
+          amount_due?: number | null
+          amount_paid?: number | null
+          batch_id: string
+          created_at?: string
+          distributed_at?: string
+          id?: string
+          location_id: string
+          notes?: string | null
+          quantity?: number
+          status?: string
+          total_amount?: number | null
+          unit_price?: number | null
+          user_id: string
+        }
+        Update: {
+          amount_due?: number | null
+          amount_paid?: number | null
+          batch_id?: string
+          created_at?: string
+          distributed_at?: string
+          id?: string
+          location_id?: string
+          notes?: string | null
+          quantity?: number
+          status?: string
+          total_amount?: number | null
+          unit_price?: number | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "distributions_batch_id_fkey"
+            columns: ["batch_id"]
+            isOneToOne: false
+            referencedRelation: "production_batches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "distributions_location_id_fkey"
+            columns: ["location_id"]
+            isOneToOne: false
+            referencedRelation: "distribution_locations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       equipment: {
         Row: {
           created_at: string
@@ -202,6 +361,54 @@ export type Database = {
           weekly_summary?: boolean | null
           whatsapp_notifications?: boolean | null
           whatsapp_number?: string | null
+        }
+        Relationships: []
+      }
+      production_batches: {
+        Row: {
+          batch_number: string
+          created_at: string
+          expiry_date: string | null
+          id: string
+          notes: string | null
+          product_name: string
+          production_date: string
+          quantity_produced: number
+          quantity_remaining: number
+          status: string
+          unit_price: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          batch_number: string
+          created_at?: string
+          expiry_date?: string | null
+          id?: string
+          notes?: string | null
+          product_name: string
+          production_date?: string
+          quantity_produced?: number
+          quantity_remaining?: number
+          status?: string
+          unit_price?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          batch_number?: string
+          created_at?: string
+          expiry_date?: string | null
+          id?: string
+          notes?: string | null
+          product_name?: string
+          production_date?: string
+          quantity_produced?: number
+          quantity_remaining?: number
+          status?: string
+          unit_price?: number | null
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }
