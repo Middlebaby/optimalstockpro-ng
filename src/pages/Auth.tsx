@@ -15,18 +15,7 @@ const loginSchema = z.object({
   password: z.string().min(6, { message: "Password must be at least 6 characters" }),
 });
 
-const signupSchema = z.object({
-  fullName: z.string().trim().min(2, { message: "Name must be at least 2 characters" }).max(100),
-  email: z.string().trim().email({ message: "Please enter a valid email address" }),
-  password: z.string().min(6, { message: "Password must be at least 6 characters" }),
-  confirmPassword: z.string(),
-}).refine((data) => data.password === data.confirmPassword, {
-  message: "Passwords do not match",
-  path: ["confirmPassword"],
-});
-
 const Auth = () => {
-  const [isLogin, setIsLogin] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
