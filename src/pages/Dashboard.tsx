@@ -4,7 +4,7 @@ import {
   BarChart3, Package, ArrowDownCircle, ArrowUpCircle, Users, FileText,
   BookOpen, Home, Menu, Bell, Search, FolderKanban, ArrowRightLeft, Truck,
   Wrench, ShoppingCart, ChevronDown, ChevronRight, LogOut, User,
-  Settings as SettingsIcon, ClipboardList, Shield
+  Settings as SettingsIcon, ClipboardList, Shield, Lock, Crown
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -42,9 +42,11 @@ const Dashboard = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [proFeaturesOpen, setProFeaturesOpen] = useState(true);
+  const [distFeaturesOpen, setDistFeaturesOpen] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
   const [showTour, setShowTour] = useState(false);
   const [triggerAddDialog, setTriggerAddDialog] = useState(false);
+  const [userPlan, setUserPlan] = useState<string>("basic");
 
   const { user, loading, signOut } = useAuth();
   const navigate = useNavigate();
@@ -55,19 +57,18 @@ const Dashboard = () => {
     }
   }, [user, loading, navigate]);
 
-  // Check if user is admin
+  // Check if user is admin + fetch plan
   useEffect(() => {
-    const checkRole = async () => {
+    const checkRoleAndPlan = async () => {
       if (!user) return;
-      const { data } = await supabase
-        .from('user_roles')
-        .select('role')
-        .eq('user_id', user.id)
-        .eq('role', 'admin')
-        .maybeSingle();
-      setIsAdmin(!!data);
+      const [roleRes, profileRes] = await Promise.all([
+        supabase.from('user_roles').select('role').eq('user_id', user.id).eq('role', 'admin').maybeSingle(),
+        supabase.from('profiles').select('plan').eq('user_id', user.id).maybeSingle(),
+      ]);
+      setIsAdmin(!!roleRes.data);
+      setUserPlan(profileRes.data?.plan || "basic");
     };
-    checkRole();
+    checkRoleAndPlan();
   }, [user]);
 
   // Check if new user (no inventory) → show onboarding tour
@@ -102,6 +103,10 @@ const Dashboard = () => {
     navigate("/");
   };
 
+  // Plan access helpers
+  const hasDistribution = userPlan === "distribution" || userPlan === "professional";
+  const hasProfessional = userPlan === "professional";
+
   const basicNavItems = [
     { id: "dashboard", label: "Dashboard", icon: Home },
     { id: "inventory", label: "Master Inventory", icon: Package },
@@ -111,15 +116,56 @@ const Dashboard = () => {
     { id: "reports", label: "Reports", icon: FileText },
   ];
 
+  const distributionNavItems = [
+    { id: "distribution", label: "Distribution", icon: Truck },
+  ];
+
   const proNavItems = [
     { id: "projects", label: "Projects", icon: FolderKanban },
     { id: "transfers", label: "Store Transfers", icon: ArrowRightLeft },
     { id: "equipment", label: "Equipment & Tools", icon: Wrench },
     { id: "purchase-orders", label: "Purchase Orders", icon: ShoppingCart },
-    { id: "distribution", label: "Distribution", icon: Truck },
   ];
 
+  const distributionTabs = ["distribution"];
+  const proTabs = ["projects", "transfers", "equipment", "purchase-orders"];
+
+  const isTabLocked = (tabId: string) => {
+    if (distributionTabs.includes(tabId) && !hasDistribution) return true;
+    if (proTabs.includes(tabId) && !hasProfessional) return true;
+    return false;
+  };
+
+  const getRequiredPlan = (tabId: string) => {
+    if (distributionTabs.includes(tabId)) return "Distribution";
+    if (proTabs.includes(tabId)) return "Professional";
+    return "Basic";
+  };
+
+  const UpgradePrompt = ({ feature, plan }: { feature: string; plan: string }) => (
+    <div className="flex flex-col items-center justify-center py-20 px-4 text-center">
+      <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center mb-6">
+        <Crown className="w-10 h-10 text-primary" />
+      </div>
+      <h2 className="text-2xl font-heading font-bold text-foreground mb-3">
+        Upgrade to {plan} Plan
+      </h2>
+      <p className="text-muted-foreground max-w-md mb-6">
+        The <span className="font-semibold text-foreground">{feature}</span> feature is available on the {plan} plan. Upgrade to unlock this and more powerful tools for your business.
+      </p>
+      <Button size="lg" onClick={() => navigate("/get-started")} className="gap-2">
+        <Crown className="w-4 h-4" />
+        Upgrade Now
+      </Button>
+    </div>
+  );
+
   const renderContent = () => {
+    // Check if the tab is locked
+    if (isTabLocked(activeTab)) {
+      return <UpgradePrompt feature={activeTab.replace("-", " ").replace(/\b\w/g, (c) => c.toUpperCase())} plan={getRequiredPlan(activeTab)} />;
+    }
+
     switch (activeTab) {
       case "dashboard":
         return <DashboardView />;
@@ -289,12 +335,46 @@ const Dashboard = () => {
             </button>
           ))}
 
+          {/* Distribution Features */}
           <div className="pt-4">
+            <Collapsible open={distFeaturesOpen} onOpenChange={setDistFeaturesOpen}>
+              <CollapsibleTrigger className="w-full flex items-center justify-between px-4 py-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider hover:text-foreground transition-colors">
+                <div className="flex items-center gap-2">
+                  Distribution
+                  {!hasDistribution && <Lock className="w-3 h-3 text-muted-foreground" />}
+                </div>
+                {distFeaturesOpen ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
+              </CollapsibleTrigger>
+              <CollapsibleContent className="space-y-1 pt-2">
+                {distributionNavItems.map((item) => (
+                  <button
+                    key={item.id}
+                    onClick={() => { setActiveTab(item.id); setSidebarOpen(false); }}
+                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left transition-colors ${
+                      activeTab === item.id
+                        ? "bg-primary text-primary-foreground"
+                        : isTabLocked(item.id)
+                        ? "text-muted-foreground/50 hover:bg-muted"
+                        : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                    }`}
+                  >
+                    <item.icon className="w-5 h-5" />
+                    <span className="font-medium flex-1">{item.label}</span>
+                    {isTabLocked(item.id) && <Lock className="w-3.5 h-3.5 text-muted-foreground/50" />}
+                  </button>
+                ))}
+              </CollapsibleContent>
+            </Collapsible>
+          </div>
+
+          {/* Professional Features */}
+          <div className="pt-2">
             <Collapsible open={proFeaturesOpen} onOpenChange={setProFeaturesOpen}>
               <CollapsibleTrigger className="w-full flex items-center justify-between px-4 py-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider hover:text-foreground transition-colors">
                 <div className="flex items-center gap-2">
-                  Professional Features
+                  Professional
                   <Badge variant="outline" className="text-[10px] px-1.5 py-0">PRO</Badge>
+                  {!hasProfessional && <Lock className="w-3 h-3 text-muted-foreground" />}
                 </div>
                 {proFeaturesOpen ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
               </CollapsibleTrigger>
@@ -306,11 +386,14 @@ const Dashboard = () => {
                     className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left transition-colors ${
                       activeTab === item.id
                         ? "bg-primary text-primary-foreground"
+                        : isTabLocked(item.id)
+                        ? "text-muted-foreground/50 hover:bg-muted"
                         : "text-muted-foreground hover:bg-muted hover:text-foreground"
                     }`}
                   >
                     <item.icon className="w-5 h-5" />
-                    <span className="font-medium">{item.label}</span>
+                    <span className="font-medium flex-1">{item.label}</span>
+                    {isTabLocked(item.id) && <Lock className="w-3.5 h-3.5 text-muted-foreground/50" />}
                   </button>
                 ))}
               </CollapsibleContent>
