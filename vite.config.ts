@@ -25,7 +25,7 @@ export default defineConfig(({ mode }) => ({
         display: "standalone",
         orientation: "portrait-primary",
         scope: "/",
-        start_url: "/",
+        start_url: "/dashboard",
         icons: [
           {
             src: "/icon-192.png",
@@ -43,6 +43,7 @@ export default defineConfig(({ mode }) => ({
         categories: ["business", "productivity"],
       },
       workbox: {
+        navigateFallbackDenylist: [/^\/~oauth/],
         globPatterns: ["**/*.{js,css,html,ico,png,svg,woff2}"],
         runtimeCaching: [
           {
