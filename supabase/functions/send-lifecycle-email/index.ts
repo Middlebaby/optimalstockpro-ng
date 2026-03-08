@@ -323,8 +323,12 @@ const handler = async (req: Request): Promise<Response> => {
     // Parse body early to check email type for auth bypass
     const payload: EmailPayload = await req.json();
 
-    // Allow "welcome" emails without auth (user has no session at signup)
-    const unauthenticatedTypes: EmailType[] = ["welcome"];
+    // These types are sent by cron jobs or at signup (no user session available)
+    const unauthenticatedTypes: EmailType[] = [
+      "welcome", "day2_onboarding", "day5_features",
+      "trial_ending", "trial_expired",
+      "low_stock_alert", "monthly_summary",
+    ];
     const skipAuth = unauthenticatedTypes.includes(payload.emailType);
 
     if (!skipAuth) {
