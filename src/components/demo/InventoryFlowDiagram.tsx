@@ -291,7 +291,7 @@ const InventoryFlowDiagram = ({ onNavigate }: InventoryFlowDiagramProps) => {
         <div className="hidden md:flex items-center justify-between gap-2">
           {steps.map((step, index) => {
             const status = getStepStatus(index);
-            const itemCount = stageItems[index]?.length || 0;
+            const itemCount = stepCounts[index as keyof typeof stepCounts] || 0;
             return (
               <div key={index} className="flex items-center flex-1">
                 <motion.div
