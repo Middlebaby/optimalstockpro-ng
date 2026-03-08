@@ -71,12 +71,33 @@ Deno.serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
     );
 
+    // Get old role for audit log
+    const { data: oldRoleData } = await supabaseAdmin
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", userId)
+      .maybeSingle();
+
+    const oldRole = oldRoleData?.role || "unknown";
+
     const { error } = await supabaseAdmin
       .from("user_roles")
       .update({ role: newRole })
       .eq("user_id", userId);
 
     if (error) throw error;
+
+    // Log the role change in activity_logs
+    const targetUser = (await supabaseAdmin.auth.admin.getUserById(userId))?.data?.user;
+    await supabaseAdmin.from("activity_logs").insert({
+      user_id: caller.id,
+      action_type: "role_change",
+      entity_type: "user_role",
+      entity_id: userId,
+      entity_name: targetUser?.email || userId,
+      details: { old_role: oldRole, new_role: newRole },
+      ip_address: req.headers.get("x-forwarded-for") || req.headers.get("cf-connecting-ip") || null,
+    });
 
     return new Response(JSON.stringify({ success: true }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
