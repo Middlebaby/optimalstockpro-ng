@@ -34,6 +34,7 @@ import StoreTransfers from "@/components/demo/StoreTransfers";
 import Equipment from "@/components/demo/Equipment";
 import PurchaseOrders from "@/components/demo/PurchaseOrders";
 import Settings from "@/components/demo/Settings";
+import AdminUsers from "@/components/demo/AdminUsers";
 import OnboardingTour from "@/components/demo/OnboardingTour";
 
 const Dashboard = () => {
