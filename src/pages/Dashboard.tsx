@@ -54,7 +54,7 @@ const Dashboard = () => {
     }
   }, [user, loading, navigate]);
 
-  // Check if user is admin or manager
+  // Check if user is admin
   useEffect(() => {
     const checkRole = async () => {
       if (!user) return;
@@ -62,9 +62,9 @@ const Dashboard = () => {
         .from('user_roles')
         .select('role')
         .eq('user_id', user.id)
-        .in('role', ['admin', 'manager'])
+        .eq('role', 'admin')
         .maybeSingle();
-      setIsAdminOrManager(!!data);
+      setIsAdmin(!!data);
     };
     checkRole();
   }, [user]);
