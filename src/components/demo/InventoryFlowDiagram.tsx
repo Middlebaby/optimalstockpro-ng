@@ -461,11 +461,24 @@ const InventoryFlowDiagram = ({ onNavigate }: InventoryFlowDiagramProps) => {
             )}
           </ScrollArea>
           
-          {selectedStep !== null && stageItems[selectedStep]?.length > 0 && (
-            <div className="pt-3 border-t border-border">
-              <p className="text-sm text-muted-foreground text-center">
-                {stageItems[selectedStep].length} item{stageItems[selectedStep].length !== 1 ? 's' : ''} at this stage
+          {selectedStep !== null && (
+            <div className="pt-3 border-t border-border flex items-center justify-between">
+              <p className="text-sm text-muted-foreground">
+                {(stageItems[selectedStep]?.length || 0)} item{(stageItems[selectedStep]?.length || 0) !== 1 ? 's' : ''} at this stage
               </p>
+              {onNavigate && (
+                <Button
+                  size="sm"
+                  onClick={() => {
+                    onNavigate(stepToTab[selectedStep]);
+                    setSelectedStep(null);
+                  }}
+                  className="gap-1"
+                >
+                  Go to {stepToTabLabel[selectedStep]}
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </Button>
+              )}
             </div>
           )}
         </DialogContent>
