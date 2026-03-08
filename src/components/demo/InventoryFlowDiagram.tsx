@@ -188,6 +188,20 @@ const InventoryFlowDiagram = ({ onNavigate }: InventoryFlowDiagramProps) => {
     })),
   }), [incomingItems, unloggedItems, loggedItems, outgoingItems, distributionItems]);
 
+  const steps = [
+    { icon: Truck, title: "Receiving", description: "Stock arrives from suppliers", color: "bg-primary" },
+    { icon: ClipboardCheck, title: "Quality Check", description: "Verify & log incoming items", color: "bg-primary-glow" },
+    { icon: Warehouse, title: "Warehouse", description: "Store in master inventory", color: "bg-primary" },
+    { icon: Package, title: "Pick & Pack", description: "Prepare for distribution", color: "bg-accent" },
+    { icon: Store, title: "Distribution", description: "Dispatch to retail locations", color: "bg-primary-glow" },
+  ];
+
+  const getStepStatus = (index: number) => {
+    if (index < currentItemStep) return "completed";
+    if (index === currentItemStep) return "current";
+    return "pending";
+  };
+
   const getStatusBadge = (status: StageItem["status"]) => {
     switch (status) {
       case "waiting":
