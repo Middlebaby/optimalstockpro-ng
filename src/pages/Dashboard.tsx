@@ -272,6 +272,8 @@ const Dashboard = () => {
         return <Settings />;
       case "admin-users":
         return <AdminUsers />;
+      case "blog-manager":
+        return <BlogManager />;
       default:
         return <DashboardView onNavigate={setActiveTab} />;
     }
