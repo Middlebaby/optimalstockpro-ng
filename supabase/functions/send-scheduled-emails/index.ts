@@ -18,11 +18,11 @@ function escapeHtml(str: string | undefined | null): string {
 }
 
 const brand = {
-  primary: "#6366f1",
-  primaryDark: "#7c3aed",
-  foreground: "#3b4963",
-  muted: "#6b7994",
-  bg: "#f7f8fa",
+  primary: "#16a34a",
+  primaryDark: "#15803d",
+  foreground: "#1a2e1a",
+  muted: "#4b6b4b",
+  bg: "#f0fdf4",
   white: "#ffffff",
   radius: "12px",
   fontStack: "'Sora', 'DM Sans', Arial, sans-serif",
