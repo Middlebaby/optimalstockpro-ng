@@ -517,6 +517,17 @@ const Dashboard = () => {
                 <ClipboardList className="w-5 h-5" />
                 <span className="font-medium">Survey Responses</span>
               </Link>
+              <button
+                onClick={() => { setActiveTab("blog-manager"); setSidebarOpen(false); }}
+                className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left transition-colors ${
+                  activeTab === "blog-manager"
+                    ? "bg-primary text-primary-foreground"
+                    : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                }`}
+              >
+                <FileText className="w-5 h-5" />
+                <span className="font-medium">Blog Manager</span>
+              </button>
             </div>
           )}
         </nav>
