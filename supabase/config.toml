@@ -23,3 +23,6 @@ verify_jwt = false
 
 [functions.check-stock-alerts]
 verify_jwt = false
+
+[functions.notify-admin]
+verify_jwt = false
