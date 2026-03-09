@@ -255,6 +255,93 @@ function buildWeeklySummaryWhatsApp(name: string, stats: {
   return msg;
 }
 
+function buildWeeklyDigestEmail(name: string, stats: {
+  totalItems: number;
+  totalValue: number;
+  movements: number;
+  lowStockCount: number;
+  expiringCount: number;
+  itemsAdded: number;
+  incoming: number;
+  outgoing: number;
+  topItems: Array<{ name: string; quantity: number }>;
+  lowStockItems: Array<{ name: string; quantity: number }>;
+  expiringItems: Array<{ name: string; expiryDate: string }>;
+  weekLabel: string;
+}) {
+  const lowStockHtml = stats.lowStockItems.length > 0
+    ? `<div style="background:#fef2f2;border-radius:${brand.radius};padding:20px;margin:16px 0;">
+        <p style="margin:0 0 12px;font-weight:600;color:#dc2626;">🚨 Low Stock Alert (${stats.lowStockCount} items)</p>
+        ${stats.lowStockItems.slice(0, 5).map(i =>
+          `<p style="margin:0 0 6px;color:#7f1d1d;font-size:14px;">• ${escapeHtml(i.name)} — ${i.quantity} left</p>`
+        ).join("")}
+        ${stats.lowStockItems.length > 5 ? `<p style="margin:8px 0 0;color:#991b1b;font-size:13px;">+ ${stats.lowStockItems.length - 5} more</p>` : ""}
+      </div>` : "";
+
+  const expiringHtml = stats.expiringItems.length > 0
+    ? `<div style="background:#fffbeb;border-radius:${brand.radius};padding:20px;margin:16px 0;">
+        <p style="margin:0 0 12px;font-weight:600;color:#d97706;">⏰ Expiring Soon (${stats.expiringCount} items)</p>
+        ${stats.expiringItems.slice(0, 5).map(i =>
+          `<p style="margin:0 0 6px;color:#78350f;font-size:14px;">• ${escapeHtml(i.name)} — expires ${i.expiryDate}</p>`
+        ).join("")}
+      </div>` : "";
+
+  const topItemsHtml = stats.topItems.length > 0
+    ? `<div style="background:${brand.bg};border-radius:${brand.radius};padding:20px;margin:16px 0;">
+        <p style="margin:0 0 12px;font-weight:600;color:${brand.foreground};">📦 Top Items by Quantity</p>
+        ${stats.topItems.map((item, i) =>
+          `<p style="margin:0 0 6px;color:${brand.muted};font-size:14px;">${i + 1}. ${escapeHtml(item.name)} — ${item.quantity} units</p>`
+        ).join("")}
+      </div>` : "";
+
+  return {
+    subject: `📋 Weekly Digest — ${escapeHtml(stats.weekLabel)}`,
+    html: wrapper(`
+      <h1 style="color:${brand.foreground};font-size:24px;margin:0 0 8px;">Weekly Inventory Digest</h1>
+      <p style="color:${brand.muted};font-size:14px;margin:0 0 20px;">${escapeHtml(stats.weekLabel)}</p>
+      <p style="color:${brand.muted};font-size:16px;line-height:1.6;margin:0 0 24px;">Hey ${escapeHtml(name) || "there"}, here's what happened with your inventory this week:</p>
+      
+      <div style="margin:24px 0;">
+        <table style="width:100%;border-collapse:collapse;" cellpadding="0" cellspacing="0">
+          <tr>
+            <td style="width:33%;padding:6px;">
+              <div style="background:${brand.bg};border-radius:${brand.radius};padding:16px;text-align:center;">
+                <p style="margin:0;font-size:24px;font-weight:700;color:${brand.primary};">${stats.incoming}</p>
+                <p style="margin:4px 0 0;font-size:12px;color:${brand.muted};">Incoming</p>
+              </div>
+            </td>
+            <td style="width:33%;padding:6px;">
+              <div style="background:${brand.bg};border-radius:${brand.radius};padding:16px;text-align:center;">
+                <p style="margin:0;font-size:24px;font-weight:700;color:#ef4444;">${stats.outgoing}</p>
+                <p style="margin:4px 0 0;font-size:12px;color:${brand.muted};">Outgoing</p>
+              </div>
+            </td>
+            <td style="width:33%;padding:6px;">
+              <div style="background:${brand.bg};border-radius:${brand.radius};padding:16px;text-align:center;">
+                <p style="margin:0;font-size:24px;font-weight:700;color:${brand.primaryDark};">${stats.itemsAdded}</p>
+                <p style="margin:4px 0 0;font-size:12px;color:${brand.muted};">New Items</p>
+              </div>
+            </td>
+          </tr>
+        </table>
+      </div>
+
+      <div style="background:${brand.bg};border-radius:${brand.radius};padding:20px;margin:16px 0;">
+        <p style="margin:0 0 12px;font-weight:600;color:${brand.foreground};">📊 Snapshot</p>
+        <p style="margin:0 0 8px;color:${brand.muted};font-size:14px;">📦 Total items in stock: ${stats.totalItems}</p>
+        <p style="margin:0 0 8px;color:${brand.muted};font-size:14px;">💰 Total inventory value: ₦${stats.totalValue.toLocaleString()}</p>
+        <p style="margin:0;color:${brand.muted};font-size:14px;">🔄 Total movements: ${stats.movements}</p>
+      </div>
+
+      ${lowStockHtml}
+      ${expiringHtml}
+      ${topItemsHtml}
+
+      ${btn("View Dashboard", DASHBOARD)}
+    `),
+  };
+}
+
 async function getUserStats(supabase: any, userId: string, periodStart: Date) {
   // Total items & value
   const { data: items } = await supabase
@@ -332,7 +419,7 @@ serve(async (req: Request) => {
       body = await req.json();
     } catch (_) {}
 
-    const jobType = body.type || "drip"; // "drip" | "monthly" | "weekly_whatsapp"
+    const jobType = body.type || "drip"; // "drip" | "monthly" | "weekly_whatsapp" | "weekly_digest"
 
     const now = new Date();
     let sent = 0;
@@ -421,6 +508,59 @@ serve(async (req: Request) => {
       console.log(`Weekly WhatsApp summaries: ${sent} sent, ${errors} failed`);
       return new Response(
         JSON.stringify({ success: true, job: "weekly_whatsapp", sent, errors }),
+        { status: 200, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
+    // ──────────────────────────────────
+    // WEEKLY DIGEST EMAIL
+    // ──────────────────────────────────
+    if (jobType === "weekly_digest") {
+      const weekStart = new Date(now);
+      weekStart.setDate(weekStart.getDate() - 7);
+
+      for (const user of allUsers || []) {
+        if (!user.email) continue;
+        const name = profileMap.get(user.id) || user.user_metadata?.full_name || "";
+
+        try {
+          const stats = await getUserStats(supabase, user.id, weekStart);
+          if (stats.totalItems === 0 && stats.movements === 0) continue;
+
+          // Get incoming vs outgoing breakdown
+          const { count: incomingCount } = await supabase
+            .from("stock_movements")
+            .select("id", { count: "exact", head: true })
+            .eq("user_id", user.id)
+            .eq("movement_type", "incoming")
+            .gte("created_at", weekStart.toISOString());
+
+          const { count: outgoingCount } = await supabase
+            .from("stock_movements")
+            .select("id", { count: "exact", head: true })
+            .eq("user_id", user.id)
+            .eq("movement_type", "outgoing")
+            .gte("created_at", weekStart.toISOString());
+
+          const weekLabel = `${weekStart.toLocaleDateString("en-NG", { month: "short", day: "numeric" })} – ${now.toLocaleDateString("en-NG", { month: "short", day: "numeric", year: "numeric" })}`;
+
+          const { subject, html } = buildWeeklyDigestEmail(name, {
+            ...stats,
+            incoming: incomingCount || 0,
+            outgoing: outgoingCount || 0,
+            weekLabel,
+          });
+          const ok = await sendEmail(user.email!, subject, html);
+          ok ? sent++ : errors++;
+        } catch (e) {
+          console.error(`Error processing weekly digest for ${user.email}:`, e);
+          errors++;
+        }
+      }
+
+      console.log(`Weekly digest emails: ${sent} sent, ${errors} failed`);
+      return new Response(
+        JSON.stringify({ success: true, job: "weekly_digest", sent, errors }),
         { status: 200, headers: { "Content-Type": "application/json", ...corsHeaders } }
       );
     }
