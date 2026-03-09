@@ -15,6 +15,7 @@ const Header = () => {
     { href: "#pricing", label: "Pricing" },
     { href: "#testimonials", label: "Testimonials" },
     { href: "#faq", label: "FAQ" },
+    { href: "/blog", label: "Blog", isRoute: true },
     { href: "/demo", label: "Demo", isRoute: true },
   ];
 
