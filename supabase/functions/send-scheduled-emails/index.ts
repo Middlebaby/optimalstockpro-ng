@@ -426,6 +426,59 @@ serve(async (req: Request) => {
     }
 
     // ──────────────────────────────────
+    // WEEKLY DIGEST EMAIL
+    // ──────────────────────────────────
+    if (jobType === "weekly_digest") {
+      const weekStart = new Date(now);
+      weekStart.setDate(weekStart.getDate() - 7);
+
+      for (const user of allUsers || []) {
+        if (!user.email) continue;
+        const name = profileMap.get(user.id) || user.user_metadata?.full_name || "";
+
+        try {
+          const stats = await getUserStats(supabase, user.id, weekStart);
+          if (stats.totalItems === 0 && stats.movements === 0) continue;
+
+          // Get incoming vs outgoing breakdown
+          const { count: incomingCount } = await supabase
+            .from("stock_movements")
+            .select("id", { count: "exact", head: true })
+            .eq("user_id", user.id)
+            .eq("movement_type", "incoming")
+            .gte("created_at", weekStart.toISOString());
+
+          const { count: outgoingCount } = await supabase
+            .from("stock_movements")
+            .select("id", { count: "exact", head: true })
+            .eq("user_id", user.id)
+            .eq("movement_type", "outgoing")
+            .gte("created_at", weekStart.toISOString());
+
+          const weekLabel = `${weekStart.toLocaleDateString("en-NG", { month: "short", day: "numeric" })} – ${now.toLocaleDateString("en-NG", { month: "short", day: "numeric", year: "numeric" })}`;
+
+          const { subject, html } = buildWeeklyDigestEmail(name, {
+            ...stats,
+            incoming: incomingCount || 0,
+            outgoing: outgoingCount || 0,
+            weekLabel,
+          });
+          const ok = await sendEmail(user.email!, subject, html);
+          ok ? sent++ : errors++;
+        } catch (e) {
+          console.error(`Error processing weekly digest for ${user.email}:`, e);
+          errors++;
+        }
+      }
+
+      console.log(`Weekly digest emails: ${sent} sent, ${errors} failed`);
+      return new Response(
+        JSON.stringify({ success: true, job: "weekly_digest", sent, errors }),
+        { status: 200, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
+    // ──────────────────────────────────
     // ONBOARDING DRIP EMAILS (default)
     // ──────────────────────────────────
     const day2Start = new Date(now);
