@@ -36,6 +36,7 @@ import PurchaseOrders from "@/components/demo/PurchaseOrders";
 import Settings from "@/components/demo/Settings";
 import AdminUsers from "@/components/demo/AdminUsers";
 import Distribution from "@/components/demo/Distribution";
+import BlogManager from "@/components/demo/BlogManager";
 import OnboardingTour from "@/components/demo/OnboardingTour";
 
 const Dashboard = () => {
