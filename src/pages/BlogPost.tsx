@@ -69,6 +69,80 @@ const BlogPostPage = () => {
     fetchPost();
   }, [slug]);
 
+  // Dynamic SEO meta tags
+  useEffect(() => {
+    if (!post) return;
+
+    const siteUrl = "https://optimalstockpro-ng.lovable.app";
+    const postUrl = `${siteUrl}/blog/${post.slug}`;
+    const description = post.excerpt || post.content.substring(0, 160).replace(/[#*\n]/g, "").trim();
+    const pageTitle = `${post.title} | OptimalStock Pro Blog`;
+
+    // Title
+    document.title = pageTitle;
+
+    // Helper to set/create meta tags
+    const setMeta = (attr: string, key: string, content: string) => {
+      let el = document.querySelector(`meta[${attr}="${key}"]`) as HTMLMetaElement | null;
+      if (!el) {
+        el = document.createElement("meta");
+        el.setAttribute(attr, key);
+        document.head.appendChild(el);
+      }
+      el.setAttribute("content", content);
+    };
+
+    setMeta("name", "description", description);
+    setMeta("property", "og:title", pageTitle);
+    setMeta("property", "og:description", description);
+    setMeta("property", "og:url", postUrl);
+    setMeta("property", "og:type", "article");
+    setMeta("name", "twitter:title", pageTitle);
+    setMeta("name", "twitter:description", description);
+    setMeta("name", "twitter:card", "summary");
+    setMeta("property", "article:author", post.author_name || "OptimalStock Pro");
+    if (post.published_at) {
+      setMeta("property", "article:published_time", post.published_at);
+    }
+
+    // Canonical link
+    let canonical = document.querySelector('link[rel="canonical"]') as HTMLLinkElement | null;
+    if (!canonical) {
+      canonical = document.createElement("link");
+      canonical.setAttribute("rel", "canonical");
+      document.head.appendChild(canonical);
+    }
+    canonical.setAttribute("href", postUrl);
+
+    // JSON-LD structured data
+    let jsonLd = document.querySelector('script[data-blog-jsonld]') as HTMLScriptElement | null;
+    if (!jsonLd) {
+      jsonLd = document.createElement("script");
+      jsonLd.setAttribute("type", "application/ld+json");
+      jsonLd.setAttribute("data-blog-jsonld", "true");
+      document.head.appendChild(jsonLd);
+    }
+    jsonLd.textContent = JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "BlogPosting",
+      headline: post.title,
+      description,
+      url: postUrl,
+      datePublished: post.published_at || post.created_at,
+      author: { "@type": "Person", name: post.author_name || "OptimalStock Pro" },
+      publisher: { "@type": "Organization", name: "OptimalStock Pro" },
+    });
+
+    // Cleanup on unmount
+    return () => {
+      document.title = "Optimalstock Pro - Inventory Management for Nigerian SMEs";
+      const jsonLdEl = document.querySelector('script[data-blog-jsonld]');
+      if (jsonLdEl) jsonLdEl.remove();
+      const canonicalEl = document.querySelector('link[rel="canonical"]');
+      if (canonicalEl) canonicalEl.remove();
+    };
+  }, [post]);
+
   if (loading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
