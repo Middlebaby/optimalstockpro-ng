@@ -4,6 +4,9 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+const TWILIO_ACCOUNT_SID = Deno.env.get("TWILIO_ACCOUNT_SID");
+const TWILIO_AUTH_TOKEN = Deno.env.get("TWILIO_AUTH_TOKEN");
+const TWILIO_WHATSAPP_FROM = Deno.env.get("TWILIO_WHATSAPP_FROM") || "whatsapp:+14155238886";
 const FROM_EMAIL = "OptimalStock Pro <info@optimalstockpro.com>";
 
 const corsHeaders = {
@@ -96,6 +99,80 @@ function buildDay5Email(name: string) {
   };
 }
 
+function buildMonthlySummaryEmail(name: string, stats: {
+  totalItems: number;
+  totalValue: number;
+  movements: number;
+  lowStockCount: number;
+  expiringCount: number;
+  itemsAdded: number;
+  topItems: Array<{ name: string; quantity: number }>;
+  month: string;
+}) {
+  let topItemsHtml = "";
+  if (stats.topItems.length > 0) {
+    topItemsHtml = `
+      <div style="background:${brand.bg};border-radius:${brand.radius};padding:24px;margin:24px 0;">
+        <p style="margin:0 0 12px;font-weight:600;color:${brand.foreground};">📦 Top Items by Quantity:</p>
+        ${stats.topItems.map((item, i) =>
+          `<p style="margin:0 0 8px;color:${brand.muted};">${i + 1}. ${escapeHtml(item.name)} — ${item.quantity} units</p>`
+        ).join("")}
+      </div>`;
+  }
+
+  return {
+    subject: `📊 Your Monthly Inventory Summary — ${escapeHtml(stats.month)}`,
+    html: wrapper(`
+      <h1 style="color:${brand.foreground};font-size:24px;margin:0 0 16px;">Monthly Summary for ${escapeHtml(stats.month)}</h1>
+      <p style="color:${brand.muted};font-size:16px;line-height:1.6;">Hey ${escapeHtml(name) || "there"}, here's how your inventory performed this month:</p>
+      
+      <div style="margin:24px 0;">
+        <table style="width:100%;border-collapse:collapse;" cellpadding="0" cellspacing="0">
+          <tr>
+            <td style="width:50%;padding:8px;">
+              <div style="background:${brand.bg};border-radius:${brand.radius};padding:20px;text-align:center;">
+                <p style="margin:0;font-size:28px;font-weight:700;color:${brand.primary};">${stats.totalItems}</p>
+                <p style="margin:4px 0 0;font-size:13px;color:${brand.muted};">Total Items</p>
+              </div>
+            </td>
+            <td style="width:50%;padding:8px;">
+              <div style="background:${brand.bg};border-radius:${brand.radius};padding:20px;text-align:center;">
+                <p style="margin:0;font-size:28px;font-weight:700;color:${brand.primaryDark};">₦${stats.totalValue.toLocaleString()}</p>
+                <p style="margin:4px 0 0;font-size:13px;color:${brand.muted};">Inventory Value</p>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td style="width:50%;padding:8px;">
+              <div style="background:${brand.bg};border-radius:${brand.radius};padding:20px;text-align:center;">
+                <p style="margin:0;font-size:28px;font-weight:700;color:${brand.primary};">${stats.movements}</p>
+                <p style="margin:4px 0 0;font-size:13px;color:${brand.muted};">Stock Movements</p>
+              </div>
+            </td>
+            <td style="width:50%;padding:8px;">
+              <div style="background:${brand.bg};border-radius:${brand.radius};padding:20px;text-align:center;">
+                <p style="margin:0;font-size:28px;font-weight:700;color:#ef4444;">${stats.lowStockCount}</p>
+                <p style="margin:4px 0 0;font-size:13px;color:${brand.muted};">Low Stock Items</p>
+              </div>
+            </td>
+          </tr>
+        </table>
+      </div>
+
+      <div style="background:${brand.bg};border-radius:${brand.radius};padding:24px;margin:24px 0;">
+        <p style="margin:0 0 12px;font-weight:600;color:${brand.foreground};">📋 Highlights:</p>
+        <p style="margin:0 0 8px;color:${brand.muted};">📦 Items added this month: ${stats.itemsAdded}</p>
+        <p style="margin:0 0 8px;color:${brand.muted};">🚨 Low stock alerts: ${stats.lowStockCount}</p>
+        <p style="margin:0;color:${brand.muted};">⏰ Expiring soon: ${stats.expiringCount}</p>
+      </div>
+
+      ${topItemsHtml}
+
+      ${btn("View Full Report", DASHBOARD)}
+    `),
+  };
+}
+
 async function sendEmail(to: string, subject: string, html: string) {
   const res = await fetch("https://api.resend.com/emails", {
     method: "POST",
@@ -115,6 +192,125 @@ async function sendEmail(to: string, subject: string, html: string) {
   return true;
 }
 
+async function sendWhatsApp(to: string, body: string) {
+  if (!TWILIO_ACCOUNT_SID || !TWILIO_AUTH_TOKEN) {
+    console.error("Twilio credentials not configured, skipping WhatsApp");
+    return false;
+  }
+  const url = `https://api.twilio.com/2010-04-01/Accounts/${TWILIO_ACCOUNT_SID}/Messages.json`;
+  const formData = new URLSearchParams();
+  formData.append("To", `whatsapp:${to}`);
+  formData.append("From", TWILIO_WHATSAPP_FROM!);
+  formData.append("Body", body);
+
+  const response = await fetch(url, {
+    method: "POST",
+    headers: {
+      Authorization: `Basic ${btoa(`${TWILIO_ACCOUNT_SID}:${TWILIO_AUTH_TOKEN}`)}`,
+      "Content-Type": "application/x-www-form-urlencoded",
+    },
+    body: formData.toString(),
+  });
+
+  if (!response.ok) {
+    const err = await response.text();
+    console.error(`Twilio error for ${to}:`, err);
+    return false;
+  }
+  const result = await response.json();
+  console.log(`WhatsApp sent to ${to}:`, result.sid);
+  return true;
+}
+
+function buildWeeklySummaryWhatsApp(name: string, stats: {
+  totalItems: number;
+  totalValue: number;
+  movements: number;
+  lowStockItems: Array<{ name: string; quantity: number }>;
+  expiringItems: Array<{ name: string; expiryDate: string }>;
+}) {
+  let msg = `📊 *WEEKLY SUMMARY* — OptimalStock Pro\n\n`;
+  msg += `Hey ${name || "there"}, here's your weekly snapshot:\n\n`;
+  msg += `📦 Total Items: ${stats.totalItems}\n`;
+  msg += `💰 Inventory Value: ₦${stats.totalValue.toLocaleString()}\n`;
+  msg += `🔄 Stock Movements (this week): ${stats.movements}\n\n`;
+
+  if (stats.lowStockItems.length > 0) {
+    msg += `🚨 *Low Stock Items:*\n`;
+    stats.lowStockItems.slice(0, 10).forEach((item, i) => {
+      msg += `  ${i + 1}. ${item.name} — ${item.quantity} left\n`;
+    });
+    msg += `\n`;
+  }
+
+  if (stats.expiringItems.length > 0) {
+    msg += `⏰ *Expiring Soon:*\n`;
+    stats.expiringItems.slice(0, 5).forEach((item, i) => {
+      msg += `  ${i + 1}. ${item.name} — ${item.expiryDate}\n`;
+    });
+    msg += `\n`;
+  }
+
+  msg += `📈 View details: https://optimalstockpro-ng.lovable.app/dashboard`;
+  return msg;
+}
+
+async function getUserStats(supabase: any, userId: string, periodStart: Date) {
+  // Total items & value
+  const { data: items } = await supabase
+    .from("inventory_items")
+    .select("id, name, quantity, unit_price, reorder_level, expiry_date")
+    .eq("user_id", userId);
+
+  const allItems = items || [];
+  const totalItems = allItems.length;
+  const totalValue = allItems.reduce((sum: number, i: any) => sum + (i.quantity || 0) * (i.unit_price || 0), 0);
+
+  // Low stock
+  const lowStockItems = allItems.filter((i: any) => i.quantity <= (i.reorder_level || 10));
+
+  // Expiring within 14 days
+  const now = new Date();
+  const twoWeeks = new Date(now.getTime() + 14 * 24 * 60 * 60 * 1000);
+  const expiringItems = allItems.filter((i: any) => {
+    if (!i.expiry_date) return false;
+    const exp = new Date(i.expiry_date);
+    return exp >= now && exp <= twoWeeks;
+  });
+
+  // Stock movements in period
+  const { count: movements } = await supabase
+    .from("stock_movements")
+    .select("id", { count: "exact", head: true })
+    .eq("user_id", userId)
+    .gte("created_at", periodStart.toISOString());
+
+  // Items added in period
+  const { count: itemsAdded } = await supabase
+    .from("inventory_items")
+    .select("id", { count: "exact", head: true })
+    .eq("user_id", userId)
+    .gte("created_at", periodStart.toISOString());
+
+  // Top 5 items by quantity
+  const topItems = [...allItems]
+    .sort((a: any, b: any) => (b.quantity || 0) - (a.quantity || 0))
+    .slice(0, 5)
+    .map((i: any) => ({ name: i.name, quantity: i.quantity }));
+
+  return {
+    totalItems,
+    totalValue,
+    movements: movements || 0,
+    lowStockCount: lowStockItems.length,
+    lowStockItems: lowStockItems.map((i: any) => ({ name: i.name, quantity: i.quantity })),
+    expiringCount: expiringItems.length,
+    expiringItems: expiringItems.map((i: any) => ({ name: i.name, expiryDate: i.expiry_date })),
+    itemsAdded: itemsAdded || 0,
+    topItems,
+  };
+}
+
 serve(async (req: Request) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -131,27 +327,18 @@ serve(async (req: Request) => {
 
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
-    // Get today's date boundaries
+    let body: any = {};
+    try {
+      body = await req.json();
+    } catch (_) {}
+
+    const jobType = body.type || "drip"; // "drip" | "monthly" | "weekly_whatsapp"
+
     const now = new Date();
-    
-    // Day 2 users: signed up exactly 2 days ago
-    const day2Start = new Date(now);
-    day2Start.setDate(day2Start.getDate() - 2);
-    day2Start.setHours(0, 0, 0, 0);
-    const day2End = new Date(day2Start);
-    day2End.setHours(23, 59, 59, 999);
-
-    // Day 5 users: signed up exactly 5 days ago
-    const day5Start = new Date(now);
-    day5Start.setDate(day5Start.getDate() - 5);
-    day5Start.setHours(0, 0, 0, 0);
-    const day5End = new Date(day5Start);
-    day5End.setHours(23, 59, 59, 999);
-
     let sent = 0;
     let errors = 0;
 
-    // Fetch day 2 users from auth.users via admin API
+    // Fetch all users
     const { data: { users: allUsers }, error: usersError } = await supabase.auth.admin.listUsers({ perPage: 1000 });
     if (usersError) {
       console.error("Failed to list users:", usersError);
@@ -161,9 +348,97 @@ serve(async (req: Request) => {
       });
     }
 
-    // Get profiles for names
     const { data: profiles } = await supabase.from("profiles").select("user_id, full_name");
     const profileMap = new Map((profiles || []).map((p: any) => [p.user_id, p.full_name]));
+
+    // ──────────────────────────────────
+    // MONTHLY SUMMARY EMAIL
+    // ──────────────────────────────────
+    if (jobType === "monthly") {
+      const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+      const monthName = now.toLocaleString("en-NG", { month: "long", year: "numeric" });
+
+      for (const user of allUsers || []) {
+        if (!user.email) continue;
+        const name = profileMap.get(user.id) || user.user_metadata?.full_name || "";
+
+        try {
+          const stats = await getUserStats(supabase, user.id, monthStart);
+          // Only send if user has any inventory activity
+          if (stats.totalItems === 0 && stats.movements === 0) continue;
+
+          const { subject, html } = buildMonthlySummaryEmail(name, {
+            ...stats,
+            month: monthName,
+          });
+          const ok = await sendEmail(user.email, subject, html);
+          ok ? sent++ : errors++;
+        } catch (e) {
+          console.error(`Error processing monthly summary for ${user.email}:`, e);
+          errors++;
+        }
+      }
+
+      console.log(`Monthly summary emails: ${sent} sent, ${errors} failed`);
+      return new Response(
+        JSON.stringify({ success: true, job: "monthly", sent, errors }),
+        { status: 200, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
+    // ──────────────────────────────────
+    // WEEKLY WHATSAPP SUMMARY
+    // ──────────────────────────────────
+    if (jobType === "weekly_whatsapp") {
+      // Get notification settings for users with WhatsApp enabled
+      const { data: notifSettings } = await supabase
+        .from("notification_settings")
+        .select("user_id, whatsapp_number, whatsapp_notifications, weekly_summary")
+        .eq("whatsapp_notifications", true)
+        .eq("weekly_summary", true);
+
+      const weekStart = new Date(now);
+      weekStart.setDate(weekStart.getDate() - 7);
+
+      for (const setting of notifSettings || []) {
+        if (!setting.whatsapp_number) continue;
+
+        const name = profileMap.get(setting.user_id) || "";
+
+        try {
+          const stats = await getUserStats(supabase, setting.user_id, weekStart);
+          if (stats.totalItems === 0 && stats.movements === 0) continue;
+
+          const message = buildWeeklySummaryWhatsApp(name, stats);
+          const ok = await sendWhatsApp(setting.whatsapp_number, message);
+          ok ? sent++ : errors++;
+        } catch (e) {
+          console.error(`Error processing WhatsApp summary for ${setting.user_id}:`, e);
+          errors++;
+        }
+      }
+
+      console.log(`Weekly WhatsApp summaries: ${sent} sent, ${errors} failed`);
+      return new Response(
+        JSON.stringify({ success: true, job: "weekly_whatsapp", sent, errors }),
+        { status: 200, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
+    // ──────────────────────────────────
+    // ONBOARDING DRIP EMAILS (default)
+    // ──────────────────────────────────
+    const day2Start = new Date(now);
+    day2Start.setDate(day2Start.getDate() - 2);
+    day2Start.setHours(0, 0, 0, 0);
+    const day2End = new Date(day2Start);
+    day2End.setHours(23, 59, 59, 999);
+
+    const day5Start = new Date(now);
+    day5Start.setDate(day5Start.getDate() - 5);
+    day5Start.setHours(0, 0, 0, 0);
+    const day5End = new Date(day5Start);
+    day5End.setHours(23, 59, 59, 999);
 
     for (const user of allUsers || []) {
       const createdAt = new Date(user.created_at);
@@ -172,14 +447,12 @@ serve(async (req: Request) => {
 
       const name = profileMap.get(user.id) || user.user_metadata?.full_name || "";
 
-      // Day 2 email
       if (createdAt >= day2Start && createdAt <= day2End) {
         const { subject, html } = buildDay2Email(name);
         const ok = await sendEmail(email, subject, html);
         ok ? sent++ : errors++;
       }
 
-      // Day 5 email
       if (createdAt >= day5Start && createdAt <= day5End) {
         const { subject, html } = buildDay5Email(name);
         const ok = await sendEmail(email, subject, html);
@@ -188,9 +461,8 @@ serve(async (req: Request) => {
     }
 
     console.log(`Scheduled emails complete: ${sent} sent, ${errors} failed`);
-
     return new Response(
-      JSON.stringify({ success: true, sent, errors }),
+      JSON.stringify({ success: true, job: "drip", sent, errors }),
       { status: 200, headers: { "Content-Type": "application/json", ...corsHeaders } }
     );
   } catch (error: any) {
