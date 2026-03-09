@@ -332,7 +332,7 @@ serve(async (req: Request) => {
       body = await req.json();
     } catch (_) {}
 
-    const jobType = body.type || "drip"; // "drip" | "monthly" | "weekly_whatsapp"
+    const jobType = body.type || "drip"; // "drip" | "monthly" | "weekly_whatsapp" | "weekly_digest"
 
     const now = new Date();
     let sent = 0;
