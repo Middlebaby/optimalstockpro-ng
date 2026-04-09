@@ -4,7 +4,8 @@ import {
   BarChart3, Package, ArrowDownCircle, ArrowUpCircle, Users, FileText,
   BookOpen, Home, Menu, Bell, Search, FolderKanban, ArrowRightLeft, Truck,
   Wrench, ShoppingCart, ChevronDown, ChevronRight, LogOut, User,
-  Settings as SettingsIcon, ClipboardList, Shield, Lock, Crown, Loader2
+  Settings as SettingsIcon, ClipboardList, Shield, Lock, Crown, Loader2,
+  Store, Receipt
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -38,6 +39,8 @@ import AdminUsers from "@/components/demo/AdminUsers";
 import Distribution from "@/components/demo/Distribution";
 import BlogManager from "@/components/demo/BlogManager";
 import OnboardingTour from "@/components/demo/OnboardingTour";
+import SalesChannels from "@/components/demo/SalesChannels";
+import ReceiptPrinter from "@/components/demo/ReceiptPrinter";
 
 const Dashboard = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
