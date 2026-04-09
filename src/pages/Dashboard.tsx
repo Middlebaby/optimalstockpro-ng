@@ -273,6 +273,10 @@ const Dashboard = () => {
         return <PurchaseOrders />;
       case "distribution":
         return <Distribution />;
+      case "sales-channels":
+        return <SalesChannels />;
+      case "receipts":
+        return <ReceiptPrinter />;
       case "settings":
         return <Settings />;
       case "admin-users":
