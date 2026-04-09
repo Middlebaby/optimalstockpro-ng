@@ -136,7 +136,7 @@ const Dashboard = () => {
     { id: "purchase-orders", label: "Purchase Orders", icon: ShoppingCart },
   ];
 
-  const distributionTabs = ["distribution"];
+  const distributionTabs = ["distribution", "sales-channels"];
   const proTabs = ["projects", "transfers", "equipment", "purchase-orders"];
 
   const isTabLocked = (tabId: string) => {
