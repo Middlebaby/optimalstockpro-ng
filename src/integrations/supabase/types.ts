@@ -139,6 +139,7 @@ export type Database = {
       }
       distribution_sales: {
         Row: {
+          channel_id: string | null
           created_at: string
           distribution_id: string | null
           id: string
@@ -153,6 +154,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          channel_id?: string | null
           created_at?: string
           distribution_id?: string | null
           id?: string
@@ -167,6 +169,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          channel_id?: string | null
           created_at?: string
           distribution_id?: string | null
           id?: string
@@ -181,6 +184,13 @@ export type Database = {
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "distribution_sales_channel_id_fkey"
+            columns: ["channel_id"]
+            isOneToOne: false
+            referencedRelation: "sales_channels"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "distribution_sales_distribution_id_fkey"
             columns: ["distribution_id"]
@@ -375,6 +385,54 @@ export type Database = {
             columns: ["supplier_id"]
             isOneToOne: false
             referencedRelation: "suppliers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      location_inventory: {
+        Row: {
+          created_at: string
+          id: string
+          inventory_item_id: string
+          location_id: string
+          min_quantity: number
+          quantity: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          inventory_item_id: string
+          location_id: string
+          min_quantity?: number
+          quantity?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          inventory_item_id?: string
+          location_id?: string
+          min_quantity?: number
+          quantity?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "location_inventory_inventory_item_id_fkey"
+            columns: ["inventory_item_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "location_inventory_location_id_fkey"
+            columns: ["location_id"]
+            isOneToOne: false
+            referencedRelation: "distribution_locations"
             referencedColumns: ["id"]
           },
         ]
@@ -642,6 +700,42 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      sales_channels: {
+        Row: {
+          api_config: Json | null
+          channel_name: string
+          channel_type: string
+          created_at: string
+          id: string
+          is_active: boolean
+          last_synced_at: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          api_config?: Json | null
+          channel_name: string
+          channel_type?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          last_synced_at?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          api_config?: Json | null
+          channel_name?: string
+          channel_type?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          last_synced_at?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       stock_movements: {
         Row: {
