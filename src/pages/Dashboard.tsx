@@ -4,7 +4,8 @@ import {
   BarChart3, Package, ArrowDownCircle, ArrowUpCircle, Users, FileText,
   BookOpen, Home, Menu, Bell, Search, FolderKanban, ArrowRightLeft, Truck,
   Wrench, ShoppingCart, ChevronDown, ChevronRight, LogOut, User,
-  Settings as SettingsIcon, ClipboardList, Shield, Lock, Crown, Loader2
+  Settings as SettingsIcon, ClipboardList, Shield, Lock, Crown, Loader2,
+  Store, Receipt
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -38,6 +39,8 @@ import AdminUsers from "@/components/demo/AdminUsers";
 import Distribution from "@/components/demo/Distribution";
 import BlogManager from "@/components/demo/BlogManager";
 import OnboardingTour from "@/components/demo/OnboardingTour";
+import SalesChannels from "@/components/demo/SalesChannels";
+import ReceiptPrinter from "@/components/demo/ReceiptPrinter";
 
 const Dashboard = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
@@ -117,11 +120,13 @@ const Dashboard = () => {
     { id: "incoming", label: "Incoming Stock", icon: ArrowDownCircle },
     { id: "outgoing", label: "Outgoing Stock", icon: ArrowUpCircle },
     { id: "suppliers", label: "Suppliers", icon: Users },
+    { id: "receipts", label: "Receipt Printer", icon: Receipt },
     { id: "reports", label: "Reports", icon: FileText },
   ];
 
   const distributionNavItems = [
     { id: "distribution", label: "Distribution", icon: Truck },
+    { id: "sales-channels", label: "Sales Channels", icon: Store },
   ];
 
   const proNavItems = [
@@ -131,7 +136,7 @@ const Dashboard = () => {
     { id: "purchase-orders", label: "Purchase Orders", icon: ShoppingCart },
   ];
 
-  const distributionTabs = ["distribution"];
+  const distributionTabs = ["distribution", "sales-channels"];
   const proTabs = ["projects", "transfers", "equipment", "purchase-orders"];
 
   const isTabLocked = (tabId: string) => {
@@ -268,6 +273,10 @@ const Dashboard = () => {
         return <PurchaseOrders />;
       case "distribution":
         return <Distribution />;
+      case "sales-channels":
+        return <SalesChannels />;
+      case "receipts":
+        return <ReceiptPrinter />;
       case "settings":
         return <Settings />;
       case "admin-users":

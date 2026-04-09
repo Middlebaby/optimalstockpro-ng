@@ -69,7 +69,10 @@ const AdminSurvey = () => {
   // Check if user has admin/manager role
   useEffect(() => {
     const checkAccess = async () => {
-      if (!user) return;
+      if (!user) {
+        setLoading(false);
+        return;
+      }
       
       const { data, error } = await supabase
         .from("user_roles")
@@ -80,6 +83,7 @@ const AdminSurvey = () => {
       if (error) {
         console.error("Error checking role:", error);
         setHasAccess(false);
+        setLoading(false);
         return;
       }
 
@@ -87,10 +91,11 @@ const AdminSurvey = () => {
         setHasAccess(true);
       } else {
         setHasAccess(false);
+        setLoading(false);
       }
     };
 
-    if (!authLoading && user) {
+    if (!authLoading) {
       checkAccess();
     }
   }, [user, authLoading]);
