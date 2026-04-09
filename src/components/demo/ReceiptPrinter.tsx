@@ -61,7 +61,7 @@ const ReceiptPrinter = () => {
   });
 
   // Load company info from profile
-  useState(() => {
+  useEffect(() => {
     const loadProfile = async () => {
       if (!user) return;
       const { data } = await supabase
@@ -75,7 +75,7 @@ const ReceiptPrinter = () => {
       }
     };
     loadProfile();
-  });
+  }, [user]);
 
   const updateItem = (index: number, field: keyof ReceiptItem, value: string | number) => {
     const newItems = [...receipt.items];
