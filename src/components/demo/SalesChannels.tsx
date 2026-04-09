@@ -28,7 +28,7 @@ interface SalesChannel {
   channel_name: string;
   channel_type: string;
   is_active: boolean;
-  api_config: Record<string, any>;
+  api_config: any;
   last_synced_at: string | null;
   created_at: string;
 }
