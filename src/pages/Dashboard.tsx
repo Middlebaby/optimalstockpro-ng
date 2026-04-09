@@ -120,11 +120,13 @@ const Dashboard = () => {
     { id: "incoming", label: "Incoming Stock", icon: ArrowDownCircle },
     { id: "outgoing", label: "Outgoing Stock", icon: ArrowUpCircle },
     { id: "suppliers", label: "Suppliers", icon: Users },
+    { id: "receipts", label: "Receipt Printer", icon: Receipt },
     { id: "reports", label: "Reports", icon: FileText },
   ];
 
   const distributionNavItems = [
     { id: "distribution", label: "Distribution", icon: Truck },
+    { id: "sales-channels", label: "Sales Channels", icon: Store },
   ];
 
   const proNavItems = [
