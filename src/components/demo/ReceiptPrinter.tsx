@@ -1,6 +1,6 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import {
-  Printer, Download, FileText, Receipt, Loader2, Eye
+  Printer, Download, FileText, Receipt, Loader2, Eye, Plus
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -714,7 +714,5 @@ const ReceiptPrinter = () => {
   );
 };
 
-// Need Plus icon import
-import { Plus } from "lucide-react";
 
 export default ReceiptPrinter;
