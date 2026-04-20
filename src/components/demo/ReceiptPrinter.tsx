@@ -921,6 +921,97 @@ const ReceiptPrinter = () => {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Confirm Deduction Dialog */}
+      <Dialog open={confirmOpen} onOpenChange={(o) => !deductingInventory && setConfirmOpen(o)}>
+        <DialogContent className="max-w-lg max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Confirm inventory deduction</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3">
+            <p className="text-sm text-muted-foreground">
+              Printing this receipt will deduct the following items from your inventory. Review carefully before continuing.
+            </p>
+
+            {confirmLoading ? (
+              <div className="flex items-center justify-center py-8">
+                <Loader2 className="w-5 h-5 animate-spin mr-2" />
+                Checking inventory...
+              </div>
+            ) : deductionPreview.length === 0 ? (
+              <p className="text-sm text-muted-foreground py-4 text-center">
+                No items to deduct.
+              </p>
+            ) : (
+              <div className="border rounded-md divide-y max-h-72 overflow-y-auto">
+                {deductionPreview.map((row, i) => {
+                  const shortfall = row.matched && row.requested > row.available;
+                  return (
+                    <div key={i} className="p-3 text-sm">
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="font-medium truncate">{row.name}</span>
+                        {!row.matched ? (
+                          <Badge variant="destructive" className="shrink-0 text-[10px]">No match</Badge>
+                        ) : shortfall ? (
+                          <Badge variant="outline" className="shrink-0 text-[10px] border-destructive text-destructive">
+                            Shortfall
+                          </Badge>
+                        ) : (
+                          <Badge variant="secondary" className="shrink-0 text-[10px]">OK</Badge>
+                        )}
+                      </div>
+                      <div className="grid grid-cols-3 gap-2 mt-2 text-xs text-muted-foreground">
+                        <div>
+                          <div className="text-[10px] uppercase">Requested</div>
+                          <div className="text-foreground font-medium">{row.requested}</div>
+                        </div>
+                        <div>
+                          <div className="text-[10px] uppercase">In stock</div>
+                          <div className="text-foreground font-medium">{row.available}</div>
+                        </div>
+                        <div>
+                          <div className="text-[10px] uppercase">Will deduct</div>
+                          <div className="text-foreground font-medium">
+                            −{row.willDeduct}
+                            {row.matched && (
+                              <span className="text-muted-foreground"> → {row.newQty}</span>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                      {!row.matched && (
+                        <p className="text-[11px] text-destructive mt-1">
+                          No matching inventory item — nothing will be deducted for this row.
+                        </p>
+                      )}
+                      {shortfall && (
+                        <p className="text-[11px] text-destructive mt-1">
+                          Only {row.available} in stock; deduction will be capped.
+                        </p>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+
+            <div className="flex justify-end gap-2 pt-2">
+              <Button variant="outline" onClick={() => setConfirmOpen(false)} disabled={deductingInventory}>
+                Cancel
+              </Button>
+              <Button onClick={handleConfirmAndPrint} disabled={deductingInventory || confirmLoading}>
+                {deductingInventory ? (
+                  <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Processing...</>
+                ) : confirmAction === "thermal" ? (
+                  <><Printer className="w-4 h-4 mr-2" />Confirm & Print</>
+                ) : (
+                  <><Download className="w-4 h-4 mr-2" />Confirm & Download</>
+                )}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
