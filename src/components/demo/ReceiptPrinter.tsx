@@ -66,6 +66,14 @@ const ReceiptPrinter = () => {
   const [selectedSaleIds, setSelectedSaleIds] = useState<string[]>([]);
   const [deductingInventory, setDeductingInventory] = useState(false);
 
+  // Confirmation dialog state
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [confirmAction, setConfirmAction] = useState<"thermal" | "pdf">("pdf");
+  const [confirmLoading, setConfirmLoading] = useState(false);
+  const [deductionPreview, setDeductionPreview] = useState<
+    Array<{ name: string; requested: number; available: number; willDeduct: number; matched: boolean; newQty: number; invId?: string }>
+  >([]);
+
   // Sales filters
   const [filterStartDate, setFilterStartDate] = useState<string>("");
   const [filterEndDate, setFilterEndDate] = useState<string>("");
@@ -217,89 +225,124 @@ const ReceiptPrinter = () => {
   };
 
   // Deduct from inventory_items based on receipt items
-  const deductInventory = async () => {
-    if (!user) return;
-    setDeductingInventory(true);
-    let deducted = 0;
-    let errors = 0;
-
+  // Build a preview of inventory deductions without writing
+  const buildDeductionPreview = async () => {
+    if (!user) return [];
+    const preview: Array<{ name: string; requested: number; available: number; willDeduct: number; matched: boolean; newQty: number; invId?: string }> = [];
     for (const item of receipt.items) {
       if (!item.name.trim()) continue;
-      // Find matching inventory item by name (case-insensitive)
       const { data: invItems } = await supabase
         .from("inventory_items")
         .select("id, quantity, name")
         .eq("user_id", user.id)
         .ilike("name", item.name.trim())
         .limit(1);
-
       if (invItems && invItems.length > 0) {
         const inv = invItems[0];
-        const newQty = Math.max(0, inv.quantity - item.quantity);
-        const { error } = await supabase
-          .from("inventory_items")
-          .update({ quantity: newQty })
-          .eq("id", inv.id);
-        if (!error) {
-          deducted++;
-          // Log stock movement
-          await supabase.from("stock_movements").insert({
-            user_id: user.id,
-            created_by: user.id,
-            inventory_item_id: inv.id,
-            movement_type: "outgoing",
-            quantity: item.quantity,
-            notes: `Auto-deducted via receipt ${receipt.receipt_number}`,
-          });
-        } else {
-          errors++;
-        }
+        const willDeduct = Math.min(item.quantity, inv.quantity);
+        preview.push({
+          name: inv.name,
+          requested: item.quantity,
+          available: inv.quantity,
+          willDeduct,
+          matched: true,
+          newQty: Math.max(0, inv.quantity - item.quantity),
+          invId: inv.id,
+        });
+      } else {
+        preview.push({
+          name: item.name.trim(),
+          requested: item.quantity,
+          available: 0,
+          willDeduct: 0,
+          matched: false,
+          newQty: 0,
+        });
       }
     }
+    return preview;
+  };
 
-    setDeductingInventory(false);
-    if (deducted > 0) {
-      toast.success(`Inventory deducted for ${deducted} item(s)`);
+  // Apply the previewed deductions
+  const applyDeductions = async () => {
+    if (!user) return { deducted: 0, errors: 0 };
+    let deducted = 0;
+    let errors = 0;
+    for (const row of deductionPreview) {
+      if (!row.matched || !row.invId) continue;
+      const { error } = await supabase
+        .from("inventory_items")
+        .update({ quantity: row.newQty })
+        .eq("id", row.invId);
+      if (!error) {
+        deducted++;
+        await supabase.from("stock_movements").insert({
+          user_id: user.id,
+          created_by: user.id,
+          inventory_item_id: row.invId,
+          movement_type: "outgoing",
+          quantity: row.willDeduct,
+          notes: `Auto-deducted via receipt ${receipt.receipt_number}`,
+        });
+      } else {
+        errors++;
+      }
     }
-    if (errors > 0) {
-      toast.error(`Failed to deduct ${errors} item(s)`);
-    }
+    return { deducted, errors };
   };
 
   const formatCurrency = (amount: number) =>
     `₦${amount.toLocaleString("en-NG", { minimumFractionDigits: 2 })}`;
 
-  const handlePrintThermal = async () => {
-    await deductInventory();
-    const printWindow = window.open("", "_blank", "width=300,height=600");
-    if (!printWindow) {
-      toast.error("Pop-up blocked. Please allow pop-ups.");
+  const openConfirmDialog = async (action: "thermal" | "pdf") => {
+    const validItems = receipt.items.filter((i) => i.name.trim());
+    if (validItems.length === 0) {
+      toast.error("Add at least one item to the receipt");
       return;
     }
-    const html = generateThermalHTML();
-    printWindow.document.write(html);
-    printWindow.document.close();
-    printWindow.onload = () => {
-      printWindow.print();
-      printWindow.onafterprint = () => printWindow.close();
-    };
-    toast.success("Sent to printer");
+    setConfirmAction(action);
+    setConfirmOpen(true);
+    setConfirmLoading(true);
+    const preview = await buildDeductionPreview();
+    setDeductionPreview(preview);
+    setConfirmLoading(false);
   };
 
-  const handleDownloadPDF = async () => {
-    await deductInventory();
-    const printWindow = window.open("", "_blank");
-    if (!printWindow) {
-      toast.error("Pop-up blocked. Please allow pop-ups.");
-      return;
+  const handleConfirmAndPrint = async () => {
+    setDeductingInventory(true);
+    const { deducted, errors } = await applyDeductions();
+    setDeductingInventory(false);
+    setConfirmOpen(false);
+
+    if (deducted > 0) toast.success(`Inventory deducted for ${deducted} item(s)`);
+    if (errors > 0) toast.error(`Failed to deduct ${errors} item(s)`);
+
+    if (confirmAction === "thermal") {
+      const printWindow = window.open("", "_blank", "width=300,height=600");
+      if (!printWindow) {
+        toast.error("Pop-up blocked. Please allow pop-ups.");
+        return;
+      }
+      printWindow.document.write(generateThermalHTML());
+      printWindow.document.close();
+      printWindow.onload = () => {
+        printWindow.print();
+        printWindow.onafterprint = () => printWindow.close();
+      };
+      toast.success("Sent to printer");
+    } else {
+      const printWindow = window.open("", "_blank");
+      if (!printWindow) {
+        toast.error("Pop-up blocked. Please allow pop-ups.");
+        return;
+      }
+      printWindow.document.write(generatePDFHTML());
+      printWindow.document.close();
+      printWindow.onload = () => {
+        printWindow.print();
+      };
+      toast.success("PDF receipt opened for download");
     }
-    const html = generatePDFHTML();
-    printWindow.document.write(html);
-    printWindow.document.close();
-    printWindow.onload = () => {
-      printWindow.print();
-    };
-    toast.success("PDF receipt opened for download");
   };
 
   const generateThermalHTML = () => `
@@ -450,12 +493,12 @@ const ReceiptPrinter = () => {
             Preview
           </Button>
           {printerType === "thermal" ? (
-            <Button onClick={handlePrintThermal} disabled={deductingInventory}>
+            <Button onClick={() => openConfirmDialog("thermal")} disabled={deductingInventory}>
               {deductingInventory ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Printer className="w-4 h-4 mr-2" />}
               Print Thermal
             </Button>
           ) : (
-            <Button onClick={handleDownloadPDF} disabled={deductingInventory}>
+            <Button onClick={() => openConfirmDialog("pdf")} disabled={deductingInventory}>
               {deductingInventory ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Download className="w-4 h-4 mr-2" />}
               Download PDF
             </Button>
@@ -764,7 +807,7 @@ const ReceiptPrinter = () => {
               </div>
 
               <div className="pt-4 space-y-2">
-                <Button className="w-full" onClick={printerType === "thermal" ? handlePrintThermal : handleDownloadPDF} disabled={deductingInventory}>
+                <Button className="w-full" onClick={() => openConfirmDialog(printerType)} disabled={deductingInventory}>
                   {deductingInventory ? (
                     <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Processing...</>
                   ) : printerType === "thermal" ? (
@@ -874,6 +917,97 @@ const ReceiptPrinter = () => {
             <div className="text-center text-xs text-gray-500 pt-2">
               <p>Thank you for your patronage!</p>
               <p>Powered by OptimalStock Pro</p>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Confirm Deduction Dialog */}
+      <Dialog open={confirmOpen} onOpenChange={(o) => !deductingInventory && setConfirmOpen(o)}>
+        <DialogContent className="max-w-lg max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Confirm inventory deduction</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3">
+            <p className="text-sm text-muted-foreground">
+              Printing this receipt will deduct the following items from your inventory. Review carefully before continuing.
+            </p>
+
+            {confirmLoading ? (
+              <div className="flex items-center justify-center py-8">
+                <Loader2 className="w-5 h-5 animate-spin mr-2" />
+                Checking inventory...
+              </div>
+            ) : deductionPreview.length === 0 ? (
+              <p className="text-sm text-muted-foreground py-4 text-center">
+                No items to deduct.
+              </p>
+            ) : (
+              <div className="border rounded-md divide-y max-h-72 overflow-y-auto">
+                {deductionPreview.map((row, i) => {
+                  const shortfall = row.matched && row.requested > row.available;
+                  return (
+                    <div key={i} className="p-3 text-sm">
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="font-medium truncate">{row.name}</span>
+                        {!row.matched ? (
+                          <Badge variant="destructive" className="shrink-0 text-[10px]">No match</Badge>
+                        ) : shortfall ? (
+                          <Badge variant="outline" className="shrink-0 text-[10px] border-destructive text-destructive">
+                            Shortfall
+                          </Badge>
+                        ) : (
+                          <Badge variant="secondary" className="shrink-0 text-[10px]">OK</Badge>
+                        )}
+                      </div>
+                      <div className="grid grid-cols-3 gap-2 mt-2 text-xs text-muted-foreground">
+                        <div>
+                          <div className="text-[10px] uppercase">Requested</div>
+                          <div className="text-foreground font-medium">{row.requested}</div>
+                        </div>
+                        <div>
+                          <div className="text-[10px] uppercase">In stock</div>
+                          <div className="text-foreground font-medium">{row.available}</div>
+                        </div>
+                        <div>
+                          <div className="text-[10px] uppercase">Will deduct</div>
+                          <div className="text-foreground font-medium">
+                            −{row.willDeduct}
+                            {row.matched && (
+                              <span className="text-muted-foreground"> → {row.newQty}</span>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                      {!row.matched && (
+                        <p className="text-[11px] text-destructive mt-1">
+                          No matching inventory item — nothing will be deducted for this row.
+                        </p>
+                      )}
+                      {shortfall && (
+                        <p className="text-[11px] text-destructive mt-1">
+                          Only {row.available} in stock; deduction will be capped.
+                        </p>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+
+            <div className="flex justify-end gap-2 pt-2">
+              <Button variant="outline" onClick={() => setConfirmOpen(false)} disabled={deductingInventory}>
+                Cancel
+              </Button>
+              <Button onClick={handleConfirmAndPrint} disabled={deductingInventory || confirmLoading}>
+                {deductingInventory ? (
+                  <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Processing...</>
+                ) : confirmAction === "thermal" ? (
+                  <><Printer className="w-4 h-4 mr-2" />Confirm & Print</>
+                ) : (
+                  <><Download className="w-4 h-4 mr-2" />Confirm & Download</>
+                )}
+              </Button>
             </div>
           </div>
         </DialogContent>
