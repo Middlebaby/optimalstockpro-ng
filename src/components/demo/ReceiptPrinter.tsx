@@ -66,6 +66,32 @@ const ReceiptPrinter = () => {
   const [selectedSaleIds, setSelectedSaleIds] = useState<string[]>([]);
   const [deductingInventory, setDeductingInventory] = useState(false);
 
+  // Sales filters
+  const [filterStartDate, setFilterStartDate] = useState<string>("");
+  const [filterEndDate, setFilterEndDate] = useState<string>("");
+  const [filterLocationId, setFilterLocationId] = useState<string>("all");
+
+  const filteredSales = recentSales.filter((s) => {
+    if (filterLocationId !== "all" && s.location_id !== filterLocationId) return false;
+    if (filterStartDate && s.sale_date < filterStartDate) return false;
+    if (filterEndDate && s.sale_date > filterEndDate) return false;
+    return true;
+  });
+
+  const uniqueLocations = Array.from(
+    new Map(
+      recentSales
+        .filter((s) => s.location_id)
+        .map((s) => [s.location_id, { id: s.location_id, name: s.location_name || "Unknown" }])
+    ).values()
+  );
+
+  const clearFilters = () => {
+    setFilterStartDate("");
+    setFilterEndDate("");
+    setFilterLocationId("all");
+  };
+
   const [receipt, setReceipt] = useState<ReceiptData>({
     receipt_number: `RCT-${Date.now().toString(36).toUpperCase()}`,
     date: new Date().toISOString(),
