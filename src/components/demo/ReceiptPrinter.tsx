@@ -66,6 +66,14 @@ const ReceiptPrinter = () => {
   const [selectedSaleIds, setSelectedSaleIds] = useState<string[]>([]);
   const [deductingInventory, setDeductingInventory] = useState(false);
 
+  // Confirmation dialog state
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [confirmAction, setConfirmAction] = useState<"thermal" | "pdf">("pdf");
+  const [confirmLoading, setConfirmLoading] = useState(false);
+  const [deductionPreview, setDeductionPreview] = useState<
+    Array<{ name: string; requested: number; available: number; willDeduct: number; matched: boolean; newQty: number; invId?: string }>
+  >([]);
+
   // Sales filters
   const [filterStartDate, setFilterStartDate] = useState<string>("");
   const [filterEndDate, setFilterEndDate] = useState<string>("");
