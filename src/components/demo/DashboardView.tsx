@@ -24,7 +24,10 @@ const DashboardView = ({ onNavigate }: DashboardViewProps) => {
   const [stockAlerts, setStockAlerts] = useState<any[]>([]);
 
   useEffect(() => {
-    if (!user) return;
+    if (!user) {
+      setLoading(false);
+      return;
+    }
 
     const fetchDashboard = async () => {
       setLoading(true);
