@@ -66,6 +66,32 @@ const ReceiptPrinter = () => {
   const [selectedSaleIds, setSelectedSaleIds] = useState<string[]>([]);
   const [deductingInventory, setDeductingInventory] = useState(false);
 
+  // Sales filters
+  const [filterStartDate, setFilterStartDate] = useState<string>("");
+  const [filterEndDate, setFilterEndDate] = useState<string>("");
+  const [filterLocationId, setFilterLocationId] = useState<string>("all");
+
+  const filteredSales = recentSales.filter((s) => {
+    if (filterLocationId !== "all" && s.location_id !== filterLocationId) return false;
+    if (filterStartDate && s.sale_date < filterStartDate) return false;
+    if (filterEndDate && s.sale_date > filterEndDate) return false;
+    return true;
+  });
+
+  const uniqueLocations = Array.from(
+    new Map(
+      recentSales
+        .filter((s) => s.location_id)
+        .map((s) => [s.location_id, { id: s.location_id, name: s.location_name || "Unknown" }])
+    ).values()
+  );
+
+  const clearFilters = () => {
+    setFilterStartDate("");
+    setFilterEndDate("");
+    setFilterLocationId("all");
+  };
+
   const [receipt, setReceipt] = useState<ReceiptData>({
     receipt_number: `RCT-${Date.now().toString(36).toUpperCase()}`,
     date: new Date().toISOString(),
@@ -460,34 +486,88 @@ const ReceiptPrinter = () => {
             </p>
           ) : (
             <div className="space-y-3">
-              <div className="max-h-48 overflow-y-auto space-y-2 border rounded-md p-2">
-                {recentSales.map((sale) => (
-                  <label
-                    key={sale.id}
-                    className={`flex items-center gap-3 p-2 rounded-md cursor-pointer transition-colors ${
-                      selectedSaleIds.includes(sale.id) ? "bg-primary/10 border border-primary/30" : "hover:bg-muted"
-                    }`}
-                  >
-                    <input
-                      type="checkbox"
-                      checked={selectedSaleIds.includes(sale.id)}
-                      onChange={() => toggleSaleSelection(sale.id)}
-                      className="rounded"
-                    />
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2">
-                        <span className="font-medium text-sm truncate">{sale.product_name}</span>
-                        <Badge variant="outline" className="text-[10px] shrink-0">
-                          {sale.location_name || "Unknown"}
-                        </Badge>
-                      </div>
-                      <div className="text-xs text-muted-foreground">
-                        {sale.units_sold} units × ₦{Number(sale.unit_price).toLocaleString()} = ₦{Number(sale.revenue).toLocaleString()} · {sale.sale_date}
-                      </div>
-                    </div>
-                  </label>
-                ))}
+              {/* Filters */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 p-3 border rounded-md bg-muted/30">
+                <div>
+                  <Label className="text-xs">From date</Label>
+                  <Input
+                    type="date"
+                    value={filterStartDate}
+                    onChange={(e) => setFilterStartDate(e.target.value)}
+                    className="h-9"
+                  />
+                </div>
+                <div>
+                  <Label className="text-xs">To date</Label>
+                  <Input
+                    type="date"
+                    value={filterEndDate}
+                    onChange={(e) => setFilterEndDate(e.target.value)}
+                    className="h-9"
+                  />
+                </div>
+                <div>
+                  <Label className="text-xs">Location</Label>
+                  <Select value={filterLocationId} onValueChange={setFilterLocationId}>
+                    <SelectTrigger className="h-9">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All locations</SelectItem>
+                      {uniqueLocations.map((loc) => (
+                        <SelectItem key={loc.id} value={loc.id}>
+                          {loc.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="sm:col-span-3 flex items-center justify-between flex-wrap gap-2">
+                  <span className="text-xs text-muted-foreground">
+                    Showing {filteredSales.length} of {recentSales.length} sale(s)
+                  </span>
+                  {(filterStartDate || filterEndDate || filterLocationId !== "all") && (
+                    <Button size="sm" variant="ghost" onClick={clearFilters} className="h-7 text-xs">
+                      Clear filters
+                    </Button>
+                  )}
+                </div>
               </div>
+
+              {filteredSales.length === 0 ? (
+                <p className="text-muted-foreground text-sm py-6 text-center border rounded-md">
+                  No sales match the selected filters.
+                </p>
+              ) : (
+                <div className="max-h-48 overflow-y-auto space-y-2 border rounded-md p-2">
+                  {filteredSales.map((sale) => (
+                    <label
+                      key={sale.id}
+                      className={`flex items-center gap-3 p-2 rounded-md cursor-pointer transition-colors ${
+                        selectedSaleIds.includes(sale.id) ? "bg-primary/10 border border-primary/30" : "hover:bg-muted"
+                      }`}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={selectedSaleIds.includes(sale.id)}
+                        onChange={() => toggleSaleSelection(sale.id)}
+                        className="rounded"
+                      />
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2">
+                          <span className="font-medium text-sm truncate">{sale.product_name}</span>
+                          <Badge variant="outline" className="text-[10px] shrink-0">
+                            {sale.location_name || "Unknown"}
+                          </Badge>
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                          {sale.units_sold} units × ₦{Number(sale.unit_price).toLocaleString()} = ₦{Number(sale.revenue).toLocaleString()} · {sale.sale_date}
+                        </div>
+                      </div>
+                    </label>
+                  ))}
+                </div>
+              )}
               <div className="flex items-center gap-2">
                 <Button
                   size="sm"
