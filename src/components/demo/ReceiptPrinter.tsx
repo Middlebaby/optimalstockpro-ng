@@ -493,12 +493,12 @@ const ReceiptPrinter = () => {
             Preview
           </Button>
           {printerType === "thermal" ? (
-            <Button onClick={handlePrintThermal} disabled={deductingInventory}>
+            <Button onClick={() => openConfirmDialog("thermal")} disabled={deductingInventory}>
               {deductingInventory ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Printer className="w-4 h-4 mr-2" />}
               Print Thermal
             </Button>
           ) : (
-            <Button onClick={handleDownloadPDF} disabled={deductingInventory}>
+            <Button onClick={() => openConfirmDialog("pdf")} disabled={deductingInventory}>
               {deductingInventory ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Download className="w-4 h-4 mr-2" />}
               Download PDF
             </Button>
