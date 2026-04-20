@@ -225,89 +225,124 @@ const ReceiptPrinter = () => {
   };
 
   // Deduct from inventory_items based on receipt items
-  const deductInventory = async () => {
-    if (!user) return;
-    setDeductingInventory(true);
-    let deducted = 0;
-    let errors = 0;
-
+  // Build a preview of inventory deductions without writing
+  const buildDeductionPreview = async () => {
+    if (!user) return [];
+    const preview: Array<{ name: string; requested: number; available: number; willDeduct: number; matched: boolean; newQty: number; invId?: string }> = [];
     for (const item of receipt.items) {
       if (!item.name.trim()) continue;
-      // Find matching inventory item by name (case-insensitive)
       const { data: invItems } = await supabase
         .from("inventory_items")
         .select("id, quantity, name")
         .eq("user_id", user.id)
         .ilike("name", item.name.trim())
         .limit(1);
-
       if (invItems && invItems.length > 0) {
         const inv = invItems[0];
-        const newQty = Math.max(0, inv.quantity - item.quantity);
-        const { error } = await supabase
-          .from("inventory_items")
-          .update({ quantity: newQty })
-          .eq("id", inv.id);
-        if (!error) {
-          deducted++;
-          // Log stock movement
-          await supabase.from("stock_movements").insert({
-            user_id: user.id,
-            created_by: user.id,
-            inventory_item_id: inv.id,
-            movement_type: "outgoing",
-            quantity: item.quantity,
-            notes: `Auto-deducted via receipt ${receipt.receipt_number}`,
-          });
-        } else {
-          errors++;
-        }
+        const willDeduct = Math.min(item.quantity, inv.quantity);
+        preview.push({
+          name: inv.name,
+          requested: item.quantity,
+          available: inv.quantity,
+          willDeduct,
+          matched: true,
+          newQty: Math.max(0, inv.quantity - item.quantity),
+          invId: inv.id,
+        });
+      } else {
+        preview.push({
+          name: item.name.trim(),
+          requested: item.quantity,
+          available: 0,
+          willDeduct: 0,
+          matched: false,
+          newQty: 0,
+        });
       }
     }
+    return preview;
+  };
 
-    setDeductingInventory(false);
-    if (deducted > 0) {
-      toast.success(`Inventory deducted for ${deducted} item(s)`);
+  // Apply the previewed deductions
+  const applyDeductions = async () => {
+    if (!user) return { deducted: 0, errors: 0 };
+    let deducted = 0;
+    let errors = 0;
+    for (const row of deductionPreview) {
+      if (!row.matched || !row.invId) continue;
+      const { error } = await supabase
+        .from("inventory_items")
+        .update({ quantity: row.newQty })
+        .eq("id", row.invId);
+      if (!error) {
+        deducted++;
+        await supabase.from("stock_movements").insert({
+          user_id: user.id,
+          created_by: user.id,
+          inventory_item_id: row.invId,
+          movement_type: "outgoing",
+          quantity: row.willDeduct,
+          notes: `Auto-deducted via receipt ${receipt.receipt_number}`,
+        });
+      } else {
+        errors++;
+      }
     }
-    if (errors > 0) {
-      toast.error(`Failed to deduct ${errors} item(s)`);
-    }
+    return { deducted, errors };
   };
 
   const formatCurrency = (amount: number) =>
     `₦${amount.toLocaleString("en-NG", { minimumFractionDigits: 2 })}`;
 
-  const handlePrintThermal = async () => {
-    await deductInventory();
-    const printWindow = window.open("", "_blank", "width=300,height=600");
-    if (!printWindow) {
-      toast.error("Pop-up blocked. Please allow pop-ups.");
+  const openConfirmDialog = async (action: "thermal" | "pdf") => {
+    const validItems = receipt.items.filter((i) => i.name.trim());
+    if (validItems.length === 0) {
+      toast.error("Add at least one item to the receipt");
       return;
     }
-    const html = generateThermalHTML();
-    printWindow.document.write(html);
-    printWindow.document.close();
-    printWindow.onload = () => {
-      printWindow.print();
-      printWindow.onafterprint = () => printWindow.close();
-    };
-    toast.success("Sent to printer");
+    setConfirmAction(action);
+    setConfirmOpen(true);
+    setConfirmLoading(true);
+    const preview = await buildDeductionPreview();
+    setDeductionPreview(preview);
+    setConfirmLoading(false);
   };
 
-  const handleDownloadPDF = async () => {
-    await deductInventory();
-    const printWindow = window.open("", "_blank");
-    if (!printWindow) {
-      toast.error("Pop-up blocked. Please allow pop-ups.");
-      return;
+  const handleConfirmAndPrint = async () => {
+    setDeductingInventory(true);
+    const { deducted, errors } = await applyDeductions();
+    setDeductingInventory(false);
+    setConfirmOpen(false);
+
+    if (deducted > 0) toast.success(`Inventory deducted for ${deducted} item(s)`);
+    if (errors > 0) toast.error(`Failed to deduct ${errors} item(s)`);
+
+    if (confirmAction === "thermal") {
+      const printWindow = window.open("", "_blank", "width=300,height=600");
+      if (!printWindow) {
+        toast.error("Pop-up blocked. Please allow pop-ups.");
+        return;
+      }
+      printWindow.document.write(generateThermalHTML());
+      printWindow.document.close();
+      printWindow.onload = () => {
+        printWindow.print();
+        printWindow.onafterprint = () => printWindow.close();
+      };
+      toast.success("Sent to printer");
+    } else {
+      const printWindow = window.open("", "_blank");
+      if (!printWindow) {
+        toast.error("Pop-up blocked. Please allow pop-ups.");
+        return;
+      }
+      printWindow.document.write(generatePDFHTML());
+      printWindow.document.close();
+      printWindow.onload = () => {
+        printWindow.print();
+      };
+      toast.success("PDF receipt opened for download");
     }
-    const html = generatePDFHTML();
-    printWindow.document.write(html);
-    printWindow.document.close();
-    printWindow.onload = () => {
-      printWindow.print();
-    };
-    toast.success("PDF receipt opened for download");
   };
 
   const generateThermalHTML = () => `
