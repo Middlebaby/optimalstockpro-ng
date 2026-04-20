@@ -807,7 +807,7 @@ const ReceiptPrinter = () => {
               </div>
 
               <div className="pt-4 space-y-2">
-                <Button className="w-full" onClick={printerType === "thermal" ? handlePrintThermal : handleDownloadPDF} disabled={deductingInventory}>
+                <Button className="w-full" onClick={() => openConfirmDialog(printerType)} disabled={deductingInventory}>
                   {deductingInventory ? (
                     <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Processing...</>
                   ) : printerType === "thermal" ? (
