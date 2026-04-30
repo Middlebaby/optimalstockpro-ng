@@ -16,7 +16,7 @@ interface BarcodeScannerProps {
   onScan: (code: string, format: string) => void;
 }
 
-const BarcodeScanner = ({ isOpen, onClose, onScan }: BarcodeScannerProps) => {
+const BarcodeScanner = forwardRef<HTMLDivElement, BarcodeScannerProps>(({ isOpen, onClose, onScan }, _ref) => {
   const [isScanning, setIsScanning] = useState(false);
   const [lastScanned, setLastScanned] = useState<string | null>(null);
   const scannerRef = useRef<Html5Qrcode | null>(null);
