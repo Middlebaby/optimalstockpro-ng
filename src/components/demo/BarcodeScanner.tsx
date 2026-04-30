@@ -183,6 +183,8 @@ const BarcodeScanner = forwardRef<HTMLDivElement, BarcodeScannerProps>(({ isOpen
       </DialogContent>
     </Dialog>
   );
-};
+});
+
+BarcodeScanner.displayName = "BarcodeScanner";
 
 export default BarcodeScanner;
