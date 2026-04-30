@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, forwardRef } from "react";
 import { Html5Qrcode, Html5QrcodeScanner } from "html5-qrcode";
 import { Camera, X, Flashlight, SwitchCamera, QrCode, Barcode } from "lucide-react";
 import { Button } from "@/components/ui/button";
