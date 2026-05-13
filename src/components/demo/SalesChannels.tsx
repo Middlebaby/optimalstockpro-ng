@@ -64,7 +64,10 @@ const SalesChannels = () => {
   });
 
   const fetchChannels = async () => {
-    if (!user) return;
+    if (!user) {
+      setLoading(false);
+      return;
+    }
     const { data, error } = await supabase
       .from("sales_channels")
       .select("*")
