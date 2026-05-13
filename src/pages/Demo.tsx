@@ -22,7 +22,9 @@ import {
   Calendar,
   Activity,
   QrCode,
-  Settings as SettingsIcon
+  Settings as SettingsIcon,
+  Store,
+  Printer
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -50,6 +52,8 @@ import ExpiryAlerts from "@/components/demo/ExpiryAlerts";
 import ActivityLogs from "@/components/demo/ActivityLogs";
 import BarcodeScanner from "@/components/demo/BarcodeScanner";
 import Settings from "@/components/demo/Settings";
+import SalesChannels from "@/components/demo/SalesChannels";
+import ReceiptPrinter from "@/components/demo/ReceiptPrinter";
 import { toast } from "sonner";
 
 const Demo = () => {
@@ -74,6 +78,8 @@ const Demo = () => {
     { id: "inventory", label: "Master Inventory", icon: Package },
     { id: "incoming", label: "Incoming Stock", icon: ArrowDownCircle },
     { id: "outgoing", label: "Outgoing Stock", icon: ArrowUpCircle },
+    { id: "sales-channels", label: "Sales Channels", icon: Store },
+    { id: "receipt-printer", label: "Receipt Printer", icon: Printer },
     { id: "expiry", label: "Expiry Tracking", icon: Calendar },
     { id: "suppliers", label: "Suppliers", icon: Users },
     { id: "reports", label: "Reports", icon: FileText },
@@ -102,6 +108,10 @@ const Demo = () => {
         return <IncomingStock />;
       case "outgoing":
         return <OutgoingStock />;
+      case "sales-channels":
+        return <SalesChannels />;
+      case "receipt-printer":
+        return <ReceiptPrinter />;
       case "expiry":
         return <ExpiryAlerts />;
       case "suppliers":
