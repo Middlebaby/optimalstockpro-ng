@@ -64,8 +64,16 @@ const SalesChannels = () => {
     is_active: true,
   });
 
+  const demoChannels: SalesChannel[] = [
+    { id: "demo-1", channel_name: "Lagos Main Store", channel_type: "pos", is_active: true, api_config: {}, last_synced_at: new Date().toISOString(), created_at: new Date().toISOString() },
+    { id: "demo-2", channel_name: "Instagram Shop", channel_type: "instagram", is_active: true, api_config: {}, last_synced_at: new Date(Date.now() - 3600_000).toISOString(), created_at: new Date().toISOString() },
+    { id: "demo-3", channel_name: "Shopify Online", channel_type: "shopify", is_active: true, api_config: {}, last_synced_at: new Date(Date.now() - 86400_000).toISOString(), created_at: new Date().toISOString() },
+    { id: "demo-4", channel_name: "Abuja Walk-in", channel_type: "manual", is_active: false, api_config: {}, last_synced_at: null, created_at: new Date().toISOString() },
+  ];
+
   const fetchChannels = async () => {
     if (!user) {
+      setChannels(demoChannels);
       setLoading(false);
       return;
     }
@@ -86,6 +94,9 @@ const SalesChannels = () => {
 
   useEffect(() => {
     fetchChannels();
+    // Timeout safety: never spin longer than 8s
+    const timeout = setTimeout(() => setLoading(false), 8000);
+    return () => clearTimeout(timeout);
   }, [user]);
 
   const openAdd = () => {
