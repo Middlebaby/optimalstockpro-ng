@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
@@ -63,8 +64,16 @@ const SalesChannels = () => {
     is_active: true,
   });
 
+  const demoChannels: SalesChannel[] = [
+    { id: "demo-1", channel_name: "Lagos Main Store", channel_type: "pos", is_active: true, api_config: {}, last_synced_at: new Date().toISOString(), created_at: new Date().toISOString() },
+    { id: "demo-2", channel_name: "Instagram Shop", channel_type: "instagram", is_active: true, api_config: {}, last_synced_at: new Date(Date.now() - 3600_000).toISOString(), created_at: new Date().toISOString() },
+    { id: "demo-3", channel_name: "Shopify Online", channel_type: "shopify", is_active: true, api_config: {}, last_synced_at: new Date(Date.now() - 86400_000).toISOString(), created_at: new Date().toISOString() },
+    { id: "demo-4", channel_name: "Abuja Walk-in", channel_type: "manual", is_active: false, api_config: {}, last_synced_at: null, created_at: new Date().toISOString() },
+  ];
+
   const fetchChannels = async () => {
     if (!user) {
+      setChannels(demoChannels);
       setLoading(false);
       return;
     }
@@ -85,6 +94,9 @@ const SalesChannels = () => {
 
   useEffect(() => {
     fetchChannels();
+    // Timeout safety: never spin longer than 8s
+    const timeout = setTimeout(() => setLoading(false), 8000);
+    return () => clearTimeout(timeout);
   }, [user]);
 
   const openAdd = () => {
@@ -168,8 +180,20 @@ const SalesChannels = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-20">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div className="space-y-2">
+            <Skeleton className="h-7 w-48" />
+            <Skeleton className="h-4 w-72" />
+          </div>
+          <Skeleton className="h-10 w-32" />
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          {[1, 2, 3].map((i) => (
+            <Skeleton key={i} className="h-24 w-full" />
+          ))}
+        </div>
+        <Skeleton className="h-64 w-full" />
       </div>
     );
   }
