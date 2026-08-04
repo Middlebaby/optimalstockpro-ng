@@ -1,0 +1,185 @@
+{
+  "version": 1,
+  "sdk_version": "0.26.1",
+  "path": "/functions/v1/mcp",
+  "auth": {
+    "type": "oauth",
+    "issuer": "https://gelczbmbttziuaawwkxb.supabase.co/auth/v1",
+    "accepted_audiences": [
+      "authenticated"
+    ]
+  },
+  "mcp": {
+    "server": {
+      "name": "optimal-stock-pro",
+      "version": "0.1.0",
+      "title": "Optimal Stock Pro"
+    },
+    "tools": [
+      {
+        "name": "list_inventory",
+        "title": "List inventory items",
+        "description": "List the signed-in user's inventory items, optionally filtered by a name/SKU search term, category or location.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "search": {
+              "type": "string",
+              "description": "Text to match against item name or SKU."
+            },
+            "category": {
+              "type": "string",
+              "description": "Filter by category."
+            },
+            "location": {
+              "type": "string",
+              "description": "Filter by storage location."
+            },
+            "limit": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 200,
+              "description": "Maximum rows to return (default 50)."
+            }
+          },
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "low_stock_report",
+        "title": "Low stock report",
+        "description": "List inventory items whose quantity is at or below their reorder level, so restocking can be planned.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "limit": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 200,
+              "description": "Maximum rows to return (default 50)."
+            }
+          },
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "expiring_items",
+        "title": "Expiring items",
+        "description": "List perishable inventory items expiring within a number of days (including already-expired items).",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "days": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 365,
+              "description": "Days ahead to look (default 30)."
+            }
+          },
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "record_stock_movement",
+        "title": "Record stock movement",
+        "description": "Record an incoming or outgoing stock movement for an inventory item and update its quantity accordingly.",
+        "annotations": {
+          "readOnlyHint": false,
+          "destructiveHint": false,
+          "idempotentHint": false,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "inventory_item_id": {
+              "type": "string",
+              "format": "uuid",
+              "description": "ID of the inventory item (from list_inventory)."
+            },
+            "movement_type": {
+              "type": "string",
+              "enum": [
+                "incoming",
+                "outgoing"
+              ],
+              "description": "Direction of the movement."
+            },
+            "quantity": {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "description": "Quantity moved (positive number)."
+            },
+            "notes": {
+              "type": "string",
+              "description": "Optional note about this movement."
+            },
+            "from_location": {
+              "type": "string"
+            },
+            "to_location": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "inventory_item_id",
+            "movement_type",
+            "quantity"
+          ],
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "list_suppliers",
+        "title": "List suppliers",
+        "description": "List the signed-in user's suppliers with contact details, optionally filtered by name.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "search": {
+              "type": "string",
+              "description": "Text to match against supplier name."
+            },
+            "limit": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 200,
+              "description": "Maximum rows to return (default 50)."
+            }
+          },
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      }
+    ]
+  }
+}

@@ -20,6 +20,7 @@ import CookiePolicy from "./pages/CookiePolicy";
 import PaymentVerify from "./pages/PaymentVerify";
 import Blog from "./pages/Blog";
 import BlogPost from "./pages/BlogPost";
+import OAuthConsent from "./pages/OAuthConsent";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -48,6 +49,7 @@ const App = () => (
               <Route path="/payment/verify" element={<PaymentVerify />} />
               <Route path="/blog" element={<Blog />} />
               <Route path="/blog/:slug" element={<BlogPost />} />
+              <Route path="/.lovable/oauth/consent" element={<OAuthConsent />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
