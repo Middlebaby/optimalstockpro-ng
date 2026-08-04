@@ -12,7 +12,7 @@ const FROM_EMAIL = "OptimalStock Pro <info@optimalstockpro.com>";
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
+    "authorization, x-client-info, apikey, content-type, x-cron-secret, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
 function escapeHtml(str: string | undefined | null): string {
@@ -398,9 +398,42 @@ async function getUserStats(supabase: any, userId: string, periodStart: Date) {
   };
 }
 
+function timingSafeEqual(a: string, b: string): boolean {
+  if (a.length !== b.length) return false;
+  let diff = 0;
+  for (let i = 0; i < a.length; i++) diff |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  return diff === 0;
+}
+
 serve(async (req: Request) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
+  }
+
+  // This endpoint triggers bulk email/WhatsApp sends to every user.
+  // It may only be invoked by trusted schedulers holding the shared cron secret
+  // (or the project service-role key).
+  const CRON_SECRET = Deno.env.get("CRON_SECRET");
+  if (!CRON_SECRET) {
+    console.error("CRON_SECRET not configured");
+    return new Response(JSON.stringify({ error: "Service not configured" }), {
+      status: 503,
+      headers: { "Content-Type": "application/json", ...corsHeaders },
+    });
+  }
+
+  const providedSecret = req.headers.get("x-cron-secret") ?? "";
+  const bearer = (req.headers.get("Authorization") ?? "").replace(/^Bearer\s+/i, "");
+  const authorized =
+    timingSafeEqual(providedSecret, CRON_SECRET) ||
+    (bearer.length > 0 && timingSafeEqual(bearer, SUPABASE_SERVICE_ROLE_KEY));
+
+  if (!authorized) {
+    console.warn("Unauthorized scheduled-email invocation");
+    return new Response(JSON.stringify({ error: "Unauthorized" }), {
+      status: 401,
+      headers: { "Content-Type": "application/json", ...corsHeaders },
+    });
   }
 
   try {
