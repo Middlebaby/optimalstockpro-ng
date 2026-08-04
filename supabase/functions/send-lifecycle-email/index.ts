@@ -314,24 +314,29 @@ function buildEmail(payload: EmailPayload): { subject: string; html: string } {
   }
 }
 
+function timingSafeEqual(a: string, b: string): boolean {
+  if (a.length !== b.length) return false;
+  let diff = 0;
+  for (let i = 0; i < a.length; i++) diff |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  return diff === 0;
+}
+
 const handler = async (req: Request): Promise<Response> => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    // Parse body early to check email type for auth bypass
     const payload: EmailPayload = await req.json();
 
-    // These types are sent by cron jobs or at signup (no user session available)
-    const unauthenticatedTypes: EmailType[] = [
-      "welcome", "day2_onboarding", "day5_features",
-      "trial_ending", "trial_expired",
-      "low_stock_alert", "monthly_summary",
-    ];
-    const skipAuth = unauthenticatedTypes.includes(payload.emailType);
+    // Trusted server/cron callers may address any recipient.
+    const CRON_SECRET = Deno.env.get("CRON_SECRET");
+    const providedSecret = req.headers.get("x-cron-secret") ?? "";
+    const isTrustedCaller =
+      !!CRON_SECRET && providedSecret.length > 0 && timingSafeEqual(providedSecret, CRON_SECRET);
 
-    if (!skipAuth) {
+    if (!isTrustedCaller) {
+      // Everyone else must be signed in and may only email themselves.
       const authHeader = req.headers.get("Authorization");
       if (!authHeader?.startsWith("Bearer ")) {
         return new Response(
@@ -347,13 +352,22 @@ const handler = async (req: Request): Promise<Response> => {
       );
 
       const { data: { user }, error: authError } = await supabase.auth.getUser();
-      if (authError || !user) {
+      if (authError || !user?.email) {
         return new Response(
           JSON.stringify({ error: "Unauthorized" }),
           { status: 401, headers: { "Content-Type": "application/json", ...corsHeaders } }
         );
       }
+
+      const requestedTo = typeof payload.to === "string" ? payload.to.trim().toLowerCase() : "";
+      if (requestedTo !== user.email.trim().toLowerCase()) {
+        return new Response(
+          JSON.stringify({ error: "You may only send emails to your own address" }),
+          { status: 403, headers: { "Content-Type": "application/json", ...corsHeaders } }
+        );
+      }
     }
+
 
     if (!RESEND_API_KEY) {
       console.error("RESEND_API_KEY not configured");
