@@ -26,11 +26,14 @@ const Auth = () => {
   const { signIn, user, loading } = useAuth();
   const navigate = useNavigate();
 
+  const rawNext = new URLSearchParams(window.location.search).get("next");
+  const nextPath = rawNext && rawNext.startsWith("/") && !rawNext.startsWith("//") ? rawNext : "/dashboard";
+
   useEffect(() => {
     if (!loading && user) {
-      navigate("/dashboard");
+      navigate(nextPath);
     }
-  }, [user, loading, navigate]);
+  }, [user, loading, navigate, nextPath]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
