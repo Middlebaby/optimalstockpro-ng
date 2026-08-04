@@ -7,7 +7,7 @@ const FROM_EMAIL = "OptimalStock Pro <info@optimalstockpro.com>";
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type",
+    "authorization, x-client-info, apikey, content-type, x-cron-secret",
 };
 
 function escapeHtml(str: string | undefined | null): string {
