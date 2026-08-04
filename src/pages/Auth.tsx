@@ -76,7 +76,7 @@ const Auth = () => {
         }
       } else {
         toast.success("Welcome back!");
-        navigate("/dashboard");
+        navigate(nextPath);
       }
     } catch (error) {
       toast.error("An unexpected error occurred. Please try again.");
