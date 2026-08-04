@@ -377,14 +377,21 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
-    // payload already parsed above
-
-    if (!payload.emailType || !payload.to) {
+    if (!payload.emailType || typeof payload.to !== "string" || !payload.to) {
       return new Response(
         JSON.stringify({ error: "Missing required fields: 'emailType' and 'to'" }),
         { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
       );
     }
+
+    const recipient = payload.to.trim();
+    if (recipient.length > 255 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(recipient)) {
+      return new Response(
+        JSON.stringify({ error: "Invalid recipient email address" }),
+        { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+    payload.to = recipient;
 
     const validTypes: EmailType[] = [
       "welcome", "day2_onboarding", "day5_features", "trial_ending",
