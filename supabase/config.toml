@@ -26,3 +26,13 @@ verify_jwt = false
 
 [functions.notify-admin]
 verify_jwt = false
+
+[functions.leads-ingest]
+verify_jwt = false
+
+[functions.leads-track]
+verify_jwt = false
+
+[functions.leads-process]
+verify_jwt = false
+

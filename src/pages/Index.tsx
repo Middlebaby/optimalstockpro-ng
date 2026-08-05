@@ -10,8 +10,11 @@ import ContactForm from "@/components/landing/ContactForm";
 import CTA from "@/components/landing/CTA";
 import Footer from "@/components/landing/Footer";
 import FloatingDemoButton from "@/components/landing/FloatingDemoButton";
+import { useLeadTracking } from "@/hooks/useLeadTracking";
 
 const Index = () => {
+  useLeadTracking();
+
   return (
     <div className="min-h-screen">
       <Header />

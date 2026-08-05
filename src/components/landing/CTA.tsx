@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { ArrowRight, ClipboardList } from "lucide-react";
+import { trackLeadEvent } from "@/hooks/useLeadTracking";
 
 const CTA = () => {
   return (
@@ -30,13 +31,23 @@ const CTA = () => {
               Take our quick 2-minute survey and help us build the perfect inventory management solution for Nigerian SMEs. Get 1 month free upon launch!
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Link to="/survey">
+              <Link
+                to="/survey"
+                onClick={() => {
+                  trackLeadEvent("survey_cta_click", { cta: "cta_section" }).catch(() => {});
+                }}
+              >
                 <Button variant="hero" size="xl" className="group">
                   Take the Survey
                   <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
                 </Button>
               </Link>
-              <Link to="/demo">
+              <Link
+                to="/demo"
+                onClick={() => {
+                  trackLeadEvent("demo_cta_click", { cta: "cta_section" }).catch(() => {});
+                }}
+              >
                 <Button variant="heroOutline" size="xl">
                   Try Demo First
                 </Button>
