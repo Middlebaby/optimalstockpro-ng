@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { Play } from "lucide-react";
 import { motion } from "framer-motion";
+import { trackLeadEvent } from "@/hooks/useLeadTracking";
 
 const FloatingDemoButton = () => {
   return (
@@ -14,7 +15,10 @@ const FloatingDemoButton = () => {
         <motion.button
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
-          animate={{ 
+          onClick={() => {
+            trackLeadEvent("demo_cta_click", { cta: "floating_demo_button" }).catch(() => {});
+          }}
+          animate={{
             boxShadow: [
               "0 0 0 0 rgba(20, 184, 166, 0.4)",
               "0 0 0 15px rgba(20, 184, 166, 0)",
@@ -38,3 +42,4 @@ const FloatingDemoButton = () => {
 };
 
 export default FloatingDemoButton;
+

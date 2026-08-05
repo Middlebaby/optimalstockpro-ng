@@ -5,7 +5,7 @@ import {
   BookOpen, Home, Menu, Bell, Search, FolderKanban, ArrowRightLeft, Truck,
   Wrench, ShoppingCart, ChevronDown, ChevronRight, LogOut, User,
   Settings as SettingsIcon, ClipboardList, Shield, Lock, Crown, Loader2,
-  Store, Receipt
+  Store, Receipt, Brain
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -41,6 +41,8 @@ import BlogManager from "@/components/demo/BlogManager";
 import OnboardingTour from "@/components/demo/OnboardingTour";
 import SalesChannels from "@/components/demo/SalesChannels";
 import ReceiptPrinter from "@/components/demo/ReceiptPrinter";
+import LeadIntelligence from "@/components/demo/LeadIntelligence";
+
 
 const Dashboard = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
@@ -48,6 +50,7 @@ const Dashboard = () => {
   const [proFeaturesOpen, setProFeaturesOpen] = useState(true);
   const [distFeaturesOpen, setDistFeaturesOpen] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [canViewLeads, setCanViewLeads] = useState(false);
   const [showTour, setShowTour] = useState(false);
   const [triggerAddDialog, setTriggerAddDialog] = useState(false);
   const [userPlan, setUserPlan] = useState<string>("basic");
@@ -61,21 +64,23 @@ const Dashboard = () => {
     }
   }, [user, loading, navigate]);
 
-  // Check if user is admin + fetch plan
+  // Check roles and plan
   useEffect(() => {
     const checkRoleAndPlan = async () => {
       if (!user) return;
       const [roleRes, profileRes] = await Promise.all([
-        supabase.from('user_roles').select('role').eq('user_id', user.id).eq('role', 'admin').maybeSingle(),
+        supabase.from('user_roles').select('role').eq('user_id', user.id).in('role', ['admin', 'manager']),
         supabase.from('profiles').select('plan').eq('user_id', user.id).maybeSingle(),
       ]);
-      setIsAdmin(!!roleRes.data);
+      const roles = (roleRes.data || []).map((r) => r.role);
+      setIsAdmin(roles.includes('admin'));
+      setCanViewLeads(roles.length > 0);
       const fetchedPlan = profileRes.data?.plan || "basic";
-      console.log("Fetched plan:", fetchedPlan, "Profile data:", profileRes.data, "Error:", profileRes.error);
       setUserPlan(fetchedPlan);
     };
     checkRoleAndPlan();
   }, [user]);
+
 
   // Check if new user (no inventory) → show onboarding tour
   useEffect(() => {
@@ -277,8 +282,11 @@ const Dashboard = () => {
         return <SalesChannels />;
       case "receipts":
         return <ReceiptPrinter />;
+      case "lead-intelligence":
+        return <LeadIntelligence />;
       case "settings":
         return <Settings />;
+
       case "admin-users":
         return <AdminUsers />;
       case "blog-manager":
@@ -504,9 +512,27 @@ const Dashboard = () => {
             </button>
           </div>
 
+          {canViewLeads && (
+            <div className="pt-4 border-t border-border mt-4 space-y-1">
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-4 mb-2">Lead Intelligence</p>
+              <button
+                onClick={() => { setActiveTab("lead-intelligence"); setSidebarOpen(false); }}
+                className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left transition-colors ${
+                  activeTab === "lead-intelligence"
+                    ? "bg-primary text-primary-foreground"
+                    : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                }`}
+              >
+                <Brain className="w-5 h-5" />
+                <span className="font-medium">Lead Intelligence</span>
+              </button>
+            </div>
+          )}
+
           {isAdmin && (
             <div className="pt-4 border-t border-border mt-4 space-y-1">
               <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-4 mb-2">Admin</p>
+
               <button
                 onClick={() => { setActiveTab("admin-users"); setSidebarOpen(false); }}
                 className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left transition-colors ${

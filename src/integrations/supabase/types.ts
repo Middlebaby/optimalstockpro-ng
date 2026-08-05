@@ -389,6 +389,155 @@ export type Database = {
           },
         ]
       }
+      lead_activities: {
+        Row: {
+          created_at: string
+          event_data: Json | null
+          event_type: string
+          id: string
+          ip_address: string | null
+          lead_id: string | null
+          referrer: string | null
+          session_id: string
+          url: string | null
+          user_agent: string | null
+        }
+        Insert: {
+          created_at?: string
+          event_data?: Json | null
+          event_type: string
+          id?: string
+          ip_address?: string | null
+          lead_id?: string | null
+          referrer?: string | null
+          session_id: string
+          url?: string | null
+          user_agent?: string | null
+        }
+        Update: {
+          created_at?: string
+          event_data?: Json | null
+          event_type?: string
+          id?: string
+          ip_address?: string | null
+          lead_id?: string | null
+          referrer?: string | null
+          session_id?: string
+          url?: string | null
+          user_agent?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lead_activities_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      leads: {
+        Row: {
+          ai_summary: string | null
+          assigned_to: string | null
+          budget_range: string | null
+          business_type: string | null
+          company_name: string | null
+          created_at: string
+          crm_provider: string | null
+          crm_record_id: string | null
+          email: string | null
+          employee_count: string | null
+          id: string
+          interest: string | null
+          ip_address: string | null
+          location: string | null
+          message: string | null
+          metadata: Json | null
+          name: string | null
+          ndpr_consent: boolean
+          pain_points: string[] | null
+          phone: string | null
+          raw_data: Json | null
+          recommended_plan: string | null
+          score: number
+          session_id: string | null
+          source: string
+          source_detail: string | null
+          status: string
+          synced_crm_at: string | null
+          tags: string[] | null
+          updated_at: string
+          user_agent: string | null
+        }
+        Insert: {
+          ai_summary?: string | null
+          assigned_to?: string | null
+          budget_range?: string | null
+          business_type?: string | null
+          company_name?: string | null
+          created_at?: string
+          crm_provider?: string | null
+          crm_record_id?: string | null
+          email?: string | null
+          employee_count?: string | null
+          id?: string
+          interest?: string | null
+          ip_address?: string | null
+          location?: string | null
+          message?: string | null
+          metadata?: Json | null
+          name?: string | null
+          ndpr_consent?: boolean
+          pain_points?: string[] | null
+          phone?: string | null
+          raw_data?: Json | null
+          recommended_plan?: string | null
+          score?: number
+          session_id?: string | null
+          source: string
+          source_detail?: string | null
+          status?: string
+          synced_crm_at?: string | null
+          tags?: string[] | null
+          updated_at?: string
+          user_agent?: string | null
+        }
+        Update: {
+          ai_summary?: string | null
+          assigned_to?: string | null
+          budget_range?: string | null
+          business_type?: string | null
+          company_name?: string | null
+          created_at?: string
+          crm_provider?: string | null
+          crm_record_id?: string | null
+          email?: string | null
+          employee_count?: string | null
+          id?: string
+          interest?: string | null
+          ip_address?: string | null
+          location?: string | null
+          message?: string | null
+          metadata?: Json | null
+          name?: string | null
+          ndpr_consent?: boolean
+          pain_points?: string[] | null
+          phone?: string | null
+          raw_data?: Json | null
+          recommended_plan?: string | null
+          score?: number
+          session_id?: string | null
+          source?: string
+          source_detail?: string | null
+          status?: string
+          synced_crm_at?: string | null
+          tags?: string[] | null
+          updated_at?: string
+          user_agent?: string | null
+        }
+        Relationships: []
+      }
       location_inventory: {
         Row: {
           created_at: string

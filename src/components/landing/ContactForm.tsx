@@ -13,6 +13,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
+import { getLeadSessionId } from "@/hooks/useLeadTracking";
 
 const ContactForm = () => {
   const [formData, setFormData] = useState({
@@ -28,24 +30,47 @@ const ContactForm = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-    
-    // Simulate form submission
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    
-    toast.success("Message sent successfully!", {
-      description: "We'll get back to you within 24 hours.",
-    });
-    
-    setFormData({
-      name: "",
-      email: "",
-      phone: "",
-      company: "",
-      interest: "",
-      message: "",
-    });
-    setIsSubmitting(false);
+
+    try {
+      const { error } = await supabase.functions.invoke("leads-ingest", {
+        body: {
+          source: "website_contact",
+          source_detail: "landing_page",
+          name: formData.name,
+          email: formData.email,
+          phone: formData.phone,
+          company_name: formData.company,
+          interest: formData.interest,
+          message: formData.message,
+          ndpr_consent: true,
+          session_id: getLeadSessionId(),
+        },
+      });
+
+      if (error) throw error;
+
+      toast.success("Message sent successfully!", {
+        description: "We'll get back to you within 24 hours.",
+      });
+
+      setFormData({
+        name: "",
+        email: "",
+        phone: "",
+        company: "",
+        interest: "",
+        message: "",
+      });
+    } catch (err: any) {
+      console.error("Contact form submission failed:", err);
+      toast.error("Failed to send message", {
+        description: err.message || "Please try again later.",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
+
 
   return (
     <section id="contact" className="py-20 bg-background">
