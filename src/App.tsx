@@ -39,7 +39,9 @@ const App = () => (
               <Route path="/get-started" element={<GetStarted />} />
               <Route path="/demo" element={<Demo />} />
               <Route path="/auth" element={<Auth />} />
+              <Route path="/reset-password" element={<ResetPassword />} />
               <Route path="/dashboard" element={<Dashboard />} />
+
               <Route path="/survey" element={<Survey />} />
               <Route path="/admin/survey" element={<AdminSurvey />} />
               <Route path="/flyers" element={<Flyers />} />
