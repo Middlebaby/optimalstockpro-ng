@@ -737,6 +737,25 @@ const LeadIntelligence = () => {
                 </DialogDescription>
               </DialogHeader>
 
+              <div className="mt-2 rounded-lg border p-3">
+                <Label className="text-xs mb-2 block">Pipeline stage</Label>
+                <div className="flex flex-wrap gap-2">
+                  {statusOptions.map((s) => (
+                    <Button
+                      key={s}
+                      size="sm"
+                      variant={selectedLead.status === s ? "default" : "outline"}
+                      className="h-8 text-xs capitalize"
+                      onClick={() => handleUpdateStatus(selectedLead.id, s)}
+                    >
+                      {s}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+
+
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
                 <div className="space-y-2">
                   <div className="flex items-center gap-2 text-sm">
