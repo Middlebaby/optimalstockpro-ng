@@ -96,8 +96,23 @@ interface LeadActivity {
   referrer: string | null;
 }
 
-const statusOptions = ["new", "contacted", "qualified", "nurturing", "converted", "lost"];
+// CRM pipeline stages for Optimalstock Pro's own sales funnel
+const pipelineStages = [
+  { key: "new", label: "New", hint: "Just came in", accent: "border-l-blue-500" },
+  { key: "contacted", label: "Contacted", hint: "Outreach sent", accent: "border-l-amber-500" },
+  { key: "qualified", label: "Qualified", hint: "Good fit confirmed", accent: "border-l-purple-500" },
+  { key: "converted", label: "Converted", hint: "Now a customer", accent: "border-l-emerald-500" },
+] as const;
+
+const statusOptions = [...pipelineStages.map((s) => s.key), "nurturing", "lost"];
 const sourceOptions = ["website_contact", "demo", "survey", "whatsapp", "social_ad", "referral", "other"];
+
+const nextStage = (status: string) => {
+  const idx = pipelineStages.findIndex((s) => s.key === status);
+  if (idx === -1 || idx === pipelineStages.length - 1) return null;
+  return pipelineStages[idx + 1];
+};
+
 
 
 const formatDate = (date: string | null) => {
