@@ -943,6 +943,57 @@ export type Database = {
           },
         ]
       }
+      subscriptions: {
+        Row: {
+          amount: number
+          created_at: string
+          currency: string
+          current_period_end: string | null
+          email: string
+          id: string
+          metadata: Json
+          paystack_customer_code: string | null
+          paystack_reference: string | null
+          paystack_subscription_code: string | null
+          plan: string
+          status: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          amount?: number
+          created_at?: string
+          currency?: string
+          current_period_end?: string | null
+          email: string
+          id?: string
+          metadata?: Json
+          paystack_customer_code?: string | null
+          paystack_reference?: string | null
+          paystack_subscription_code?: string | null
+          plan?: string
+          status?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          currency?: string
+          current_period_end?: string | null
+          email?: string
+          id?: string
+          metadata?: Json
+          paystack_customer_code?: string | null
+          paystack_reference?: string | null
+          paystack_subscription_code?: string | null
+          plan?: string
+          status?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       suppliers: {
         Row: {
           address: string | null
