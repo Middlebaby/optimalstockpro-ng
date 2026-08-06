@@ -96,8 +96,23 @@ interface LeadActivity {
   referrer: string | null;
 }
 
-const statusOptions = ["new", "contacted", "qualified", "nurturing", "converted", "lost"];
+// CRM pipeline stages for Optimalstock Pro's own sales funnel
+const pipelineStages = [
+  { key: "new", label: "New", hint: "Just came in", accent: "border-l-blue-500" },
+  { key: "contacted", label: "Contacted", hint: "Outreach sent", accent: "border-l-amber-500" },
+  { key: "qualified", label: "Qualified", hint: "Good fit confirmed", accent: "border-l-purple-500" },
+  { key: "converted", label: "Converted", hint: "Now a customer", accent: "border-l-emerald-500" },
+] as const;
+
+const statusOptions = [...pipelineStages.map((s) => s.key), "nurturing", "lost"];
 const sourceOptions = ["website_contact", "demo", "survey", "whatsapp", "social_ad", "referral", "other"];
+
+const nextStage = (status: string) => {
+  const idx = pipelineStages.findIndex((s) => s.key === status);
+  if (idx === -1 || idx === pipelineStages.length - 1) return null;
+  return pipelineStages[idx + 1];
+};
+
 
 
 const formatDate = (date: string | null) => {
@@ -190,6 +205,22 @@ const LeadIntelligence = () => {
     return { total, hot, warm, avg, newThisWeek };
   }, [leads]);
 
+  const pipeline = useMemo(() => {
+    return pipelineStages.map((stage) => ({
+      ...stage,
+      leads: filteredLeads
+        .filter((l) => l.status === stage.key)
+        .sort((a, b) => b.score - a.score),
+    }));
+  }, [filteredLeads]);
+
+  const conversionRate = useMemo(() => {
+    if (!leads.length) return 0;
+    return Math.round((leads.filter((l) => l.status === "converted").length / leads.length) * 100);
+  }, [leads]);
+
+
+
   const handleProcess = async () => {
     setProcessing(true);
     try {
@@ -214,7 +245,9 @@ const LeadIntelligence = () => {
       const { error } = await supabase.from("leads").update({ status }).eq("id", leadId);
       if (error) throw error;
       setLeads((prev) => prev.map((l) => (l.id === leadId ? { ...l, status } : l)));
-      toast.success("Lead status updated");
+      setSelectedLead((prev) => (prev && prev.id === leadId ? { ...prev, status } : prev));
+      toast.success(`Moved to ${status}`);
+
     } catch (err: any) {
       toast.error("Update failed", { description: err.message });
     }
@@ -302,8 +335,9 @@ const LeadIntelligence = () => {
             Lead Intelligence
           </h1>
           <p className="text-muted-foreground mt-1">
-            AI-scored leads, activity signals, and CRM-ready insights.
+            Optimalstock Pro's own sales pipeline — AI-scored prospects, activity signals, and stage tracking.
           </p>
+
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <Button
@@ -384,6 +418,107 @@ const LeadIntelligence = () => {
           </CardContent>
         </Card>
       </div>
+
+      {/* Pipeline board */}
+      <Card>
+        <CardHeader className="pb-3 flex-row items-center justify-between space-y-0">
+          <CardTitle className="text-sm font-medium flex items-center gap-2">
+            <Activity className="w-4 h-4" />
+            Sales Pipeline
+          </CardTitle>
+          <span className="text-xs text-muted-foreground">
+            {conversionRate}% converted overall
+          </span>
+        </CardHeader>
+        <CardContent>
+          {loading ? (
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              {pipelineStages.map((s) => (
+                <Skeleton key={s.key} className="h-40 w-full" />
+              ))}
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+              {pipeline.map((stage) => (
+                <div key={stage.key} className="rounded-lg bg-muted/40 p-3 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <div className="text-sm font-semibold capitalize">{stage.label}</div>
+                      <div className="text-[11px] text-muted-foreground">{stage.hint}</div>
+                    </div>
+                    <Badge variant="secondary">{stage.leads.length}</Badge>
+                  </div>
+                  <div className="space-y-2 max-h-72 overflow-y-auto">
+                    {stage.leads.length === 0 ? (
+                      <p className="text-xs text-muted-foreground py-4 text-center">No leads here</p>
+                    ) : (
+                      stage.leads.map((lead) => {
+                        const advance = nextStage(lead.status);
+                        return (
+                          <div
+                            key={lead.id}
+                            className={`rounded-md border-l-4 ${stage.accent} bg-card p-2.5 shadow-sm cursor-pointer`}
+                            onClick={() => openDetails(lead)}
+                          >
+                            <div className="flex items-start justify-between gap-2">
+                              <div className="min-w-0">
+                                <div className="text-sm font-medium truncate">
+                                  {lead.name || "Anonymous"}
+                                </div>
+                                <div className="text-[11px] text-muted-foreground truncate">
+                                  {lead.company_name || lead.email || lead.phone || "—"}
+                                </div>
+                              </div>
+                              <Badge className={`text-[10px] ${scoreColor(lead.score)}`}>
+                                {lead.score}
+                              </Badge>
+                            </div>
+                            <div className="mt-2 flex items-center gap-1.5">
+                              {advance ? (
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  className="h-7 px-2 text-[11px]"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleUpdateStatus(lead.id, advance.key);
+                                  }}
+                                >
+                                  Move to {advance.label}
+                                </Button>
+                              ) : (
+                                <span className="text-[11px] text-emerald-600 flex items-center gap-1">
+                                  <CheckCircle2 className="w-3 h-3" />
+                                  Won
+                                </span>
+                              )}
+                              {lead.status !== "lost" && (
+                                <Button
+                                  size="sm"
+                                  variant="ghost"
+                                  className="h-7 px-2 text-[11px] text-muted-foreground"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleUpdateStatus(lead.id, "lost");
+                                  }}
+                                >
+                                  Lost
+                                </Button>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+
 
       {/* Filters */}
       <Card>
@@ -604,6 +739,25 @@ const LeadIntelligence = () => {
                   {selectedLead.company_name && ` · ${selectedLead.company_name}`}
                 </DialogDescription>
               </DialogHeader>
+
+              <div className="mt-2 rounded-lg border p-3">
+                <Label className="text-xs mb-2 block">Pipeline stage</Label>
+                <div className="flex flex-wrap gap-2">
+                  {statusOptions.map((s) => (
+                    <Button
+                      key={s}
+                      size="sm"
+                      variant={selectedLead.status === s ? "default" : "outline"}
+                      className="h-8 text-xs capitalize"
+                      onClick={() => handleUpdateStatus(selectedLead.id, s)}
+                    >
+                      {s}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+
+
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
                 <div className="space-y-2">
