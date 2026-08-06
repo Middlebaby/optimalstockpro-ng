@@ -245,7 +245,9 @@ const LeadIntelligence = () => {
       const { error } = await supabase.from("leads").update({ status }).eq("id", leadId);
       if (error) throw error;
       setLeads((prev) => prev.map((l) => (l.id === leadId ? { ...l, status } : l)));
-      toast.success("Lead status updated");
+      setSelectedLead((prev) => (prev && prev.id === leadId ? { ...prev, status } : prev));
+      toast.success(`Moved to ${status}`);
+
     } catch (err: any) {
       toast.error("Update failed", { description: err.message });
     }
