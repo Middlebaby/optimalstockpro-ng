@@ -205,6 +205,22 @@ const LeadIntelligence = () => {
     return { total, hot, warm, avg, newThisWeek };
   }, [leads]);
 
+  const pipeline = useMemo(() => {
+    return pipelineStages.map((stage) => ({
+      ...stage,
+      leads: filteredLeads
+        .filter((l) => l.status === stage.key)
+        .sort((a, b) => b.score - a.score),
+    }));
+  }, [filteredLeads]);
+
+  const conversionRate = useMemo(() => {
+    if (!leads.length) return 0;
+    return Math.round((leads.filter((l) => l.status === "converted").length / leads.length) * 100);
+  }, [leads]);
+
+
+
   const handleProcess = async () => {
     setProcessing(true);
     try {
