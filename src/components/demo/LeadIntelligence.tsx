@@ -416,6 +416,107 @@ const LeadIntelligence = () => {
         </Card>
       </div>
 
+      {/* Pipeline board */}
+      <Card>
+        <CardHeader className="pb-3 flex-row items-center justify-between space-y-0">
+          <CardTitle className="text-sm font-medium flex items-center gap-2">
+            <Activity className="w-4 h-4" />
+            Sales Pipeline
+          </CardTitle>
+          <span className="text-xs text-muted-foreground">
+            {conversionRate}% converted overall
+          </span>
+        </CardHeader>
+        <CardContent>
+          {loading ? (
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              {pipelineStages.map((s) => (
+                <Skeleton key={s.key} className="h-40 w-full" />
+              ))}
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+              {pipeline.map((stage) => (
+                <div key={stage.key} className="rounded-lg bg-muted/40 p-3 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <div className="text-sm font-semibold capitalize">{stage.label}</div>
+                      <div className="text-[11px] text-muted-foreground">{stage.hint}</div>
+                    </div>
+                    <Badge variant="secondary">{stage.leads.length}</Badge>
+                  </div>
+                  <div className="space-y-2 max-h-72 overflow-y-auto">
+                    {stage.leads.length === 0 ? (
+                      <p className="text-xs text-muted-foreground py-4 text-center">No leads here</p>
+                    ) : (
+                      stage.leads.map((lead) => {
+                        const advance = nextStage(lead.status);
+                        return (
+                          <div
+                            key={lead.id}
+                            className={`rounded-md border-l-4 ${stage.accent} bg-card p-2.5 shadow-sm cursor-pointer`}
+                            onClick={() => openDetails(lead)}
+                          >
+                            <div className="flex items-start justify-between gap-2">
+                              <div className="min-w-0">
+                                <div className="text-sm font-medium truncate">
+                                  {lead.name || "Anonymous"}
+                                </div>
+                                <div className="text-[11px] text-muted-foreground truncate">
+                                  {lead.company_name || lead.email || lead.phone || "—"}
+                                </div>
+                              </div>
+                              <Badge className={`text-[10px] ${scoreColor(lead.score)}`}>
+                                {lead.score}
+                              </Badge>
+                            </div>
+                            <div className="mt-2 flex items-center gap-1.5">
+                              {advance ? (
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  className="h-7 px-2 text-[11px]"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleUpdateStatus(lead.id, advance.key);
+                                  }}
+                                >
+                                  Move to {advance.label}
+                                </Button>
+                              ) : (
+                                <span className="text-[11px] text-emerald-600 flex items-center gap-1">
+                                  <CheckCircle2 className="w-3 h-3" />
+                                  Won
+                                </span>
+                              )}
+                              {lead.status !== "lost" && (
+                                <Button
+                                  size="sm"
+                                  variant="ghost"
+                                  className="h-7 px-2 text-[11px] text-muted-foreground"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleUpdateStatus(lead.id, "lost");
+                                  }}
+                                >
+                                  Lost
+                                </Button>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+
+
       {/* Filters */}
       <Card>
         <CardHeader className="pb-2">
