@@ -88,8 +88,13 @@ const Header = () => {
 
             <div className="hidden md:flex items-center gap-4">
               <ThemeToggle />
-              <Link to="/demo">
-                <Button size="sm">Try Live Demo</Button>
+              <Link to="/auth">
+                <Button variant="ghost" size="sm">
+                  Sign In
+                </Button>
+              </Link>
+              <Link to="/get-started">
+                <Button size="sm">Get Started</Button>
               </Link>
             </div>
 
@@ -134,14 +139,17 @@ const Header = () => {
                     )
                   )}
                     <div className="flex flex-col gap-2 pt-2">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-muted-foreground">Theme</span>
-                      <ThemeToggle />
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm text-muted-foreground">Theme</span>
+                        <ThemeToggle />
+                      </div>
+                      <Link to="/get-started">
+                        <Button className="w-full">Get Started</Button>
+                      </Link>
+                      <Link to="/demo">
+                        <Button variant="outline" className="w-full">Try Live Demo</Button>
+                      </Link>
                     </div>
-                    <Link to="/demo">
-                      <Button className="w-full">Try Live Demo</Button>
-                    </Link>
-                  </div>
                 </div>
               </motion.nav>
             )}
