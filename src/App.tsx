@@ -9,6 +9,7 @@ import Index from "./pages/Index";
 import GetStarted from "./pages/GetStarted";
 import Demo from "./pages/Demo";
 import Auth from "./pages/Auth";
+import ResetPassword from "./pages/ResetPassword";
 import Dashboard from "./pages/Dashboard";
 import Survey from "./pages/Survey";
 import AdminSurvey from "./pages/AdminSurvey";
