@@ -9,6 +9,7 @@ import Index from "./pages/Index";
 import GetStarted from "./pages/GetStarted";
 import Demo from "./pages/Demo";
 import Auth from "./pages/Auth";
+import ResetPassword from "./pages/ResetPassword";
 import Dashboard from "./pages/Dashboard";
 import Survey from "./pages/Survey";
 import AdminSurvey from "./pages/AdminSurvey";
@@ -38,7 +39,9 @@ const App = () => (
               <Route path="/get-started" element={<GetStarted />} />
               <Route path="/demo" element={<Demo />} />
               <Route path="/auth" element={<Auth />} />
+              <Route path="/reset-password" element={<ResetPassword />} />
               <Route path="/dashboard" element={<Dashboard />} />
+
               <Route path="/survey" element={<Survey />} />
               <Route path="/admin/survey" element={<AdminSurvey />} />
               <Route path="/flyers" element={<Flyers />} />

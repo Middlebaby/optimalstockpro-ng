@@ -9,6 +9,12 @@ const corsHeaders = {
 const PAYSTACK_SECRET_KEY = Deno.env.get("PAYSTACK_SECRET_KEY")!;
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SUPABASE_ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY")!;
+const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+
+const admin = () =>
+  createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
+    auth: { persistSession: false, autoRefreshToken: false },
+  });
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -22,6 +28,21 @@ Deno.serve(async (req) => {
       // Initialize a transaction (subscription or one-time)
       const { email, amount, plan_code, callback_url, metadata } = params;
 
+      if (!email || typeof email !== "string" || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        return new Response(JSON.stringify({ error: "A valid email is required" }), {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      if (typeof amount !== "number" || !Number.isFinite(amount) || amount <= 0) {
+        return new Response(JSON.stringify({ error: "A valid amount is required" }), {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      const plan = metadata?.plan || "basic";
+
       const body: Record<string, any> = {
         email,
         amount: Math.round(amount * 100), // Convert to kobo
@@ -32,7 +53,7 @@ Deno.serve(async (req) => {
             {
               display_name: "Plan",
               variable_name: "plan",
-              value: metadata?.plan || "starter",
+              value: plan,
             },
           ],
         },
@@ -64,6 +85,23 @@ Deno.serve(async (req) => {
         });
       }
 
+      // Record a pending subscription so we can reconcile the payment later.
+      const { error: recordError } = await admin()
+        .from("subscriptions")
+        .upsert(
+          {
+            email,
+            plan,
+            status: "pending",
+            amount,
+            currency: "NGN",
+            paystack_reference: data.data?.reference ?? null,
+            metadata: metadata ?? {},
+          },
+          { onConflict: "paystack_reference" }
+        );
+      if (recordError) console.error("Failed to record pending subscription:", recordError);
+
       return new Response(JSON.stringify(data), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
@@ -72,8 +110,15 @@ Deno.serve(async (req) => {
     if (action === "verify") {
       const { reference } = params;
 
+      if (!reference || typeof reference !== "string" || reference.length > 200) {
+        return new Response(JSON.stringify({ error: "A valid reference is required" }), {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
       const response = await fetch(
-        `https://api.paystack.co/transaction/verify/${reference}`,
+        `https://api.paystack.co/transaction/verify/${encodeURIComponent(reference)}`,
         {
           headers: {
             Authorization: `Bearer ${PAYSTACK_SECRET_KEY}`,
@@ -84,29 +129,53 @@ Deno.serve(async (req) => {
       const data = await response.json();
 
       if (data.status && data.data.status === "success") {
-        // Update user profile with plan if authenticated
+        const plan =
+          data.data.metadata?.plan ||
+          data.data.metadata?.custom_fields?.find(
+            (f: any) => f.variable_name === "plan"
+          )?.value ||
+          "basic";
+
+        // Resolve the signed-in user, if any.
+        let userId: string | null = null;
         const authHeader = req.headers.get("Authorization");
         if (authHeader) {
           const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
             global: { headers: { Authorization: authHeader } },
           });
 
-          const { data: claims, error: claimsError } =
-            await supabase.auth.getUser();
+          const { data: claims, error: claimsError } = await supabase.auth.getUser();
           if (!claimsError && claims.user) {
-            const plan =
-              data.data.metadata?.plan ||
-              data.data.metadata?.custom_fields?.find(
-                (f: any) => f.variable_name === "plan"
-              )?.value ||
-              "starter";
-
+            userId = claims.user.id;
             await supabase
               .from("profiles")
               .update({ plan })
               .eq("user_id", claims.user.id);
           }
         }
+
+        const paidAt = data.data.paid_at ? new Date(data.data.paid_at) : new Date();
+        const periodEnd = new Date(paidAt);
+        periodEnd.setDate(periodEnd.getDate() + 30);
+
+        const { error: subError } = await admin()
+          .from("subscriptions")
+          .upsert(
+            {
+              user_id: userId,
+              email: data.data.customer?.email ?? "",
+              plan,
+              status: "active",
+              amount: (data.data.amount ?? 0) / 100,
+              currency: data.data.currency ?? "NGN",
+              paystack_reference: data.data.reference,
+              paystack_customer_code: data.data.customer?.customer_code ?? null,
+              current_period_end: periodEnd.toISOString(),
+              metadata: data.data.metadata ?? {},
+            },
+            { onConflict: "paystack_reference" }
+          );
+        if (subError) console.error("Failed to record subscription:", subError);
       }
 
       return new Response(JSON.stringify(data), {
@@ -133,6 +202,7 @@ Deno.serve(async (req) => {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (error) {
+    console.error("paystack error:", error);
     return new Response(
       JSON.stringify({ error: "An error occurred processing your request" }),
       {

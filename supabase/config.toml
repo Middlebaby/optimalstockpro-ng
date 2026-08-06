@@ -15,6 +15,10 @@ verify_jwt = false
 [functions.paystack]
 verify_jwt = false
 
+[functions.paystack-webhook]
+verify_jwt = false
+
+
 [functions.send-survey-notification]
 verify_jwt = false
 
