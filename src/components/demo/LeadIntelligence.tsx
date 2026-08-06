@@ -335,8 +335,9 @@ const LeadIntelligence = () => {
             Lead Intelligence
           </h1>
           <p className="text-muted-foreground mt-1">
-            AI-scored leads, activity signals, and CRM-ready insights.
+            Optimalstock Pro's own sales pipeline — AI-scored prospects, activity signals, and stage tracking.
           </p>
+
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <Button
