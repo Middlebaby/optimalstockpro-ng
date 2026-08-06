@@ -32,12 +32,23 @@ const CTA = () => {
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <Link
+                to="/get-started"
+                onClick={() => {
+                  trackLeadEvent("get_started_cta_click", { cta: "cta_section" }).catch(() => {});
+                }}
+              >
+                <Button variant="hero" size="xl" className="group">
+                  Get Started Free
+                  <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
+                </Button>
+              </Link>
+              <Link
                 to="/survey"
                 onClick={() => {
                   trackLeadEvent("survey_cta_click", { cta: "cta_section" }).catch(() => {});
                 }}
               >
-                <Button variant="hero" size="xl" className="group">
+                <Button variant="heroOutline" size="xl" className="group">
                   Take the Survey
                   <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
                 </Button>

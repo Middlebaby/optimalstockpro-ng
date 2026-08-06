@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { ArrowRight } from "lucide-react";
 
 const Pricing = () => {
   return (
@@ -19,11 +20,19 @@ const Pricing = () => {
           <p className="text-muted-foreground mb-8">
             Choose the plan that fits your business. No hidden fees, cancel anytime.
           </p>
-          <Link to="/demo">
-            <Button size="lg">
-              Try Live Demo
-            </Button>
-          </Link>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <Link to="/get-started">
+              <Button size="lg" className="group">
+                Get Started
+                <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+              </Button>
+            </Link>
+            <Link to="/demo">
+              <Button variant="outline" size="lg">
+                Try Live Demo
+              </Button>
+            </Link>
+          </div>
         </motion.div>
       </div>
     </section>
