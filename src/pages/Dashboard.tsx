@@ -164,8 +164,8 @@ const DashboardContent = () => {
   };
 
   const planPrices: Record<string, { amount: number; display: string; planId: string }> = {
-    Distribution: { amount: 12000, display: "₦12,000/mo", planId: "distribution" },
-    Professional: { amount: 18000, display: "₦18,000/mo", planId: "professional" },
+    Distribution: { amount: PLAN_PRICES.distribution, display: `${formatNaira(PLAN_PRICES.distribution)}/mo`, planId: "distribution" },
+    Professional: { amount: PLAN_PRICES.professional, display: `${formatNaira(PLAN_PRICES.professional)}/mo`, planId: "professional" },
   };
 
   const [upgradeLoading, setUpgradeLoading] = useState(false);
