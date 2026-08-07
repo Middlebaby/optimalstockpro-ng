@@ -26,8 +26,23 @@ Deno.serve(async (req) => {
   const signature = req.headers.get("x-paystack-signature") ?? "";
   const expected = createHmac("sha512", PAYSTACK_SECRET_KEY).update(rawBody).digest("hex");
 
+  const logEvent = async (row: Record<string, unknown>) => {
+    try {
+      await admin().from("paystack_webhook_events").insert(row);
+    } catch (e) {
+      console.error("Failed to log webhook event:", e);
+    }
+  };
+
   if (signature.length !== expected.length || signature !== expected) {
     console.error("Invalid Paystack webhook signature");
+    await logEvent({
+      event: "invalid_signature",
+      signature_valid: false,
+      handled: false,
+      error: "Signature did not match the Paystack secret key",
+      payload: {},
+    });
     return new Response(JSON.stringify({ error: "Invalid signature" }), { status: 401 });
   }
 
@@ -35,12 +50,14 @@ Deno.serve(async (req) => {
   try {
     payload = JSON.parse(rawBody);
   } catch {
+    await logEvent({ event: "invalid_json", handled: false, error: "Body was not valid JSON" });
     return new Response(JSON.stringify({ error: "Invalid JSON" }), { status: 400 });
   }
 
   const event: string = payload?.event ?? "";
   const d = payload?.data ?? {};
   const supabase = admin();
+
 
   try {
     const email: string | null =
