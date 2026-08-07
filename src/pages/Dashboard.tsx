@@ -46,7 +46,7 @@ import EmailVerificationGuard from "@/components/auth/EmailVerificationGuard";
 import { onboardingKey } from "@/pages/Onboarding";
 
 
-const Dashboard = () => {
+const DashboardContent = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [proFeaturesOpen, setProFeaturesOpen] = useState(true);
@@ -594,5 +594,11 @@ const Dashboard = () => {
     </div>
   );
 };
+
+const Dashboard = () => (
+  <EmailVerificationGuard>
+    <DashboardContent />
+  </EmailVerificationGuard>
+);
 
 export default Dashboard;
