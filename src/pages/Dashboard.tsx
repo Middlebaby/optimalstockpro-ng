@@ -122,10 +122,10 @@ const DashboardContent = () => {
     navigate("/");
   };
 
-  // Plan access helpers
-  // All tiers unlocked for testing
-  const hasDistribution = true;
-  const hasProfessional = true;
+  // Plan access helpers — gated by the plan on the user's profile
+  const rank = planRank(userPlan);
+  const hasDistribution = rank >= planRank("distribution");
+  const hasProfessional = rank >= planRank("professional");
 
   const basicNavItems = [
     { id: "dashboard", label: "Dashboard", icon: Home },
