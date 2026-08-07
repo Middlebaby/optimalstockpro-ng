@@ -1,4 +1,5 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { PLAN_PRICES, isPlanId, normalizePlan } from "../_shared/plans.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -141,12 +142,12 @@ Deno.serve(async (req) => {
       const data = await response.json();
 
       if (data.status && data.data.status === "success") {
-        const plan =
-          data.data.metadata?.plan ||
-          data.data.metadata?.custom_fields?.find(
-            (f: any) => f.variable_name === "plan"
-          )?.value ||
-          "basic";
+        const plan = normalizePlan(
+          data.data.metadata?.plan ??
+            data.data.metadata?.custom_fields?.find(
+              (f: any) => f.variable_name === "plan"
+            )?.value
+        );
 
         // Resolve the signed-in user, if any.
         let userId: string | null = null;
