@@ -25,6 +25,27 @@ async function isAuthorized(req: Request): Promise<{ authorized: boolean; userId
     return { authorized: true };
   }
 
+  // Scheduled runs authenticate with an internal token stored in the database.
+  if (providedSecret) {
+    try {
+      const admin = createClient(
+        Deno.env.get("SUPABASE_URL")!,
+        Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
+        { auth: { persistSession: false, autoRefreshToken: false } },
+      );
+      const { data: jobToken } = await admin
+        .from("job_tokens")
+        .select("token")
+        .eq("name", "leads-process")
+        .maybeSingle();
+      if (jobToken?.token && timingSafeEqual(jobToken.token, providedSecret)) {
+        return { authorized: true };
+      }
+    } catch (err) {
+      console.error("Job token check failed:", err);
+    }
+  }
+
   const authHeader = req.headers.get("authorization") ?? "";
   if (!authHeader.startsWith("Bearer ")) {
     return { authorized: false };
