@@ -9,6 +9,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 import { Send, Gift, CheckCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { getAttribution } from "@/lib/attribution";
 import { getLeadSessionId } from "@/hooks/useLeadTracking";
 
 const SurveyForm = () => {
@@ -187,6 +188,7 @@ const SurveyForm = () => {
             ndpr_consent: true,
             session_id: getLeadSessionId() ?? undefined,
             metadata: {
+              attribution: getAttribution(),
               current_method: formData.currentMethod,
               challenges: formData.challenges,
               interested_features: formData.interestedFeatures,
