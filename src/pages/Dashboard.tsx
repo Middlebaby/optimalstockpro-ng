@@ -5,7 +5,7 @@ import {
   BookOpen, Home, Menu, Bell, Search, FolderKanban, ArrowRightLeft, Truck,
   Wrench, ShoppingCart, ChevronDown, ChevronRight, LogOut, User,
   Settings as SettingsIcon, ClipboardList, Shield, Lock, Crown, Loader2,
-  Store, Receipt, Brain
+  Store, Receipt, Brain, CreditCard
 } from "lucide-react";
 import { PLAN_PRICES, formatNaira } from "@/lib/plans";
 import { Button } from "@/components/ui/button";
