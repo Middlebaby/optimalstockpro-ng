@@ -386,6 +386,8 @@ const MasterInventory = ({ onOpenScanner, triggerAddDialog, onAddDialogOpened }:
           </div>
         </div>
       )}
+
+      <CsvImportDialog open={csvOpen} onOpenChange={setCsvOpen} onImported={() => fetchItems()} />
     </div>
   );
 };
