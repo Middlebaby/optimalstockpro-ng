@@ -215,6 +215,10 @@ const MasterInventory = ({ onOpenScanner, triggerAddDialog, onAddDialogOpened }:
           <p className="text-muted-foreground">Manage all your inventory items in one place</p>
         </div>
         <div className="flex gap-2">
+          <Button variant="outline" onClick={() => setCsvOpen(true)}>
+            <Upload className="w-4 h-4" />
+            <span className="hidden sm:inline ml-2">Import CSV</span>
+          </Button>
           {onOpenScanner && (
             <Button variant="outline" onClick={onOpenScanner}>
               <QrCode className="w-4 h-4" />
