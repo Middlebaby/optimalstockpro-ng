@@ -13,7 +13,7 @@ export const PLANS: Plan[] = [
   {
     id: "basic",
     name: "Basic",
-    price: 8000,
+    price: 5000,
     tagline: "Core inventory for a single shop or store.",
     features: [
       "Unlimited products & stock movements",
@@ -26,7 +26,7 @@ export const PLANS: Plan[] = [
   {
     id: "distribution",
     name: "Distribution",
-    price: 12000,
+    price: 8000,
     tagline: "For businesses supplying multiple locations.",
     popular: true,
     features: [
@@ -40,7 +40,7 @@ export const PLANS: Plan[] = [
   {
     id: "professional",
     name: "Professional",
-    price: 18000,
+    price: 15000,
     tagline: "Full operations for manufacturing & projects.",
     features: [
       "Everything in Distribution",
