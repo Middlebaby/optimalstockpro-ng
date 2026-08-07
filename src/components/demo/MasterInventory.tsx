@@ -21,6 +21,7 @@ import { format, differenceInDays, isPast, isToday } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
+import CsvImportDialog from "@/components/inventory/CsvImportDialog";
 
 interface MasterInventoryProps {
   onOpenScanner?: () => void;
