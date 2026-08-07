@@ -129,8 +129,26 @@ Deno.serve(async (req) => {
     } else {
       console.log("Unhandled Paystack event:", event);
     }
+
+    await logEvent({
+      event,
+      reference: d.reference ?? null,
+      email: d.customer?.email ?? null,
+      signature_valid: true,
+      handled: true,
+      payload,
+    });
   } catch (error) {
     console.error("paystack-webhook processing error:", error);
+    await logEvent({
+      event: event || "unknown",
+      reference: d.reference ?? null,
+      email: d.customer?.email ?? null,
+      signature_valid: true,
+      handled: false,
+      error: error instanceof Error ? error.message : "Processing failed",
+      payload,
+    });
     return new Response(JSON.stringify({ error: "Processing failed" }), { status: 500 });
   }
 
