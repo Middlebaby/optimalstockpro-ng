@@ -31,6 +31,7 @@ import {
 } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { Json } from "@/integrations/supabase/types";
+import LeadAcquisition from "@/components/demo/LeadAcquisition";
 import {
   Brain,
   RefreshCw,
@@ -418,6 +419,9 @@ const LeadIntelligence = () => {
           </CardContent>
         </Card>
       </div>
+
+      {/* Acquisition & conversion analytics */}
+      <LeadAcquisition leads={leads} />
 
       {/* Pipeline board */}
       <Card>

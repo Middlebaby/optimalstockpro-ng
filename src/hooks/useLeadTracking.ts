@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { getAttribution } from "@/lib/attribution";
 
 const SESSION_KEY = "lead_session_id";
 
@@ -38,12 +39,14 @@ export async function trackLeadEvent(
   const sessionId = getLeadSessionId();
   if (!sessionId) return;
 
+  const attribution = getAttribution();
+
   try {
     await supabase.functions.invoke("leads-track", {
       body: {
         session_id: sessionId,
         event_type: eventType,
-        event_data: eventData ?? {},
+        event_data: { ...(eventData ?? {}), attribution },
         url: window.location.href,
         referrer: document.referrer,
       },
