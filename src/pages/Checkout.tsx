@@ -30,6 +30,10 @@ const Checkout = () => {
   const plan = PLANS.find((p) => p.id === selected)!;
 
   const handlePay = async () => {
+    if (!user) {
+      navigate(`/auth?mode=signup&next=${encodeURIComponent(`/checkout?plan=${plan.id}`)}`);
+      return;
+    }
     if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       toast({ title: "Enter a valid email", description: "We need your email to send the receipt.", variant: "destructive" });
       return;
