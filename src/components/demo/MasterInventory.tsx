@@ -41,6 +41,7 @@ const MasterInventory = ({ onOpenScanner, triggerAddDialog, onAddDialogOpened }:
   const [searchQuery, setSearchQuery] = useState("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<any | null>(null);
+  const [csvOpen, setCsvOpen] = useState(false);
   const [newItem, setNewItem] = useState({
     name: "", category: "", quantity: 0, unit: "pcs",
     unitCost: 0, reorderLevel: 10, location: "", supplier: "",
