@@ -30,6 +30,10 @@ const Checkout = () => {
   const plan = PLANS.find((p) => p.id === selected)!;
 
   const handlePay = async () => {
+    if (!user) {
+      navigate(`/auth?mode=signup&next=${encodeURIComponent(`/checkout?plan=${plan.id}`)}`);
+      return;
+    }
     if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       toast({ title: "Enter a valid email", description: "We need your email to send the receipt.", variant: "destructive" });
       return;
@@ -121,17 +125,24 @@ const Checkout = () => {
             </div>
             <div className="border-t border-border my-4" />
 
-            <div className="space-y-2 mb-4">
-              <Label htmlFor="checkout-email">Email for receipt</Label>
-              <Input
-                id="checkout-email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="you@business.com"
-                disabled={!!user?.email}
-              />
-            </div>
+            {user ? (
+              <div className="space-y-2 mb-4">
+                <Label htmlFor="checkout-email">Email for receipt</Label>
+                <Input
+                  id="checkout-email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="you@business.com"
+                  disabled={!!user?.email}
+                />
+              </div>
+            ) : (
+              <p className="text-sm text-muted-foreground mb-4">
+                Create your account (or sign in) first so this subscription is linked to it and your
+                plan unlocks straight away.
+              </p>
+            )}
 
             <Button className="w-full" size="lg" onClick={handlePay} disabled={loading}>
               {loading ? (
@@ -139,9 +150,14 @@ const Checkout = () => {
                   <Loader2 className="w-4 h-4 animate-spin" />
                   Starting payment...
                 </>
-              ) : (
+              ) : user ? (
                 <>
                   Pay {formatNaira(plan.price)}
+                  <ArrowRight className="w-4 h-4" />
+                </>
+              ) : (
+                <>
+                  Sign in to continue
                   <ArrowRight className="w-4 h-4" />
                 </>
               )}
@@ -154,11 +170,10 @@ const Checkout = () => {
 
             {!user && (
               <p className="text-xs text-center text-muted-foreground mt-3">
-                Already paid?{" "}
-                <Link to="/auth" className="text-primary underline">
+                Already have an account?{" "}
+                <Link to={`/auth?next=${encodeURIComponent(`/checkout?plan=${plan.id}`)}`} className="text-primary underline">
                   Sign in
-                </Link>{" "}
-                to access your dashboard.
+                </Link>
               </p>
             )}
             <button

@@ -7,7 +7,7 @@ import {
   Settings as SettingsIcon, ClipboardList, Shield, Lock, Crown, Loader2,
   Store, Receipt, Brain, CreditCard
 } from "lucide-react";
-import { PLAN_PRICES, formatNaira } from "@/lib/plans";
+import { PLAN_PRICES, formatNaira, planRank } from "@/lib/plans";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -122,10 +122,10 @@ const DashboardContent = () => {
     navigate("/");
   };
 
-  // Plan access helpers
-  // All tiers unlocked for testing
-  const hasDistribution = true;
-  const hasProfessional = true;
+  // Plan access helpers — gated by the plan on the user's profile
+  const rank = planRank(userPlan);
+  const hasDistribution = rank >= planRank("distribution");
+  const hasProfessional = rank >= planRank("professional");
 
   const basicNavItems = [
     { id: "dashboard", label: "Dashboard", icon: Home },
