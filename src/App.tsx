@@ -20,6 +20,7 @@ import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
 import CookiePolicy from "./pages/CookiePolicy";
 import PaymentVerify from "./pages/PaymentVerify";
+import Checkout from "./pages/Checkout";
 import Blog from "./pages/Blog";
 import BlogPost from "./pages/BlogPost";
 import OAuthConsent from "./pages/OAuthConsent";
@@ -52,6 +53,8 @@ const App = () => (
               <Route path="/privacy-policy" element={<PrivacyPolicy />} />
               <Route path="/terms-of-service" element={<TermsOfService />} />
               <Route path="/cookie-policy" element={<CookiePolicy />} />
+              <Route path="/checkout" element={<Checkout />} />
+              <Route path="/pricing" element={<Checkout />} />
               <Route path="/payment/verify" element={<PaymentVerify />} />
               <Route path="/blog" element={<Blog />} />
               <Route path="/blog/:slug" element={<BlogPost />} />
