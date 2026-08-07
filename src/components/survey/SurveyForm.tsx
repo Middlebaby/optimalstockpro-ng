@@ -9,6 +9,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 import { Send, Gift, CheckCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { getLeadSessionId } from "@/hooks/useLeadTracking";
 
 const SurveyForm = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);

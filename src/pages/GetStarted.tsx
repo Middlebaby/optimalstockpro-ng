@@ -20,7 +20,7 @@ import {
 } from "lucide-react";
 import Header from "@/components/landing/Header";
 import Footer from "@/components/landing/Footer";
-import { trackLeadEvent } from "@/hooks/useLeadTracking";
+import { trackLeadEvent, useLeadTracking } from "@/hooks/useLeadTracking";
 
 const steps = [
   {
@@ -91,6 +91,8 @@ const faqs = [
 ];
 
 const GetStarted = () => {
+  useLeadTracking();
+
   const handleGetStartedClick = () => {
     trackLeadEvent("get_started_cta_click", { location: "get_started_page" }).catch(() => {});
   };
