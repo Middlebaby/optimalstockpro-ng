@@ -52,8 +52,25 @@ export const PLANS: Plan[] = [
   },
 ];
 
-export const getPlan = (id: string | null | undefined) =>
-  PLANS.find((p) => p.id === id) ?? PLANS[1];
+export const PLAN_IDS: PlanId[] = ["basic", "distribution", "professional"];
+
+/** Safeguard: only ever trust a value that is a real plan id. */
+export const isPlanId = (value: unknown): value is PlanId =>
+  typeof value === "string" && (PLAN_IDS as string[]).includes(value);
+
+/** Canonical price map — the single source of truth used by checkout + billing. */
+export const PLAN_PRICES: Record<PlanId, number> = {
+  basic: 5000,
+  distribution: 8000,
+  professional: 15000,
+};
+
+export const getPlan = (id: string | null | undefined): Plan =>
+  (isPlanId(id) ? PLANS.find((p) => p.id === id) : undefined) ?? PLANS[1];
+
+/** Rank for upgrade/downgrade comparisons. */
+export const planRank = (id: string | null | undefined) =>
+  isPlanId(id) ? PLAN_IDS.indexOf(id) : -1;
 
 export const formatNaira = (amount: number) =>
   `₦${amount.toLocaleString("en-NG")}`;
