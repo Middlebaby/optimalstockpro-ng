@@ -11,6 +11,7 @@ import Demo from "./pages/Demo";
 import Auth from "./pages/Auth";
 import ResetPassword from "./pages/ResetPassword";
 import Dashboard from "./pages/Dashboard";
+import Onboarding from "./pages/Onboarding";
 import Survey from "./pages/Survey";
 import AdminSurvey from "./pages/AdminSurvey";
 import Flyers from "./pages/Flyers";
@@ -41,6 +42,8 @@ const App = () => (
               <Route path="/auth" element={<Auth />} />
               <Route path="/reset-password" element={<ResetPassword />} />
               <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/onboarding" element={<Onboarding />} />
+
 
               <Route path="/survey" element={<Survey />} />
               <Route path="/admin/survey" element={<AdminSurvey />} />

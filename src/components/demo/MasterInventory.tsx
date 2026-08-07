@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Plus, Edit, Trash2, Search, QrCode, Calendar, Package } from "lucide-react";
+import { Plus, Edit, Trash2, Search, QrCode, Calendar, Package, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -21,6 +21,7 @@ import { format, differenceInDays, isPast, isToday } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
+import CsvImportDialog from "@/components/inventory/CsvImportDialog";
 
 interface MasterInventoryProps {
   onOpenScanner?: () => void;
@@ -40,6 +41,7 @@ const MasterInventory = ({ onOpenScanner, triggerAddDialog, onAddDialogOpened }:
   const [searchQuery, setSearchQuery] = useState("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<any | null>(null);
+  const [csvOpen, setCsvOpen] = useState(false);
   const [newItem, setNewItem] = useState({
     name: "", category: "", quantity: 0, unit: "pcs",
     unitCost: 0, reorderLevel: 10, location: "", supplier: "",
@@ -213,6 +215,10 @@ const MasterInventory = ({ onOpenScanner, triggerAddDialog, onAddDialogOpened }:
           <p className="text-muted-foreground">Manage all your inventory items in one place</p>
         </div>
         <div className="flex gap-2">
+          <Button variant="outline" onClick={() => setCsvOpen(true)}>
+            <Upload className="w-4 h-4" />
+            <span className="hidden sm:inline ml-2">Import CSV</span>
+          </Button>
           {onOpenScanner && (
             <Button variant="outline" onClick={onOpenScanner}>
               <QrCode className="w-4 h-4" />
@@ -380,6 +386,8 @@ const MasterInventory = ({ onOpenScanner, triggerAddDialog, onAddDialogOpened }:
           </div>
         </div>
       )}
+
+      <CsvImportDialog open={csvOpen} onOpenChange={setCsvOpen} onImported={() => fetchItems()} />
     </div>
   );
 };

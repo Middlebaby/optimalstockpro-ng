@@ -42,9 +42,11 @@ import OnboardingTour from "@/components/demo/OnboardingTour";
 import SalesChannels from "@/components/demo/SalesChannels";
 import ReceiptPrinter from "@/components/demo/ReceiptPrinter";
 import LeadIntelligence from "@/components/demo/LeadIntelligence";
+import EmailVerificationGuard from "@/components/auth/EmailVerificationGuard";
+import { onboardingKey } from "@/pages/Onboarding";
 
 
-const Dashboard = () => {
+const DashboardContent = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [proFeaturesOpen, setProFeaturesOpen] = useState(true);
@@ -82,12 +84,13 @@ const Dashboard = () => {
   }, [user]);
 
 
-  // Check if new user (no inventory) → show onboarding tour
+  // Brand new user with no inventory → send through the setup wizard first
   useEffect(() => {
     const checkNewUser = async () => {
       if (!user) return;
+      const onboarded = localStorage.getItem(onboardingKey(user.id));
       const tourCompleted = localStorage.getItem(`tour_completed_${user.id}`);
-      if (tourCompleted) return;
+      if (onboarded && tourCompleted) return;
 
       const { count } = await supabase
         .from("inventory_items")
@@ -95,11 +98,15 @@ const Dashboard = () => {
         .eq("user_id", user.id);
 
       if (count === 0) {
-        setShowTour(true);
+        if (!onboarded) {
+          navigate("/onboarding");
+          return;
+        }
+        if (!tourCompleted) setShowTour(true);
       }
     };
     checkNewUser();
-  }, [user]);
+  }, [user, navigate]);
 
   const handleTourComplete = () => {
     if (user) {
@@ -587,5 +594,11 @@ const Dashboard = () => {
     </div>
   );
 };
+
+const Dashboard = () => (
+  <EmailVerificationGuard>
+    <DashboardContent />
+  </EmailVerificationGuard>
+);
 
 export default Dashboard;
