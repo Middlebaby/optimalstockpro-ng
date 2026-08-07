@@ -1,4 +1,5 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { PLAN_PRICES, isPlanId, normalizePlan } from "../_shared/plans.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -26,7 +27,7 @@ Deno.serve(async (req) => {
 
     if (action === "initialize") {
       // Initialize a transaction (subscription or one-time)
-      const { email, amount, plan_code, callback_url, metadata } = params;
+      const { email, plan_code, callback_url, metadata } = params;
 
       if (!email || typeof email !== "string" || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
         return new Response(JSON.stringify({ error: "A valid email is required" }), {
@@ -34,14 +35,25 @@ Deno.serve(async (req) => {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
-      if (typeof amount !== "number" || !Number.isFinite(amount) || amount <= 0) {
-        return new Response(JSON.stringify({ error: "A valid amount is required" }), {
-          status: 400,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
-      }
 
-      const plan = metadata?.plan || "basic";
+      // Plan mapping safeguard: the plan must be a known id and the amount is
+      // always taken from the server-side price map, never from the client.
+      const requestedPlan = metadata?.plan;
+      if (!isPlanId(requestedPlan)) {
+        return new Response(
+          JSON.stringify({ error: "Unknown plan. Choose Basic, Distribution or Professional." }),
+          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+      const plan = requestedPlan;
+      const amount = PLAN_PRICES[plan];
+
+      // If the client sent an amount that disagrees, log it and use ours.
+      if (typeof params.amount === "number" && Math.round(params.amount) !== amount) {
+        console.warn(
+          `Plan/amount mismatch for ${plan}: client sent ${params.amount}, charging ${amount}`
+        );
+      }
 
       const body: Record<string, any> = {
         email,
@@ -49,6 +61,7 @@ Deno.serve(async (req) => {
         callback_url,
         metadata: {
           ...metadata,
+          plan,
           custom_fields: [
             {
               display_name: "Plan",
@@ -129,12 +142,12 @@ Deno.serve(async (req) => {
       const data = await response.json();
 
       if (data.status && data.data.status === "success") {
-        const plan =
-          data.data.metadata?.plan ||
-          data.data.metadata?.custom_fields?.find(
-            (f: any) => f.variable_name === "plan"
-          )?.value ||
-          "basic";
+        const plan = normalizePlan(
+          data.data.metadata?.plan ??
+            data.data.metadata?.custom_fields?.find(
+              (f: any) => f.variable_name === "plan"
+            )?.value
+        );
 
         // Resolve the signed-in user, if any.
         let userId: string | null = null;

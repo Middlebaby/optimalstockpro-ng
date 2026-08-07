@@ -5,8 +5,9 @@ import {
   BookOpen, Home, Menu, Bell, Search, FolderKanban, ArrowRightLeft, Truck,
   Wrench, ShoppingCart, ChevronDown, ChevronRight, LogOut, User,
   Settings as SettingsIcon, ClipboardList, Shield, Lock, Crown, Loader2,
-  Store, Receipt, Brain
+  Store, Receipt, Brain, CreditCard
 } from "lucide-react";
+import { PLAN_PRICES, formatNaira } from "@/lib/plans";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -164,8 +165,8 @@ const DashboardContent = () => {
   };
 
   const planPrices: Record<string, { amount: number; display: string; planId: string }> = {
-    Distribution: { amount: 12000, display: "₦12,000/mo", planId: "distribution" },
-    Professional: { amount: 18000, display: "₦18,000/mo", planId: "professional" },
+    Distribution: { amount: PLAN_PRICES.distribution, display: `${formatNaira(PLAN_PRICES.distribution)}/mo`, planId: "distribution" },
+    Professional: { amount: PLAN_PRICES.professional, display: `${formatNaira(PLAN_PRICES.professional)}/mo`, planId: "professional" },
   };
 
   const [upgradeLoading, setUpgradeLoading] = useState(false);
@@ -384,6 +385,10 @@ const DashboardContent = () => {
                 <DropdownMenuItem onClick={() => setActiveTab("settings")} className="cursor-pointer">
                   <SettingsIcon className="w-4 h-4 mr-2" />
                   Settings
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate("/billing")} className="cursor-pointer">
+                  <CreditCard className="w-4 h-4 mr-2" />
+                  Billing
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={handleSignOut} className="text-destructive cursor-pointer">
                   <LogOut className="w-4 h-4 mr-2" />

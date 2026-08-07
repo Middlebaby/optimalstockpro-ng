@@ -1,5 +1,6 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { createHmac } from "node:crypto";
+import { normalizePlan } from "../_shared/plans.ts";
 
 const PAYSTACK_SECRET_KEY = Deno.env.get("PAYSTACK_SECRET_KEY")!;
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
@@ -44,11 +45,12 @@ Deno.serve(async (req) => {
   try {
     const email: string | null =
       d.customer?.email ?? d.subscription?.customer?.email ?? null;
-    const plan =
-      d.metadata?.plan ||
-      d.metadata?.custom_fields?.find((f: any) => f.variable_name === "plan")?.value ||
-      d.plan?.name ||
+    const rawPlan =
+      d.metadata?.plan ??
+      d.metadata?.custom_fields?.find((f: any) => f.variable_name === "plan")?.value ??
+      d.plan?.name ??
       null;
+    const plan = rawPlan === null ? null : normalizePlan(rawPlan);
 
     const applyToProfile = async (nextPlan: string | null) => {
       if (!email || !nextPlan) return;
