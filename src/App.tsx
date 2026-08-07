@@ -22,6 +22,7 @@ import CookiePolicy from "./pages/CookiePolicy";
 import PaymentVerify from "./pages/PaymentVerify";
 import Checkout from "./pages/Checkout";
 import Billing from "./pages/Billing";
+import WebhookStatus from "./pages/WebhookStatus";
 import Blog from "./pages/Blog";
 import BlogPost from "./pages/BlogPost";
 import OAuthConsent from "./pages/OAuthConsent";
