@@ -7,7 +7,7 @@ import {
   Settings as SettingsIcon, ClipboardList, Shield, Lock, Crown, Loader2,
   Store, Receipt, Brain, CreditCard
 } from "lucide-react";
-import { PLAN_PRICES, formatNaira } from "@/lib/plans";
+import { PLAN_PRICES, formatNaira, planRank } from "@/lib/plans";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
