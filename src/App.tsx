@@ -58,6 +58,7 @@ const App = () => (
               <Route path="/checkout" element={<Checkout />} />
               <Route path="/pricing" element={<Checkout />} />
               <Route path="/billing" element={<Billing />} />
+              <Route path="/admin/webhooks" element={<WebhookStatus />} />
               <Route path="/payment/verify" element={<PaymentVerify />} />
               <Route path="/blog" element={<Blog />} />
               <Route path="/blog/:slug" element={<BlogPost />} />
