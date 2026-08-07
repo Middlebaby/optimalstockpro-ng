@@ -8,8 +8,11 @@ import Pricing from "@/components/landing/Pricing";
 import Features from "@/components/landing/Features";
 import CTA from "@/components/landing/CTA";
 import Footer from "@/components/landing/Footer";
+import { useLeadTracking } from "@/hooks/useLeadTracking";
 
 const Survey = () => {
+  useLeadTracking();
+
   return (
     <div className="min-h-screen">
       <Header />

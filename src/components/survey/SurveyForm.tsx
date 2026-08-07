@@ -9,6 +9,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 import { Send, Gift, CheckCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { getLeadSessionId } from "@/hooks/useLeadTracking";
 
 const SurveyForm = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -157,6 +158,44 @@ const SurveyForm = () => {
       if (dbError) {
         console.error('Error saving survey:', dbError);
         throw dbError;
+      }
+
+      // Feed the survey into Lead Intelligence (non-critical)
+      try {
+        const businessType = formData.businessType === "Other" ? formData.businessTypeOther : formData.businessType;
+        const location = formData.location === "Other" ? formData.locationOther : formData.location;
+        const painPoints = [...(formData.challenges || []), formData.challengesOther]
+          .filter(Boolean)
+          .join(", ");
+
+        await supabase.functions.invoke("leads-ingest", {
+          body: {
+            source: "survey",
+            source_detail: "market survey",
+            name: formData.fullName,
+            email: formData.email,
+            phone: formData.phone,
+            business_type: businessType,
+            employee_count: formData.employeeCount,
+            location,
+            budget_range: formData.budgetRange,
+            interest: (formData.interestedFeatures || []).join(", ") || formData.launchInterest,
+            message: [formData.biggestPain, painPoints, formData.additionalComments]
+              .filter(Boolean)
+              .join(" | ")
+              .slice(0, 2000),
+            ndpr_consent: true,
+            session_id: getLeadSessionId() ?? undefined,
+            metadata: {
+              current_method: formData.currentMethod,
+              challenges: formData.challenges,
+              interested_features: formData.interestedFeatures,
+              launch_interest: formData.launchInterest,
+            },
+          },
+        });
+      } catch (leadError) {
+        console.log("Lead ingest failed (non-critical):", leadError);
       }
 
       // Try to send email notification (optional - won't fail submission)
