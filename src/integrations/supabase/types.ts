@@ -640,6 +640,42 @@ export type Database = {
         }
         Relationships: []
       }
+      paystack_webhook_events: {
+        Row: {
+          created_at: string
+          email: string | null
+          error: string | null
+          event: string
+          handled: boolean
+          id: string
+          payload: Json
+          reference: string | null
+          signature_valid: boolean
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          error?: string | null
+          event: string
+          handled?: boolean
+          id?: string
+          payload?: Json
+          reference?: string | null
+          signature_valid?: boolean
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          error?: string | null
+          event?: string
+          handled?: boolean
+          id?: string
+          payload?: Json
+          reference?: string | null
+          signature_valid?: boolean
+        }
+        Relationships: []
+      }
       production_batches: {
         Row: {
           batch_number: string
