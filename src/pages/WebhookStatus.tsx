@@ -105,11 +105,44 @@ const WebhookStatus = () => {
               renewals and failures.
             </p>
           </div>
-          <Button variant="outline" size="sm" onClick={load} disabled={loading || denied}>
-            <RefreshCw className="w-4 h-4" />
-            Refresh
-          </Button>
+          <div className="flex gap-2">
+            <Button size="sm" onClick={runTest} disabled={testing || denied}>
+              {testing ? <Loader2 className="w-4 h-4 animate-spin" /> : <PlayCircle className="w-4 h-4" />}
+              Run test
+            </Button>
+            <Button variant="outline" size="sm" onClick={load} disabled={loading || denied}>
+              <RefreshCw className="w-4 h-4" />
+              Refresh
+            </Button>
+          </div>
         </div>
+
+        {testResult && (
+          <div
+            className={`rounded-xl border p-4 mb-6 flex gap-3 ${
+              testResult.ok ? "border-primary/40 bg-primary/5" : "border-destructive/40 bg-destructive/5"
+            }`}
+          >
+            {testResult.ok ? (
+              <CheckCircle2 className="w-5 h-5 text-primary shrink-0 mt-0.5" />
+            ) : (
+              <XCircle className="w-5 h-5 text-destructive shrink-0 mt-0.5" />
+            )}
+            <div className="min-w-0">
+              <p className="font-medium text-foreground text-sm">
+                {testResult.ok ? "Test passed" : "Test failed"}
+              </p>
+              <p className="text-sm text-muted-foreground">{testResult.message}</p>
+              {testResult.reference && (
+                <p className="text-xs text-muted-foreground mt-1 break-all">
+                  Reference: {testResult.reference}
+                </p>
+              )}
+            </div>
+          </div>
+        )}
+
+
 
 
         {/* Status card */}
