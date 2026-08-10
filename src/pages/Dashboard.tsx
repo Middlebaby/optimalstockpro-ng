@@ -591,6 +591,21 @@ const DashboardContent = () => {
 
       {/* Main Content */}
       <main className="lg:ml-64 pt-16 min-h-screen">
+        {trialActive && (
+          <div className="bg-primary/10 border-b border-primary/20 px-6 py-3">
+            <div className="flex items-center justify-between max-w-6xl">
+              <p className="text-sm text-primary-foreground">
+                <span className="font-semibold">Beta trial active</span> — you have full Professional access for {trialDaysLeft} day{trialDaysLeft === 1 ? "" : "s"}. Choose a plan before it ends to keep everything running.
+              </p>
+              <Link
+                to="/billing"
+                className="text-sm font-medium text-primary hover:underline whitespace-nowrap ml-4"
+              >
+                View plans
+              </Link>
+            </div>
+          </div>
+        )}
         <div className="p-6">
           <AnimatePresence mode="wait">
             <motion.div
@@ -605,6 +620,7 @@ const DashboardContent = () => {
           </AnimatePresence>
         </div>
       </main>
+
     </div>
   );
 };
