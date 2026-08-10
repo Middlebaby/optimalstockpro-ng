@@ -65,7 +65,7 @@ const Billing = () => {
     const load = async () => {
       setLoading(true);
       const [{ data: profile }, { data: subs }] = await Promise.all([
-        supabase.from("profiles").select("plan").eq("user_id", user.id).maybeSingle(),
+        supabase.from("profiles").select("plan, trial_ends_at").eq("user_id", user.id).maybeSingle(),
         supabase
           .from("subscriptions")
           .select("id, plan, status, amount, currency, paystack_reference, current_period_end, created_at")
@@ -74,6 +74,7 @@ const Billing = () => {
       ]);
       if (cancelled) return;
       setProfilePlan(profile?.plan ?? null);
+      setTrialEndsAt(profile?.trial_ends_at ?? null);
       setRows((subs ?? []) as SubscriptionRow[]);
       setLoading(false);
     };
