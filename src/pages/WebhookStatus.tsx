@@ -35,6 +35,21 @@ const WebhookStatus = () => {
   const [events, setEvents] = useState<WebhookEvent[]>([]);
   const [loading, setLoading] = useState(true);
   const [denied, setDenied] = useState(false);
+  const [testing, setTesting] = useState(false);
+  const [testResult, setTestResult] = useState<{ ok: boolean; message: string; reference?: string } | null>(null);
+
+  const runTest = async () => {
+    setTesting(true);
+    setTestResult(null);
+    const { data, error } = await supabase.functions.invoke("paystack-webhook-test", { body: {} });
+    if (error) {
+      setTestResult({ ok: false, message: error.message || "Test failed to run." });
+    } else {
+      setTestResult({ ok: Boolean(data?.ok), message: data?.message ?? "No response", reference: data?.reference });
+    }
+    setTesting(false);
+    await load();
+  };
 
   const load = async () => {
     setLoading(true);
