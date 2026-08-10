@@ -130,10 +130,11 @@ const DashboardContent = () => {
     navigate("/");
   };
 
-  // Plan access helpers — gated by the plan on the user's profile
-  const rank = planRank(userPlan);
+  // Plan access helpers — gated by effective plan (trial = professional access)
+  const rank = planRank(effectiveUserPlan);
   const hasDistribution = rank >= planRank("distribution");
   const hasProfessional = rank >= planRank("professional");
+
 
   const basicNavItems = [
     { id: "dashboard", label: "Dashboard", icon: Home },
