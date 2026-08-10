@@ -12,7 +12,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import Header from "@/components/landing/Header";
 import Footer from "@/components/landing/Footer";
-import { PLANS, PlanId, formatNaira, getPlan, planRank, isPlanId } from "@/lib/plans";
+import { PLANS, PlanId, formatNaira, getPlan, planRank, isPlanId, trialDaysRemaining, isTrialActive } from "@/lib/plans";
 
 interface SubscriptionRow {
   id: string;
