@@ -12,7 +12,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import Header from "@/components/landing/Header";
 import Footer from "@/components/landing/Footer";
-import { PLANS, PlanId, formatNaira, getPlan, planRank, isPlanId } from "@/lib/plans";
+import { PLANS, PlanId, formatNaira, getPlan, planRank, isPlanId, trialDaysRemaining, isTrialActive } from "@/lib/plans";
 
 interface SubscriptionRow {
   id: string;
@@ -51,6 +51,7 @@ const Billing = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [profilePlan, setProfilePlan] = useState<string | null>(null);
+  const [trialEndsAt, setTrialEndsAt] = useState<string | null>(null);
   const [rows, setRows] = useState<SubscriptionRow[]>([]);
 
   useEffect(() => {
@@ -64,7 +65,7 @@ const Billing = () => {
     const load = async () => {
       setLoading(true);
       const [{ data: profile }, { data: subs }] = await Promise.all([
-        supabase.from("profiles").select("plan").eq("user_id", user.id).maybeSingle(),
+        supabase.from("profiles").select("plan, trial_ends_at").eq("user_id", user.id).maybeSingle(),
         supabase
           .from("subscriptions")
           .select("id, plan, status, amount, currency, paystack_reference, current_period_end, created_at")
@@ -73,6 +74,7 @@ const Billing = () => {
       ]);
       if (cancelled) return;
       setProfilePlan(profile?.plan ?? null);
+      setTrialEndsAt(profile?.trial_ends_at ?? null);
       setRows((subs ?? []) as SubscriptionRow[]);
       setLoading(false);
     };
@@ -141,7 +143,28 @@ const Billing = () => {
                 </motion.div>
               )}
 
+              {isTrialActive(trialEndsAt) && (
+                <motion.div
+                  initial={{ opacity: 0, y: -8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="mb-6 rounded-xl border border-primary/30 bg-primary/10 p-5"
+                >
+                  <div className="flex items-start gap-3">
+                    <CheckCircle2 className="w-5 h-5 text-primary shrink-0 mt-0.5" />
+                    <div className="flex-1">
+                      <h2 className="font-heading font-semibold text-foreground mb-1">
+                        Beta trial active
+                      </h2>
+                      <p className="text-sm text-muted-foreground">
+                        You have full Professional access for {trialDaysRemaining(trialEndsAt)} day{trialDaysRemaining(trialEndsAt) === 1 ? "" : "s"}. Choose a plan before the trial ends to keep your access uninterrupted.
+                      </p>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+
               {/* Current plan */}
+
               <div className="rounded-xl border border-border bg-card p-6 mb-6">
                 <div className="flex flex-wrap items-start justify-between gap-4 mb-4">
                   <div>

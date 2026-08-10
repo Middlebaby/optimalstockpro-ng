@@ -7,7 +7,7 @@ import {
   Settings as SettingsIcon, ClipboardList, Shield, Lock, Crown, Loader2,
   Store, Receipt, Brain, CreditCard
 } from "lucide-react";
-import { PLAN_PRICES, formatNaira, planRank } from "@/lib/plans";
+import { PLAN_PRICES, formatNaira, planRank, effectivePlan, trialDaysRemaining } from "@/lib/plans";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -57,6 +57,8 @@ const DashboardContent = () => {
   const [showTour, setShowTour] = useState(false);
   const [triggerAddDialog, setTriggerAddDialog] = useState(false);
   const [userPlan, setUserPlan] = useState<string>("basic");
+  const [trialEndsAt, setTrialEndsAt] = useState<string | null>(null);
+
 
   const { user, loading, signOut } = useAuth();
   const navigate = useNavigate();
@@ -73,16 +75,22 @@ const DashboardContent = () => {
       if (!user) return;
       const [roleRes, profileRes] = await Promise.all([
         supabase.from('user_roles').select('role').eq('user_id', user.id).in('role', ['admin', 'manager']),
-        supabase.from('profiles').select('plan').eq('user_id', user.id).maybeSingle(),
+        supabase.from('profiles').select('plan, trial_ends_at').eq('user_id', user.id).maybeSingle(),
       ]);
       const roles = (roleRes.data || []).map((r) => r.role);
       setIsAdmin(roles.includes('admin'));
       setCanViewLeads(roles.length > 0);
       const fetchedPlan = profileRes.data?.plan || "basic";
       setUserPlan(fetchedPlan);
+      setTrialEndsAt(profileRes.data?.trial_ends_at ?? null);
     };
     checkRoleAndPlan();
   }, [user]);
+
+  // Effective plan for feature gating — active trial unlocks everything.
+  const effectiveUserPlan = effectivePlan(userPlan, trialEndsAt);
+  const trialDaysLeft = trialDaysRemaining(trialEndsAt);
+  const trialActive = trialDaysLeft > 0;
 
 
   // Brand new user with no inventory → send through the setup wizard first
@@ -122,10 +130,11 @@ const DashboardContent = () => {
     navigate("/");
   };
 
-  // Plan access helpers — gated by the plan on the user's profile
-  const rank = planRank(userPlan);
+  // Plan access helpers — gated by effective plan (trial = professional access)
+  const rank = planRank(effectiveUserPlan);
   const hasDistribution = rank >= planRank("distribution");
   const hasProfessional = rank >= planRank("professional");
+
 
   const basicNavItems = [
     { id: "dashboard", label: "Dashboard", icon: Home },
@@ -582,6 +591,21 @@ const DashboardContent = () => {
 
       {/* Main Content */}
       <main className="lg:ml-64 pt-16 min-h-screen">
+        {trialActive && (
+          <div className="bg-primary/10 border-b border-primary/20 px-6 py-3">
+            <div className="flex items-center justify-between max-w-6xl">
+              <p className="text-sm text-primary-foreground">
+                <span className="font-semibold">Beta trial active</span> — you have full Professional access for {trialDaysLeft} day{trialDaysLeft === 1 ? "" : "s"}. Choose a plan before it ends to keep everything running.
+              </p>
+              <Link
+                to="/billing"
+                className="text-sm font-medium text-primary hover:underline whitespace-nowrap ml-4"
+              >
+                View plans
+              </Link>
+            </div>
+          </div>
+        )}
         <div className="p-6">
           <AnimatePresence mode="wait">
             <motion.div
@@ -596,6 +620,7 @@ const DashboardContent = () => {
           </AnimatePresence>
         </div>
       </main>
+
     </div>
   );
 };

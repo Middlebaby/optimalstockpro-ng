@@ -72,5 +72,30 @@ export const getPlan = (id: string | null | undefined): Plan =>
 export const planRank = (id: string | null | undefined) =>
   isPlanId(id) ? PLAN_IDS.indexOf(id) : -1;
 
+/** Returns true if the supplied ISO date is still in the future. */
+export const isTrialActive = (trialEndsAt: string | null | undefined) => {
+  if (!trialEndsAt) return false;
+  const end = new Date(trialEndsAt);
+  return !isNaN(end.getTime()) && end > new Date();
+};
+
+/**
+ * Effective plan used for gating. A valid trial unlocks every feature
+ * (treated as Professional) so beta users can test the full platform.
+ */
+export const effectivePlan = (
+  userPlan: string | null | undefined,
+  trialEndsAt: string | null | undefined
+): PlanId => {
+  if (isTrialActive(trialEndsAt)) return "professional";
+  return isPlanId(userPlan) ? userPlan : "basic";
+};
+
+export const trialDaysRemaining = (trialEndsAt: string | null | undefined) => {
+  if (!isTrialActive(trialEndsAt)) return 0;
+  const ms = new Date(trialEndsAt).getTime() - Date.now();
+  return Math.max(0, Math.ceil(ms / (1000 * 60 * 60 * 24)));
+};
+
 export const formatNaira = (amount: number) =>
   `₦${amount.toLocaleString("en-NG")}`;
