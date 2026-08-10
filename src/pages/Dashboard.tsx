@@ -75,16 +75,22 @@ const DashboardContent = () => {
       if (!user) return;
       const [roleRes, profileRes] = await Promise.all([
         supabase.from('user_roles').select('role').eq('user_id', user.id).in('role', ['admin', 'manager']),
-        supabase.from('profiles').select('plan').eq('user_id', user.id).maybeSingle(),
+        supabase.from('profiles').select('plan, trial_ends_at').eq('user_id', user.id).maybeSingle(),
       ]);
       const roles = (roleRes.data || []).map((r) => r.role);
       setIsAdmin(roles.includes('admin'));
       setCanViewLeads(roles.length > 0);
       const fetchedPlan = profileRes.data?.plan || "basic";
       setUserPlan(fetchedPlan);
+      setTrialEndsAt(profileRes.data?.trial_ends_at ?? null);
     };
     checkRoleAndPlan();
   }, [user]);
+
+  // Effective plan for feature gating — active trial unlocks everything.
+  const effectiveUserPlan = effectivePlan(userPlan, trialEndsAt);
+  const trialDaysLeft = trialDaysRemaining(trialEndsAt);
+  const trialActive = trialDaysLeft > 0;
 
 
   // Brand new user with no inventory → send through the setup wizard first
