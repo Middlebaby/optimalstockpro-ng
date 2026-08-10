@@ -57,6 +57,8 @@ const DashboardContent = () => {
   const [showTour, setShowTour] = useState(false);
   const [triggerAddDialog, setTriggerAddDialog] = useState(false);
   const [userPlan, setUserPlan] = useState<string>("basic");
+  const [trialEndsAt, setTrialEndsAt] = useState<string | null>(null);
+
 
   const { user, loading, signOut } = useAuth();
   const navigate = useNavigate();
