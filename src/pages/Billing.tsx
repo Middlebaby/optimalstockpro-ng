@@ -51,6 +51,7 @@ const Billing = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [profilePlan, setProfilePlan] = useState<string | null>(null);
+  const [trialEndsAt, setTrialEndsAt] = useState<string | null>(null);
   const [rows, setRows] = useState<SubscriptionRow[]>([]);
 
   useEffect(() => {
