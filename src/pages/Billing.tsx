@@ -143,7 +143,28 @@ const Billing = () => {
                 </motion.div>
               )}
 
+              {isTrialActive(trialEndsAt) && (
+                <motion.div
+                  initial={{ opacity: 0, y: -8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="mb-6 rounded-xl border border-primary/30 bg-primary/10 p-5"
+                >
+                  <div className="flex items-start gap-3">
+                    <CheckCircle2 className="w-5 h-5 text-primary shrink-0 mt-0.5" />
+                    <div className="flex-1">
+                      <h2 className="font-heading font-semibold text-foreground mb-1">
+                        Beta trial active
+                      </h2>
+                      <p className="text-sm text-muted-foreground">
+                        You have full Professional access for {trialDaysRemaining(trialEndsAt)} day{trialDaysRemaining(trialEndsAt) === 1 ? "" : "s"}. Choose a plan before the trial ends to keep your access uninterrupted.
+                      </p>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+
               {/* Current plan */}
+
               <div className="rounded-xl border border-border bg-card p-6 mb-6">
                 <div className="flex flex-wrap items-start justify-between gap-4 mb-4">
                   <div>
