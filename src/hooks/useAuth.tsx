@@ -16,10 +16,24 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+const POST_AUTH_REDIRECT_KEY = "post_auth_redirect";
+
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
+
+  // Handle OAuth redirect destinations stored before sign-in.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const stored = window.sessionStorage.getItem(POST_AUTH_REDIRECT_KEY);
+    if (stored && user && !loading) {
+      window.sessionStorage.removeItem(POST_AUTH_REDIRECT_KEY);
+      if (stored.startsWith("/") && !stored.startsWith("//")) {
+        window.location.assign(stored);
+      }
+    }
+  }, [user, loading]);
 
   useEffect(() => {
     // Set up auth state listener FIRST
@@ -42,7 +56,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   const signUp = async (email: string, password: string, fullName: string) => {
-    const redirectUrl = `${window.location.origin}/`;
+    const redirectUrl = `${window.location.origin}/onboarding`;
 
     const { error } = await supabase.auth.signUp({
       email,
