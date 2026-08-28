@@ -286,8 +286,9 @@ const Billing = () => {
                 )}
                 <p className="text-xs text-muted-foreground mt-4">
                   Need an invoice or want to cancel? Email{" "}
-                  <a href="mailto:support@optimalstockpro.com" className="text-primary underline">
-                    support@optimalstockpro.com
+                  <a href="mailto:info@optimalstockpro.com" className="text-primary underline">
+                    info@optimalstockpro.com
+
                   </a>
                   .
                 </p>

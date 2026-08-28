@@ -180,7 +180,7 @@ const PaymentVerify = () => {
                     {reference ?? "none"}
                   </p>
                   <a
-                    href={`mailto:support@optimalstockpro.com?subject=Payment%20issue%20${encodeURIComponent(reference ?? "")}`}
+                    href={`mailto:info@optimalstockpro.com?subject=Payment%20issue%20${encodeURIComponent(reference ?? "")}`}
                     className="inline-flex items-center gap-2 text-sm text-primary underline"
                   >
                     <LifeBuoy className="w-4 h-4" />
