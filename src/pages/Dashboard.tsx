@@ -293,12 +293,6 @@ const DashboardContent = () => {
         return <Equipment />;
       case "purchase-orders":
         return <PurchaseOrders />;
-      case "bom":
-        return <BillOfMaterials />;
-      case "production":
-        return <ProductionRuns />;
-      case "requisitions":
-        return <Requisitions />;
       case "distribution":
         return <Distribution />;
       case "sales-channels":
