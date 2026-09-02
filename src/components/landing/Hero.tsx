@@ -38,10 +38,10 @@ const Hero = () => {
             transition={{ duration: 0.6 }}
           >
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-heading font-bold text-primary-foreground leading-tight mb-6">
-              Stop Losing Money to Poor Inventory Management
+              Run Your Prefab Factory Like a Machine
             </h1>
             <p className="text-lg md:text-xl text-primary-foreground/80 mb-8 max-w-2xl mx-auto">
-              Professional Inventory System Built for Nigerian SMEs. Track stock, prevent theft, and make smarter business decisions.
+              Inventory &amp; production management built for Nigerian prefabrication and modular building companies. Track materials, control production runs, and know your true cost per unit.
             </p>
           </motion.div>
 

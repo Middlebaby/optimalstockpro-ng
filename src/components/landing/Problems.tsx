@@ -5,26 +5,26 @@ const Problems = () => {
   const problems = [
     {
       icon: AlertTriangle,
-      title: "Constant Stock-Outs",
-      description: "Losing sales because you don't know what's running low until it's too late",
+      title: "Production Delays",
+      description: "Jobs stall because steel, cement or fittings ran out mid-production",
       color: "text-destructive",
     },
     {
       icon: DollarSign,
-      title: "Cash Tied Up",
-      description: "Overstocking items while critical materials run out",
+      title: "Scrap & Waste",
+      description: "Offcuts, overcuts and rework quietly eating into your project margin",
       color: "text-accent",
     },
     {
       icon: Search,
-      title: "Missing Items",
-      description: "Theft and discrepancies you can't track or prove",
+      title: "Missing Materials",
+      description: "Materials leave the yard without records — and nobody is accountable",
       color: "text-muted-foreground",
     },
     {
       icon: ClipboardList,
-      title: "Manual Chaos",
-      description: "Hours spent counting stock, checking notebooks, and making errors",
+      title: "Unknown Unit Costs",
+      description: "Quoting jobs blind because you can't see the real cost per panel or truss",
       color: "text-primary",
     },
   ];
@@ -40,10 +40,10 @@ const Problems = () => {
           className="text-center mb-12"
         >
           <h2 className="text-3xl md:text-4xl font-heading font-bold text-foreground mb-4">
-            Are These Problems Killing Your Business?
+            Are These Problems Costing Your Factory Money?
           </h2>
           <p className="text-muted-foreground max-w-2xl mx-auto">
-            Nigerian SMEs lose millions every year to poor inventory management. Sound familiar?
+            Nigerian prefab and modular builders lose millions every year to material waste and untracked stock. Sound familiar?
           </p>
         </motion.div>
 
