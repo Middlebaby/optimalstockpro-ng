@@ -5,18 +5,18 @@ import { motion } from "framer-motion";
 
 const Hero = () => {
   const stats = [
-    { value: "₦5M+", label: "Average Annual Savings" },
-    { value: "40%", label: "Less Material Waste" },
+    { value: "₦2M+", label: "Average Annual Savings" },
+    { value: "40%", label: "Less Stock Wastage" },
     { value: "2hrs", label: "Saved Daily" },
   ];
 
   const problems = [
-    { icon: TrendingDown, text: "Steel & cement disappearing off the yard?" },
-    { icon: Users, text: "Materials issued with no paper trail?" },
-    { icon: FileQuestion, text: "Tracking jobs in notebooks or Excel?" },
-    { icon: Calculator, text: "Don't know the true cost per unit?" },
-    { icon: Package, text: "Production stopped by stock-outs?" },
-    { icon: AlertTriangle, text: "Scrap and offcuts eating your margin?" },
+    { icon: TrendingDown, text: "Losing money to expired stock?" },
+    { icon: Users, text: "Staff taking goods without records?" },
+    { icon: FileQuestion, text: "Still tracking stock in notebooks?" },
+    { icon: Calculator, text: "Don't know your real profit margin?" },
+    { icon: Package, text: "Running out of fast-moving items?" },
+    { icon: AlertTriangle, text: "Dead stock tying up your cash?" },
   ];
 
   return (
@@ -38,10 +38,10 @@ const Hero = () => {
             transition={{ duration: 0.6 }}
           >
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-heading font-bold text-primary-foreground leading-tight mb-6">
-              Run Your Prefab Factory Like a Machine
+              Stop Losing Money to Poor Stock Control
             </h1>
             <p className="text-lg md:text-xl text-primary-foreground/80 mb-8 max-w-2xl mx-auto">
-              Inventory &amp; production management built for Nigerian prefabrication and modular building companies. Track materials, control production runs, and know your true cost per unit.
+              Simple, affordable inventory management built for Nigerian businesses. Track stock, catch expiry dates early, and know exactly what you have — from any phone.
             </p>
           </motion.div>
 

@@ -43,9 +43,6 @@ import OnboardingTour from "@/components/demo/OnboardingTour";
 import SalesChannels from "@/components/demo/SalesChannels";
 import ReceiptPrinter from "@/components/demo/ReceiptPrinter";
 import LeadIntelligence from "@/components/demo/LeadIntelligence";
-import BillOfMaterials from "@/components/manufacturing/BillOfMaterials";
-import ProductionRuns from "@/components/manufacturing/ProductionRuns";
-import Requisitions from "@/components/manufacturing/Requisitions";
 import EmailVerificationGuard from "@/components/auth/EmailVerificationGuard";
 import { onboardingKey } from "@/pages/Onboarding";
 
@@ -142,17 +139,11 @@ const DashboardContent = () => {
   const basicNavItems = [
     { id: "dashboard", label: "Dashboard", icon: Home },
     { id: "inventory", label: "Master Inventory", icon: Package },
-    { id: "incoming", label: "Material Receipts", icon: ArrowDownCircle },
-    { id: "outgoing", label: "Material Issues", icon: ArrowUpCircle },
-    { id: "suppliers", label: "Material Suppliers", icon: Users },
-    { id: "receipts", label: "Delivery Notes", icon: Receipt },
+    { id: "incoming", label: "Incoming Stock", icon: ArrowDownCircle },
+    { id: "outgoing", label: "Outgoing Stock", icon: ArrowUpCircle },
+    { id: "suppliers", label: "Suppliers", icon: Users },
+    { id: "receipts", label: "Receipts", icon: Receipt },
     { id: "reports", label: "Reports", icon: FileText },
-  ];
-
-  const manufacturingNavItems = [
-    { id: "bom", label: "Bills of Material", icon: Layers },
-    { id: "production", label: "Production Runs", icon: Factory },
-    { id: "requisitions", label: "Requisitions", icon: ClipboardCheck },
   ];
 
   const distributionNavItems = [
@@ -162,31 +153,29 @@ const DashboardContent = () => {
 
   const proNavItems = [
     { id: "projects", label: "Projects", icon: FolderKanban },
-    { id: "transfers", label: "Yard Transfers", icon: ArrowRightLeft },
+    { id: "transfers", label: "Store Transfers", icon: ArrowRightLeft },
     { id: "equipment", label: "Equipment & Tools", icon: Wrench },
     { id: "purchase-orders", label: "Purchase Orders", icon: ShoppingCart },
   ];
 
-  const manufacturingTabs = ["bom", "production", "requisitions"];
   const distributionTabs = ["distribution", "sales-channels"];
   const proTabs = ["projects", "transfers", "equipment", "purchase-orders"];
 
   const isTabLocked = (tabId: string) => {
-    if (manufacturingTabs.includes(tabId) && !hasDistribution) return true;
     if (distributionTabs.includes(tabId) && !hasDistribution) return true;
     if (proTabs.includes(tabId) && !hasProfessional) return true;
     return false;
   };
 
   const getRequiredPlan = (tabId: string) => {
-    if (manufacturingTabs.includes(tabId) || distributionTabs.includes(tabId)) return "Fabricator";
-    if (proTabs.includes(tabId)) return "Factory";
-    return "Workshop";
+    if (distributionTabs.includes(tabId)) return "Distribution";
+    if (proTabs.includes(tabId)) return "Professional";
+    return "Basic";
   };
 
   const planPrices: Record<string, { amount: number; display: string; planId: string }> = {
-    Fabricator: { amount: PLAN_PRICES.distribution, display: `${formatNaira(PLAN_PRICES.distribution)}/mo`, planId: "distribution" },
-    Factory: { amount: PLAN_PRICES.professional, display: `${formatNaira(PLAN_PRICES.professional)}/mo`, planId: "professional" },
+    Distribution: { amount: PLAN_PRICES.distribution, display: `${formatNaira(PLAN_PRICES.distribution)}/mo`, planId: "distribution" },
+    Professional: { amount: PLAN_PRICES.professional, display: `${formatNaira(PLAN_PRICES.professional)}/mo`, planId: "professional" },
   };
 
   const [upgradeLoading, setUpgradeLoading] = useState(false);
@@ -304,12 +293,6 @@ const DashboardContent = () => {
         return <Equipment />;
       case "purchase-orders":
         return <PurchaseOrders />;
-      case "bom":
-        return <BillOfMaterials />;
-      case "production":
-        return <ProductionRuns />;
-      case "requisitions":
-        return <Requisitions />;
       case "distribution":
         return <Distribution />;
       case "sales-channels":
@@ -464,37 +447,6 @@ const DashboardContent = () => {
             </button>
           ))}
 
-          {/* Manufacturing Features */}
-          <div className="pt-4">
-            <Collapsible open={distFeaturesOpen} onOpenChange={setDistFeaturesOpen}>
-              <CollapsibleTrigger className="w-full flex items-center justify-between px-4 py-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider hover:text-foreground transition-colors">
-                <div className="flex items-center gap-2">
-                  Production
-                  {!hasDistribution && <Lock className="w-3 h-3 text-muted-foreground" />}
-                </div>
-                {distFeaturesOpen ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
-              </CollapsibleTrigger>
-              <CollapsibleContent className="space-y-1 pt-2">
-                {manufacturingNavItems.map((item) => (
-                  <button
-                    key={item.id}
-                    onClick={() => { setActiveTab(item.id); setSidebarOpen(false); }}
-                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left transition-colors ${
-                      activeTab === item.id
-                        ? "bg-primary text-primary-foreground"
-                        : isTabLocked(item.id)
-                        ? "text-muted-foreground/50 hover:bg-muted"
-                        : "text-muted-foreground hover:bg-muted hover:text-foreground"
-                    }`}
-                  >
-                    <item.icon className="w-5 h-5" />
-                    <span className="font-medium flex-1">{item.label}</span>
-                    {isTabLocked(item.id) && <Lock className="w-3.5 h-3.5 text-muted-foreground/50" />}
-                  </button>
-                ))}
-              </CollapsibleContent>
-            </Collapsible>
-          </div>
 
           {/* Distribution Features */}
           <div className="pt-2">
