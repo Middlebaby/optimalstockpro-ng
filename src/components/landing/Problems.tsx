@@ -40,10 +40,10 @@ const Problems = () => {
           className="text-center mb-12"
         >
           <h2 className="text-3xl md:text-4xl font-heading font-bold text-foreground mb-4">
-            Are These Problems Costing Your Factory Money?
+            Are These Problems Costing You Money?
           </h2>
           <p className="text-muted-foreground max-w-2xl mx-auto">
-            Nigerian prefab and modular builders lose millions every year to material waste and untracked stock. Sound familiar?
+            Nigerian businesses lose millions every year to poor stock control. Sound familiar?
           </p>
         </motion.div>
 
