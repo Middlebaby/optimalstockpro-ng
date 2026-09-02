@@ -1,21 +1,21 @@
 # Roadmap — Manufacturing Pivot (Prefab Building Companies)
 
 ## Phase 1 — Rebrand & messaging
-- [ ] Landing copy: hero, problems, features, FAQ, testimonials → prefab manufacturing
-- [ ] index.html SEO metadata
-- [ ] plans.ts tiers → Workshop ₦5k / Fabricator ₦8k / Factory ₦15k
+- [x] Landing hero + problems copy → prefab manufacturing
+- [x] index.html SEO metadata
+- [x] plans.ts tiers → Workshop ₦5k / Fabricator ₦8k / Factory ₦15k
 - [ ] Sync Pricing.tsx, Checkout.tsx, Billing.tsx, edge plans.ts
 
 ## Phase 2 — Data model
-- [ ] Migration: product_recipes, recipe_lines, production_runs, production_consumptions, requisitions, requisition_items
-- [ ] inventory_items.item_type (raw|wip|finished)
-- [ ] RPC: run_production (atomic deduct/add + stock_movements)
-- [ ] RPC: approve_requisition → auto stock-out + movements
+- [x] Migration: product_recipes, recipe_lines, production_runs, production_consumptions, requisitions, requisition_items
+- [x] inventory_items.item_type (raw|wip|finished)
+- [x] RPC: run_production (atomic deduct/add + stock_movements)
+- [x] RPC: issue_requisition → auto stock-out + movements
 
 ## Phase 3 — App features
-- [ ] Bill of Materials page (nav)
-- [ ] Production Runs page (nav)
-- [ ] Requisitions page: form (staff name, project, material dropdown, qty) → approve auto-deducts stock
+- [x] Bill of Materials page (nav)
+- [x] Production Runs page (nav)
+- [x] Requisitions page: form (staff name, project, material dropdown, qty) → approve auto-deducts stock
 - [ ] Projects module links production runs
 - [ ] Costing & waste summary on dashboard
 - [ ] Manufacturing dashboard view
