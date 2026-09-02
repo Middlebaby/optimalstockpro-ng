@@ -323,6 +323,7 @@ export type Database = {
           expiry_date: string | null
           id: string
           is_logged: boolean | null
+          item_type: string
           location: string | null
           logged_at: string | null
           logged_by: string | null
@@ -344,6 +345,7 @@ export type Database = {
           expiry_date?: string | null
           id?: string
           is_logged?: boolean | null
+          item_type?: string
           location?: string | null
           logged_at?: string | null
           logged_by?: string | null
@@ -365,6 +367,7 @@ export type Database = {
           expiry_date?: string | null
           id?: string
           is_logged?: boolean | null
+          item_type?: string
           location?: string | null
           logged_at?: string | null
           logged_by?: string | null
@@ -676,6 +679,50 @@ export type Database = {
         }
         Relationships: []
       }
+      product_recipes: {
+        Row: {
+          created_at: string
+          id: string
+          is_active: boolean
+          notes: string | null
+          product_item_id: string
+          recipe_name: string
+          updated_at: string
+          user_id: string
+          version: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          notes?: string | null
+          product_item_id: string
+          recipe_name: string
+          updated_at?: string
+          user_id: string
+          version?: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          notes?: string | null
+          product_item_id?: string
+          recipe_name?: string
+          updated_at?: string
+          user_id?: string
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_recipes_product_item_id_fkey"
+            columns: ["product_item_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       production_batches: {
         Row: {
           batch_number: string
@@ -723,6 +770,117 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      production_consumptions: {
+        Row: {
+          actual_quantity: number
+          created_at: string
+          id: string
+          inventory_item_id: string
+          planned_quantity: number
+          run_id: string
+          unit_cost: number
+        }
+        Insert: {
+          actual_quantity?: number
+          created_at?: string
+          id?: string
+          inventory_item_id: string
+          planned_quantity?: number
+          run_id: string
+          unit_cost?: number
+        }
+        Update: {
+          actual_quantity?: number
+          created_at?: string
+          id?: string
+          inventory_item_id?: string
+          planned_quantity?: number
+          run_id?: string
+          unit_cost?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "production_consumptions_inventory_item_id_fkey"
+            columns: ["inventory_item_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "production_consumptions_run_id_fkey"
+            columns: ["run_id"]
+            isOneToOne: false
+            referencedRelation: "production_runs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      production_runs: {
+        Row: {
+          actual_material_cost: number
+          completed_at: string | null
+          created_at: string
+          id: string
+          location: string | null
+          notes: string | null
+          planned_quantity: number
+          produced_quantity: number
+          project_id: string | null
+          recipe_id: string
+          started_at: string | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          actual_material_cost?: number
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          location?: string | null
+          notes?: string | null
+          planned_quantity?: number
+          produced_quantity?: number
+          project_id?: string | null
+          recipe_id: string
+          started_at?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          actual_material_cost?: number
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          location?: string | null
+          notes?: string | null
+          planned_quantity?: number
+          produced_quantity?: number
+          project_id?: string | null
+          recipe_id?: string
+          started_at?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "production_runs_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "production_runs_recipe_id_fkey"
+            columns: ["recipe_id"]
+            isOneToOne: false
+            referencedRelation: "product_recipes"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profiles: {
         Row: {
@@ -903,6 +1061,146 @@ export type Database = {
             columns: ["supplier_id"]
             isOneToOne: false
             referencedRelation: "suppliers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      recipe_lines: {
+        Row: {
+          created_at: string
+          id: string
+          material_item_id: string
+          quantity_per_unit: number
+          recipe_id: string
+          scrap_allowance_pct: number
+          stage: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          material_item_id: string
+          quantity_per_unit?: number
+          recipe_id: string
+          scrap_allowance_pct?: number
+          stage?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          material_item_id?: string
+          quantity_per_unit?: number
+          recipe_id?: string
+          scrap_allowance_pct?: number
+          stage?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "recipe_lines_material_item_id_fkey"
+            columns: ["material_item_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "recipe_lines_recipe_id_fkey"
+            columns: ["recipe_id"]
+            isOneToOne: false
+            referencedRelation: "product_recipes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      requisition_items: {
+        Row: {
+          created_at: string
+          id: string
+          inventory_item_id: string
+          notes: string | null
+          quantity: number
+          quantity_issued: number
+          requisition_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          inventory_item_id: string
+          notes?: string | null
+          quantity?: number
+          quantity_issued?: number
+          requisition_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          inventory_item_id?: string
+          notes?: string | null
+          quantity?: number
+          quantity_issued?: number
+          requisition_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "requisition_items_inventory_item_id_fkey"
+            columns: ["inventory_item_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "requisition_items_requisition_id_fkey"
+            columns: ["requisition_id"]
+            isOneToOne: false
+            referencedRelation: "requisitions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      requisitions: {
+        Row: {
+          approved_by: string | null
+          created_at: string
+          id: string
+          issued_at: string | null
+          notes: string | null
+          project_id: string | null
+          project_name: string | null
+          requested_by_name: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          approved_by?: string | null
+          created_at?: string
+          id?: string
+          issued_at?: string | null
+          notes?: string | null
+          project_id?: string | null
+          project_name?: string | null
+          requested_by_name: string
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          approved_by?: string | null
+          created_at?: string
+          id?: string
+          issued_at?: string | null
+          notes?: string | null
+          project_id?: string | null
+          project_name?: string | null
+          requested_by_name?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "requisitions_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
             referencedColumns: ["id"]
           },
         ]
@@ -1176,7 +1474,8 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      issue_requisition: { Args: { p_requisition_id: string }; Returns: Json }
+      run_production: { Args: { p_run_id: string }; Returns: Json }
     }
     Enums: {
       app_role: "admin" | "manager" | "staff"
