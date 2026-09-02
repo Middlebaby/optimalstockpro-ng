@@ -43,9 +43,6 @@ import OnboardingTour from "@/components/demo/OnboardingTour";
 import SalesChannels from "@/components/demo/SalesChannels";
 import ReceiptPrinter from "@/components/demo/ReceiptPrinter";
 import LeadIntelligence from "@/components/demo/LeadIntelligence";
-import BillOfMaterials from "@/components/manufacturing/BillOfMaterials";
-import ProductionRuns from "@/components/manufacturing/ProductionRuns";
-import Requisitions from "@/components/manufacturing/Requisitions";
 import EmailVerificationGuard from "@/components/auth/EmailVerificationGuard";
 import { onboardingKey } from "@/pages/Onboarding";
 
