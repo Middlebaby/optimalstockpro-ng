@@ -464,8 +464,40 @@ const DashboardContent = () => {
             </button>
           ))}
 
-          {/* Distribution Features */}
+          {/* Manufacturing Features */}
           <div className="pt-4">
+            <Collapsible open={distFeaturesOpen} onOpenChange={setDistFeaturesOpen}>
+              <CollapsibleTrigger className="w-full flex items-center justify-between px-4 py-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider hover:text-foreground transition-colors">
+                <div className="flex items-center gap-2">
+                  Production
+                  {!hasDistribution && <Lock className="w-3 h-3 text-muted-foreground" />}
+                </div>
+                {distFeaturesOpen ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
+              </CollapsibleTrigger>
+              <CollapsibleContent className="space-y-1 pt-2">
+                {manufacturingNavItems.map((item) => (
+                  <button
+                    key={item.id}
+                    onClick={() => { setActiveTab(item.id); setSidebarOpen(false); }}
+                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left transition-colors ${
+                      activeTab === item.id
+                        ? "bg-primary text-primary-foreground"
+                        : isTabLocked(item.id)
+                        ? "text-muted-foreground/50 hover:bg-muted"
+                        : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                    }`}
+                  >
+                    <item.icon className="w-5 h-5" />
+                    <span className="font-medium flex-1">{item.label}</span>
+                    {isTabLocked(item.id) && <Lock className="w-3.5 h-3.5 text-muted-foreground/50" />}
+                  </button>
+                ))}
+              </CollapsibleContent>
+            </Collapsible>
+          </div>
+
+          {/* Distribution Features */}
+          <div className="pt-2">
             <Collapsible open={distFeaturesOpen} onOpenChange={setDistFeaturesOpen}>
               <CollapsibleTrigger className="w-full flex items-center justify-between px-4 py-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider hover:text-foreground transition-colors">
                 <div className="flex items-center gap-2">
