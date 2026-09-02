@@ -5,18 +5,18 @@ import { motion } from "framer-motion";
 
 const Hero = () => {
   const stats = [
-    { value: "₦500k+", label: "Average Annual Savings" },
-    { value: "85%", label: "Reduction in Stock-Outs" },
+    { value: "₦5M+", label: "Average Annual Savings" },
+    { value: "40%", label: "Less Material Waste" },
     { value: "2hrs", label: "Saved Daily" },
   ];
 
   const problems = [
-    { icon: TrendingDown, text: "Stock disappearing without records?" },
-    { icon: Users, text: "Staff taking items you can't track?" },
-    { icon: FileQuestion, text: "Struggling with notebooks or Excel?" },
-    { icon: Calculator, text: "No idea how much stock is worth?" },
-    { icon: Package, text: "Always running out of key items?" },
-    { icon: AlertTriangle, text: "Can't tell what's selling fast?" },
+    { icon: TrendingDown, text: "Steel & cement disappearing off the yard?" },
+    { icon: Users, text: "Materials issued with no paper trail?" },
+    { icon: FileQuestion, text: "Tracking jobs in notebooks or Excel?" },
+    { icon: Calculator, text: "Don't know the true cost per unit?" },
+    { icon: Package, text: "Production stopped by stock-outs?" },
+    { icon: AlertTriangle, text: "Scrap and offcuts eating your margin?" },
   ];
 
   return (
