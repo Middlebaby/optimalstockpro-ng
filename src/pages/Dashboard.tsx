@@ -142,17 +142,11 @@ const DashboardContent = () => {
   const basicNavItems = [
     { id: "dashboard", label: "Dashboard", icon: Home },
     { id: "inventory", label: "Master Inventory", icon: Package },
-    { id: "incoming", label: "Material Receipts", icon: ArrowDownCircle },
-    { id: "outgoing", label: "Material Issues", icon: ArrowUpCircle },
-    { id: "suppliers", label: "Material Suppliers", icon: Users },
-    { id: "receipts", label: "Delivery Notes", icon: Receipt },
+    { id: "incoming", label: "Incoming Stock", icon: ArrowDownCircle },
+    { id: "outgoing", label: "Outgoing Stock", icon: ArrowUpCircle },
+    { id: "suppliers", label: "Suppliers", icon: Users },
+    { id: "receipts", label: "Receipts", icon: Receipt },
     { id: "reports", label: "Reports", icon: FileText },
-  ];
-
-  const manufacturingNavItems = [
-    { id: "bom", label: "Bills of Material", icon: Layers },
-    { id: "production", label: "Production Runs", icon: Factory },
-    { id: "requisitions", label: "Requisitions", icon: ClipboardCheck },
   ];
 
   const distributionNavItems = [
@@ -162,31 +156,29 @@ const DashboardContent = () => {
 
   const proNavItems = [
     { id: "projects", label: "Projects", icon: FolderKanban },
-    { id: "transfers", label: "Yard Transfers", icon: ArrowRightLeft },
+    { id: "transfers", label: "Store Transfers", icon: ArrowRightLeft },
     { id: "equipment", label: "Equipment & Tools", icon: Wrench },
     { id: "purchase-orders", label: "Purchase Orders", icon: ShoppingCart },
   ];
 
-  const manufacturingTabs = ["bom", "production", "requisitions"];
   const distributionTabs = ["distribution", "sales-channels"];
   const proTabs = ["projects", "transfers", "equipment", "purchase-orders"];
 
   const isTabLocked = (tabId: string) => {
-    if (manufacturingTabs.includes(tabId) && !hasDistribution) return true;
     if (distributionTabs.includes(tabId) && !hasDistribution) return true;
     if (proTabs.includes(tabId) && !hasProfessional) return true;
     return false;
   };
 
   const getRequiredPlan = (tabId: string) => {
-    if (manufacturingTabs.includes(tabId) || distributionTabs.includes(tabId)) return "Fabricator";
-    if (proTabs.includes(tabId)) return "Factory";
-    return "Workshop";
+    if (distributionTabs.includes(tabId)) return "Distribution";
+    if (proTabs.includes(tabId)) return "Professional";
+    return "Basic";
   };
 
   const planPrices: Record<string, { amount: number; display: string; planId: string }> = {
-    Fabricator: { amount: PLAN_PRICES.distribution, display: `${formatNaira(PLAN_PRICES.distribution)}/mo`, planId: "distribution" },
-    Factory: { amount: PLAN_PRICES.professional, display: `${formatNaira(PLAN_PRICES.professional)}/mo`, planId: "professional" },
+    Distribution: { amount: PLAN_PRICES.distribution, display: `${formatNaira(PLAN_PRICES.distribution)}/mo`, planId: "distribution" },
+    Professional: { amount: PLAN_PRICES.professional, display: `${formatNaira(PLAN_PRICES.professional)}/mo`, planId: "professional" },
   };
 
   const [upgradeLoading, setUpgradeLoading] = useState(false);
